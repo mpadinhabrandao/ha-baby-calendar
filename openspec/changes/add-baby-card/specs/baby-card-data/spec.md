@@ -2,16 +2,16 @@
 
 ## Purpose
 
-What the integration provides so its card works with no setup: the card's registration, a live description of each baby, and the entries of the last feed.
+What the integration provides so its cards work with no setup: their registration, a live description of each baby, and the entries of the last feed.
 
 ## ADDED Requirements
 
-### Requirement: Card registered by the integration
-When the integration is loaded, it SHALL serve the card's module and add it to every dashboard, so the card needs no dashboard resource. The module's URL SHALL change with the integration's version, so an update reaches clients.
+### Requirement: Cards registered by the integration
+When the integration is loaded, it SHALL serve the cards' module and add it to every dashboard, so the cards need no dashboard resource. The module's URL SHALL change with the integration's version, so an update reaches clients.
 
 #### Scenario: After installing
 - **WHEN** the integration is installed and Home Assistant restarted
-- **THEN** "Baby Calendar card" is in the card picker of every dashboard
+- **THEN** the Baby Calendar cards are in the card picker of every dashboard
 
 ### Requirement: Baby description subscription
 The integration SHALL offer a WebSocket subscription that sends, for every baby, its name, device id, enabled trackers, active medications with their name and dose text, and the entity id of each of its entities by purpose, and sends it again whenever a baby is added, removed or reconfigured.
