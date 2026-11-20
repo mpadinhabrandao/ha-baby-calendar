@@ -80,43 +80,45 @@ Every baby has two entities that work with all trackers:
 A second press of the same logging button within 3 seconds is ignored, so a
 double tap records one entry.
 
-## Ready-made dashboard
+## Cards
 
-`dashboards/baby.yaml` is a dashboard view for one baby that fills itself:
-trackers you enable and medications you add later appear without editing
-it, and those you disable, remove or deactivate disappear. It shows, in this
-order: logging buttons and running timers; the stool type, only while a
-dirty diaper is waiting for one; medications; today's totals; last times;
-measurements; the inputs (minutes ago, amounts, content and side); the
-calendar. Empty sections are hidden.
+Baby Calendar comes with its own dashboard cards, built for logging with one
+hand at night. They are added to every dashboard by the integration: there is
+nothing else to install. In a dashboard, choose **Add card** and search for
+*Baby Calendar*, then pick the baby in the card's settings. Combine them as
+you like, next to your other cards.
 
-It needs the **auto-entities** card by Thomas Lovén
-([thomasloven/lovelace-auto-entities](https://github.com/thomasloven/lovelace-auto-entities),
-MIT licence), a community card that is not part of Home Assistant or of
-Baby Calendar. Baby Calendar works without it; only this view needs it.
+| Card | What it does |
+|---|---|
+| **Diapers** | Wet, dirty, both. After a dirty one, the stool type question appears in the card; it is optional. |
+| **Bottle** | The button shows the amount it will record, with − and + beside it (10 ml steps) and the content. Both are kept for the next bottle. |
+| **Breastfeeding** | Left and right, each started and stopped on its own; the running side shows its time. Tapping the other side switches. Shows the last feed as it happened, such as "Left 12 min · pause 5 min · Right 8 min · 20 min in total". |
+| **Sleep** | Fell asleep / woke up, with the time asleep. |
+| **Medications** | The doses due, each with **Given**. Optionally every active medication. |
+| **Summary** | How long ago the baby ate and had a diaper change, and how long awake or asleep. |
+| **Today** | The day's totals. |
+| **Other entries** | Small forms for weight, length, temperature, solids, pumping and a medication dose. |
+| **Recent entries** | The latest entries of the last 24 hours. |
 
-1. Install auto-entities: **Settings** > **Marketplace**, search for
-   *auto-entities*, **Download**, then reload the page.
-2. Create a dashboard: **Settings** > **Dashboards** > **Add dashboard** >
-   **New dashboard from scratch**.
-3. Open it, choose **Edit** > the three dots > **Raw configuration editor**,
-   and replace its contents with `dashboards/baby.yaml`.
-4. Replace the three values:
-   - `BABY_NAME`: the baby's name, as its device is named;
-   - `STOOL_PROMPT_ENTITY`: the baby's **Stool type pending** binary sensor,
-     such as `binary_sensor.alice_stool_type_pending`;
-   - `CALENDAR_ENTITY`: the baby's calendar, such as `calendar.alice_calendar`.
+Each card that logs has a **Now** chip at the top: set it to "15 min ago" for
+an entry that happened earlier; it goes back to **Now** after the entry.
+After each entry the card shows it for a minute with **Undo**.
 
-   Both entity ids are on the baby's device page.
-5. Save. The section titles are in English; edit the `title:` lines to
-   change them.
+In YAML, each card needs its type and the baby's device id, which the visual
+editor fills in:
 
-For a second baby, copy the view, from `- title:` to the end, below the first one, with that baby's values and a different `path`. If you rename
-a baby, change `BABY_NAME` in its view, or the view shows nothing.
+```yaml
+type: custom:baby-calendar-diaper-card   # or -bottle-, -breastfeeding-,
+baby: 0123456789abcdef0123456789abcdef   # -sleep-, -medication-, -summary-,
+                                         # -today-, -entry-, -recent-card
+```
 
-The view tells entities apart by their domain, classes and two attributes
-that do not depend on the language: `medication` on every medication entity
-and `stool_type` on each stool type button.
+The cards follow your theme, light or dark, and work with card-mod. They are
+in Portuguese when your Home Assistant language is Portuguese, in English
+otherwise.
+
+The cards bundle [Lit](https://lit.dev), BSD-3-Clause licensed; its notice is
+at the top of `custom_components/baby_calendar/frontend/baby-calendar-cards.js`.
 
 ## Diapers
 
