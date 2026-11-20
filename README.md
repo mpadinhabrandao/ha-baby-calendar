@@ -31,8 +31,9 @@ page.
 
 ### Editing a baby
 
-Open the baby's entry and choose **Configure** to change the name, the birth
-date or the enabled trackers. Nothing recorded is lost.
+Open the baby's entry, choose **Configure**, then **Name, birth date and
+trackers** to change them. Nothing recorded is lost. **Medications** in the
+same menu manages the baby's medications (see [Medications](#medications)).
 
 Disabling a tracker removes its entities and keeps its events. Enabling it
 again brings the entities back with the same default entity ids, but any
@@ -331,6 +332,85 @@ breastfeeding actions, without `side`.
 With bottles, breastfeeding or both enabled, **Last feed** (`sensor`) shows
 the start of the most recent feed of either kind, with `kind` (`bottle` or
 `breastfeeding`) as an attribute.
+
+## Medications
+
+Baby Calendar records doses of the medications you enter and tells you when
+one is due by the schedule you enter. It does not suggest medicines, doses or
+schedules, and it raises no warning about the doses you record.
+
+### Managing medications
+
+Open the baby's entry, choose **Configure**, then **Medications**:
+
+- **Add a medication**: a name (unique for the baby), an optional dose text
+  such as "1 drop", shown with reminders only, and a schedule:
+  - **No schedule**: you only record doses.
+  - **Fixed times**: times of day separated by commas, such as `09:00, 21:00`.
+  - **Interval**: hours between doses, counted from the last dose.
+- **Change a medication**: pick it, then **Edit**, **Deactivate or
+  reactivate**, or **Remove**.
+
+Neither deactivating nor removing deletes any dose. A deactivated medication
+has no entities and is never due; reactivating it brings its entities back
+with its doses. Doses of a removed medication stay in the history and the
+calendar under its name; a new medication with the same name starts with no
+doses of its own. Renaming a medication lists its earlier doses under the new
+name.
+
+### Entities
+
+Each active medication adds these entities to the baby's device. Their names
+start with the medication's name, so with "Vitamin D" the button is
+**Vitamin D given**.
+
+| Entity | What it shows or does |
+|---|---|
+| **given** (`button`) | Records a dose now, or "minutes ago" earlier; undo removes it |
+| **last dose** (`sensor`) | Time of the last dose, with `event_id` and `dose` |
+| **doses today** (`sensor`) | Doses since midnight |
+| **next dose** (`sensor`) | With a schedule: the time of the next dose, or of the one due now |
+| **due** (`binary_sensor`) | With a schedule: on while a dose is due, with `baby`, `medication` and `dose` |
+
+With fixed times, a dose counts for the scheduled time nearest to it, so a
+dose given a little early counts, and logging twice does not cancel the next
+time. A missed dose stays due until the next scheduled time, then only that
+one is due. The due state is worked out from the schedule, the recorded doses
+and the clock, so a dose that became due while Home Assistant was off is due
+when it starts.
+
+### Action
+
+```yaml
+action: baby_calendar.log_medication
+data:
+  device_id: <the baby's device>
+  medication: Vitamin D        # the name, in any case
+  notes: With the morning bottle  # optional
+  time: "2026-11-20 09:05:00"  # optional, now if left out
+```
+
+The name must match an active medication of the baby, or the action fails
+and records nothing.
+
+### Reminders
+
+[![Import the reminder blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/create-link/?redirect=blueprint_import&blueprint_url=https%3A%2F%2Fgithub.com%2Fmpadinhabrandao%2Fha-baby-calendar%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fbaby_calendar%2Fmedication_reminder.yaml)
+
+Baby Calendar sends no notifications itself. Import the **medication
+reminder** blueprint with the button above, then create an automation from
+it: pick the medication's **due** sensor, the actions to run (such as a
+notification to your phone) and, optionally, how often to repeat them while
+the dose is still due. In the actions, `{{ baby }}`, `{{ medication }}`
+and `{{ dose }}` hold the names and the dose text:
+
+```yaml
+action: notify.mobile_app_my_phone
+data:
+  message: "{{ baby }}: {{ medication }} ({{ dose }})"
+```
+
+The automation also runs when Home Assistant starts if a dose is already due.
 
 ## Calendar
 
