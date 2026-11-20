@@ -333,6 +333,27 @@ With bottles, breastfeeding or both enabled, **Last feed** (`sensor`) shows
 the start of the most recent feed of either kind, with `kind` (`bottle` or
 `breastfeeding`) as an attribute.
 
+## Solids
+
+| Entity | What it shows or does |
+|---|---|
+| **Log meal** (`button`) | Logs a meal now, or "minutes ago" earlier |
+| **Last meal** (`sensor`) | Time of the last meal, with `event_id` and `notes` |
+| **Meals today** (`sensor`) | Meals since midnight |
+
+The button records only the meal and its time. Note what was eaten in the
+calendar afterwards: open the meal and type it in the description, which is
+the entry's notes and shows in the **Last meal** sensor. Solids do not count
+for **Last feed**.
+
+```yaml
+action: baby_calendar.log_solids
+data:
+  device_id: <the baby's device>
+  notes: Carrot puree          # optional: what was eaten
+  time: "2026-11-20 12:30:00"  # optional, now if left out
+```
+
 ## Measurements: weight, length and temperature
 
 Each measurement is a tracker you enable per baby. Values are always entered
