@@ -1,0 +1,85 @@
+blueprint:
+  name: Baby Calendar medication reminder
+  description: >-
+    Runs your actions when a dose of a baby's medication becomes due, and
+    optionally repeats them until the dose is recorded. Baby Calendar sends
+    no notifications itself: it only turns the medication's "due" sensor on.
+    The variables `baby`, `medication` and `dose` hold the baby's name, the
+    medication's name and its dose text.
+  domain: automation
+  source_url: https://github.com/mpadinhabrandao/ha-baby-calendar/blob/main/blueprints/automation/baby_calendar/medication_reminder.yaml
+  input:
+    due_sensor:
+      name: Medication due sensor
+      description: The "due" sensor of the medication, on the baby's device.
+      selector:
+        entity:
+          filter:
+            - integration: baby_calendar
+              domain: binary_sensor
+    reminder:
+      name: Actions
+      description: >-
+        What to do, such as notifying a phone. You can use {{ baby }},
+        {{ medication }} and {{ dose }} in messages.
+      selector:
+        action: {}
+    repeat_minutes:
+      name: Repeat every
+      description: Run the actions again while the dose is still due. 0 runs them once.
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 240
+          step: 5
+          unit_of_measurement: min
+          mode: box
+
+mode: single
+max_exceeded: silent
+
+triggers:
+  - trigger: state
+    entity_id: !input due_sensor
+    to: "on"
+  - trigger: homeassistant
+    event: start
+
+conditions:
+  - condition: state
+    entity_id: !input due_sensor
+    state: "on"
+
+variables:
+  due_sensor: !input due_sensor
+  repeat_minutes: !input repeat_minutes
+  baby: "{{ state_attr(due_sensor, 'baby') }}"
+  medication: "{{ state_attr(due_sensor, 'medication') }}"
+  dose: "{{ state_attr(due_sensor, 'dose') or '' }}"
+
+actions:
+  - sequence: !input reminder
+  - if:
+      - condition: template
+        value_template: "{{ repeat_minutes | int(0) > 0 }}"
+    then:
+      - repeat:
+          while:
+            - condition: state
+              entity_id: !input due_sensor
+              state: "on"
+          sequence:
+            - wait_for_trigger:
+                - trigger: state
+                  entity_id: !input due_sensor
+                  to: "off"
+              timeout:
+                minutes: "{{ repeat_minutes | int }}"
+              continue_on_timeout: true
+            - if:
+                - condition: state
+                  entity_id: !input due_sensor
+                  state: "on"
+              then:
+                - sequence: !input reminder

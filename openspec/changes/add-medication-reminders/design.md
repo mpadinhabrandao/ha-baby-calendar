@@ -40,6 +40,7 @@ The options flow becomes a menu: baby details, trackers, medications. The medica
   - Entities added with `config_subentry_id` are removed automatically with their subentry, but they tie the baby's device to every medication's subentry. From Home Assistant 2026.8 a device may belong to at most one subentry, with no compatibility shim, so this is not usable for several medications on one baby device.
   - Entities added without `config_subentry_id` stay on the baby's device with no such tie, but are not removed with the subentry; the integration must remove their registry entries itself, as it already does for disabled trackers.
   The second form is viable. It was not tested on 2026.8 or later, where the device rule changed. Task 1.1 therefore repeats the harness test on the development version and then picks subentries (second form) or the options-flow menu. No spec depends on the choice.
+  - Outcome (task 1.1): the options-flow menu, with a details step (name, birth date, trackers) and a medications branch (add; pick one, then edit, deactivate or reactivate, or remove).
 
 There is no "medication" checkbox in the tracker list: medication is active for a baby when it has at least one active medication.
 

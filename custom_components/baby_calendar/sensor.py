@@ -23,7 +23,7 @@ from .const import (
     TRACKER_SLEEP,
 )
 from .coordinator import DAY, FEEDING_TRACKERS
-from .entity import BabyEntity
+from .entity import BabyEntity, MedicationEntity
 from .models import BabyConfigEntry
 from .services import (
     ATTR_END,
@@ -33,6 +33,7 @@ from .services import (
     event_response,
 )
 from .store import Event
+from .trackers.medication import has_schedule, medications
 
 ATTR_ENDED_AT = "ended_at"
 ATTR_KIND = "kind"
@@ -125,11 +126,19 @@ async def async_setup_entry(
 ) -> None:
     """Add the sensors of the baby's enabled trackers."""
     trackers = entry.runtime_data.trackers
-    async_add_entities(
+    entities: list[SensorEntity] = [
         BabySensor(entry, description)
         for description in SENSORS
         if (description.requires or {description.tracker}) & trackers
-    )
+    ]
+    for med in medications(entry.options, active=True):
+        entities += [
+            MedicationSensor(entry, med, "last_dose"),
+            MedicationSensor(entry, med, "doses_today"),
+        ]
+        if has_schedule(med):
+            entities.append(MedicationSensor(entry, med, "next_dose"))
+    async_add_entities(entities)
 
 
 class BabySensor(BabyEntity, SensorEntity):
@@ -182,3 +191,44 @@ class BabySensor(BabyEntity, SensorEntity):
         if ATTR_END in attributes:
             attributes[ATTR_ENDED_AT] = attributes.pop(ATTR_END)
         return attributes
+
+
+class MedicationSensor(MedicationEntity, SensorEntity):
+    """The last dose, today's doses or the next dose of one medication."""
+
+    def __init__(self, entry: BabyConfigEntry, medication: dict, key: str) -> None:
+        """Create one sensor of a medication."""
+        super().__init__(entry, medication, key)
+        self._value_key = key
+        if key == "doses_today":
+            self._attr_icon = "mdi:pill"
+            self._attr_state_class = SensorStateClass.TOTAL
+        else:
+            self._attr_icon = "mdi:clock-outline"
+            self._attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    @property
+    @override
+    def native_value(self) -> datetime | int | None:
+        value = self.medication_state[self._value_key]
+        if isinstance(value, Event):
+            return dt_util.utc_from_timestamp(value.start_ts)
+        return value
+
+    @property
+    @override
+    def last_reset(self) -> datetime | None:
+        if self._value_key != "doses_today":
+            return None
+        return dt_util.utc_from_timestamp(self.coordinator.data[DAY].start)
+
+    @property
+    @override
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        if self._value_key != "last_dose":
+            return None
+        dose = self.medication_state["last_dose"]
+        return {
+            ATTR_EVENT_ID: dose.id if dose else None,
+            "dose": self.medication.get("dose"),
+        }

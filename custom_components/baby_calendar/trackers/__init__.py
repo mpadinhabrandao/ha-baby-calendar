@@ -10,11 +10,13 @@ from .base import Tracker
 from .bottle import BOTTLE
 from .breastfeeding import BREASTFEEDING
 from .diaper import DIAPER
+from .medication import MEDICATION_TRACKER
 from .sleep import SLEEP
 from .timed import TimedTracker
 
 TRACKERS: dict[str, Tracker] = {
-    tracker.key: tracker for tracker in (DIAPER, BOTTLE, BREASTFEEDING, SLEEP)
+    tracker.key: tracker
+    for tracker in (DIAPER, BOTTLE, BREASTFEEDING, SLEEP, MEDICATION_TRACKER)
 }
 
 TIMED_TRACKERS: dict[str, TimedTracker] = {
@@ -83,6 +85,10 @@ TRACKER_ENTITY_KEYS: dict[str, frozenset[str]] = {
 SHARED_ENTITY_KEYS: dict[str, frozenset[str]] = {
     "last_feed": frozenset({TRACKER_BOTTLE, TRACKER_BREASTFEEDING}),
 }
+
+
+# Unique id prefix of a medication's entities: "<baby_id>_med_<id>_<key>".
+MEDICATION_KEY_PREFIX = "med_"
 
 
 def trackers_of_key(key: str) -> frozenset[str] | None:

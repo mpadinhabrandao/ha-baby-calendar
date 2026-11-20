@@ -9,10 +9,11 @@ from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .const import DOMAIN, TRACKER_BOTTLE, TRACKER_DIAPER
-from .entity import BabyEntity
+from .entity import BabyEntity, MedicationEntity
 from .models import BabyConfigEntry
 from .services import (
     async_log,
+    async_log_dose,
     async_log_duration,
     async_log_from_dashboard,
     async_set_stool,
@@ -20,6 +21,7 @@ from .services import (
 )
 from .trackers import TIMED_TRACKERS, bottle
 from .trackers.diaper import BOTH, CONTENT, DIAPER, DIRTY, STOOLS, WET
+from .trackers.medication import medications
 from .trackers.timed import TimedTracker
 
 
@@ -40,6 +42,9 @@ async def async_setup_entry(
         DurationLogButton(entry, tracker)
         for key, tracker in TIMED_TRACKERS.items()
         if key in trackers
+    ]
+    entities += [
+        MedicationButton(entry, med) for med in medications(entry.options, active=True)
     ]
     async_add_entities(entities)
 
@@ -146,5 +151,22 @@ class DurationLogButton(BabyEntity, ButtonEntity):
             )
             data.durations[key] = 0
             data.coordinator.async_update_listeners()
+
+        await async_log_from_dashboard(self.hass, self.entry, self.key, log)
+
+
+class MedicationButton(MedicationEntity, ButtonEntity):
+    """Record a dose of one medication."""
+
+    _attr_icon = "mdi:pill"
+
+    def __init__(self, entry: BabyConfigEntry, medication: dict) -> None:
+        """Create the dose button of one medication."""
+        super().__init__(entry, medication, "take")
+
+    @override
+    async def async_press(self) -> None:
+        async def log(when: datetime) -> None:
+            await async_log_dose(self.hass, self.entry, self.medication, when=when)
 
         await async_log_from_dashboard(self.hass, self.entry, self.key, log)

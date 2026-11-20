@@ -40,16 +40,58 @@
     "step": {
       "init": {
         "title": "Edit baby",
+        "menu_options": {
+          "details": "Name, birth date and trackers",
+          "medications": "Medications"
+        }
+      },
+      "details": {
+        "title": "Edit baby",
         "data": {
           "name": "Name",
           "birth_date": "Birth date",
           "trackers": "Trackers"
         }
+      },
+      "medications": {
+        "title": "Medications",
+        "description": "Removing or deactivating a medication keeps its recorded doses.",
+        "menu_options": {
+          "add_medication": "Add a medication",
+          "pick_medication": "Change a medication"
+        }
+      },
+      "pick_medication": {
+        "title": "Change a medication",
+        "data": {
+          "id": "Medication",
+          "action": "Action"
+        }
+      },
+      "medication": {
+        "title": "Medication",
+        "description": "Baby Calendar does not suggest medicines, doses or schedules: it only reminds you of what you enter here.",
+        "data": {
+          "name": "Name",
+          "dose": "Dose",
+          "schedule_type": "Schedule",
+          "times": "Times",
+          "hours": "Hours between doses"
+        },
+        "data_description": {
+          "dose": "Text shown with the reminder, such as \"1 drop\".",
+          "times": "For fixed times: times of day separated by commas, such as 09:00, 21:00.",
+          "hours": "For an interval: hours after the last dose."
+        }
       }
     },
     "error": {
       "name_required": "Enter a name.",
-      "name_in_use": "A baby with this name already exists."
+      "name_in_use": "A baby with this name already exists.",
+      "medication_in_use": "This baby already has a medication with this name.",
+      "times_required": "Enter at least one time.",
+      "time_invalid": "Enter times as HH:MM, separated by commas.",
+      "hours_invalid": "Enter more than 0 hours."
     }
   },
   "selector": {
@@ -58,7 +100,8 @@
         "diaper": "Diapers",
         "bottle": "Bottles",
         "breastfeeding": "Breastfeeding",
-        "sleep": "Sleep"
+        "sleep": "Sleep",
+        "medication": "Medication"
       }
     },
     "diaper_content": {
@@ -86,6 +129,20 @@
       "options": {
         "left": "Left",
         "right": "Right"
+      }
+    },
+    "schedule_type": {
+      "options": {
+        "none": "No schedule",
+        "times": "Fixed times",
+        "interval": "Interval"
+      }
+    },
+    "medication_action": {
+      "options": {
+        "edit": "Edit",
+        "toggle": "Deactivate or reactivate",
+        "remove": "Remove"
       }
     }
   },
@@ -325,6 +382,28 @@
           "description": "Name of the removed baby."
         }
       }
+    },
+    "log_medication": {
+      "name": "Log medication",
+      "description": "Records a dose of one of a baby's medications.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "medication": {
+          "name": "Medication",
+          "description": "The medication's name, as entered for the baby."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional notes."
+        },
+        "time": {
+          "name": "Time",
+          "description": "When it was given. Now if left empty."
+        }
+      }
     }
   },
   "exceptions": {
@@ -390,12 +469,29 @@
     },
     "calendar_no_all_day": {
       "message": "Entries cannot last all day; set a time."
+    },
+    "unknown_medication": {
+      "message": "{name} has no active medication called \"{medication}\"."
     }
   },
   "entity": {
     "binary_sensor": {
       "stool_prompt": {
         "name": "Stool type pending"
+      },
+      "medication_due": {
+        "name": "{medication} due",
+        "state_attributes": {
+          "baby": {
+            "name": "Baby"
+          },
+          "medication": {
+            "name": "Medication"
+          },
+          "dose": {
+            "name": "Dose"
+          }
+        }
       }
     },
     "button": {
@@ -431,6 +527,9 @@
       },
       "sleep_log": {
         "name": "Log sleep"
+      },
+      "medication_take": {
+        "name": "{medication} given"
       }
     },
     "calendar": {
@@ -521,6 +620,24 @@
       },
       "last_feed": {
         "name": "Last feed"
+      },
+      "medication_last_dose": {
+        "name": "{medication} last dose",
+        "state_attributes": {
+          "event_id": {
+            "name": "Event"
+          },
+          "dose": {
+            "name": "Dose"
+          }
+        }
+      },
+      "medication_doses_today": {
+        "name": "{medication} doses today",
+        "unit_of_measurement": "doses"
+      },
+      "medication_next_dose": {
+        "name": "{medication} next dose"
       }
     },
     "switch": {

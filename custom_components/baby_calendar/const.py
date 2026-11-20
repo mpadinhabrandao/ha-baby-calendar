@@ -34,3 +34,13 @@ TRACKER_KEYS: Final = (
 FEEDING: Final = "feeding"
 
 SERVICE_PURGE_HISTORY: Final = "purge_history"
+
+TRACKER_MEDICATION: Final = "medication"
+
+# Config entry options: the baby's medications, a list of dicts with these keys.
+CONF_MEDICATIONS: Final = "medications"
+MED_ID: Final = "id"
+MED_NAME: Final = "name"
+MED_DOSE: Final = "dose"
+MED_ACTIVE: Final = "active"
+MED_SCHEDULE: Final = "schedule"

@@ -65,6 +65,27 @@ log_bottle:
       selector:
         datetime:
 
+log_medication:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    medication:
+      required: true
+      example: Vitamin D
+      selector:
+        text:
+    notes:
+      selector:
+        text:
+          multiline: true
+    time:
+      selector:
+        datetime:
+
 start_breastfeeding:
   fields:
     device_id:
@@ -230,6 +251,7 @@ list_events:
             - bottle
             - breastfeeding
             - sleep
+            - medication
 
 purge_history:
   fields:

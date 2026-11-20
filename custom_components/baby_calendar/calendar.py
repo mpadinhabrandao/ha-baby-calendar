@@ -1,5 +1,6 @@
 """Calendar entity: a baby's recorded events as a timeline."""
 
+from dataclasses import replace
 from datetime import date, datetime
 from typing import Any, Final, override
 
@@ -19,13 +20,14 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN
+from .const import DOMAIN, MED_NAME, TRACKER_MEDICATION
 from .data import async_get_store, async_run
 from .entity import BabyEntity
 from .models import BabyConfigEntry
 from .services import async_delete, async_update_fields, event_and_entry, now_ts
 from .store import Event
 from .trackers import TIMED_TRACKERS, TRACKERS
+from .trackers.medication import current_name
 
 # Length of the block an instantaneous event fills in the calendar.
 INSTANT_LENGTH: Final = 5 * 60
@@ -62,6 +64,11 @@ class BabyCalendar(BabyEntity, CalendarEntity):
 
     def _to_calendar_event(self, event: Event, now: int) -> CalendarEvent:
         tracker = TRACKERS[event.tracker]
+        if event.tracker == TRACKER_MEDICATION:
+            event = replace(
+                event,
+                data={**event.data, MED_NAME: current_name(self.entry.options, event)},
+            )
         if not tracker.timed:
             end_ts = event.start_ts + INSTANT_LENGTH
         elif event.end_ts is None:

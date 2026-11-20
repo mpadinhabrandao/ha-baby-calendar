@@ -40,16 +40,58 @@
     "step": {
       "init": {
         "title": "Editar bebé",
+        "menu_options": {
+          "details": "Nome, data de nascimento e registos",
+          "medications": "Medicamentos"
+        }
+      },
+      "details": {
+        "title": "Editar bebé",
         "data": {
           "name": "Nome",
           "birth_date": "Data de nascimento",
           "trackers": "Registos"
         }
+      },
+      "medications": {
+        "title": "Medicamentos",
+        "description": "Remover ou desativar um medicamento mantém as doses registadas.",
+        "menu_options": {
+          "add_medication": "Adicionar um medicamento",
+          "pick_medication": "Alterar um medicamento"
+        }
+      },
+      "pick_medication": {
+        "title": "Alterar um medicamento",
+        "data": {
+          "id": "Medicamento",
+          "action": "Ação"
+        }
+      },
+      "medication": {
+        "title": "Medicamento",
+        "description": "O Baby Calendar não sugere medicamentos, doses nem horários: só lembra o que indicares aqui.",
+        "data": {
+          "name": "Nome",
+          "dose": "Dose",
+          "schedule_type": "Horário",
+          "times": "Horas",
+          "hours": "Horas entre doses"
+        },
+        "data_description": {
+          "dose": "Texto mostrado com o lembrete, como \"1 gota\".",
+          "times": "Para horas fixas: horas do dia separadas por vírgulas, como 09:00, 21:00.",
+          "hours": "Para intervalo: horas depois da última dose."
+        }
       }
     },
     "error": {
       "name_required": "Indica um nome.",
-      "name_in_use": "Já existe um bebé com este nome."
+      "name_in_use": "Já existe um bebé com este nome.",
+      "medication_in_use": "Este bebé já tem um medicamento com este nome.",
+      "times_required": "Indica pelo menos uma hora.",
+      "time_invalid": "Indica as horas como HH:MM, separadas por vírgulas.",
+      "hours_invalid": "Indica mais de 0 horas."
     }
   },
   "selector": {
@@ -58,7 +100,8 @@
         "diaper": "Fraldas",
         "bottle": "Biberões",
         "breastfeeding": "Amamentação",
-        "sleep": "Sono"
+        "sleep": "Sono",
+        "medication": "Medicação"
       }
     },
     "diaper_content": {
@@ -86,6 +129,20 @@
       "options": {
         "left": "Esquerdo",
         "right": "Direito"
+      }
+    },
+    "schedule_type": {
+      "options": {
+        "none": "Sem horário",
+        "times": "Horas fixas",
+        "interval": "Intervalo"
+      }
+    },
+    "medication_action": {
+      "options": {
+        "edit": "Editar",
+        "toggle": "Desativar ou reativar",
+        "remove": "Remover"
       }
     }
   },
@@ -325,6 +382,28 @@
           "description": "Nome do bebé removido."
         }
       }
+    },
+    "log_medication": {
+      "name": "Registar medicamento",
+      "description": "Regista uma dose de um medicamento de um bebé.",
+      "fields": {
+        "device_id": {
+          "name": "Bebé",
+          "description": "O bebé."
+        },
+        "medication": {
+          "name": "Medicamento",
+          "description": "O nome do medicamento, como foi indicado para o bebé."
+        },
+        "notes": {
+          "name": "Notas",
+          "description": "Notas opcionais."
+        },
+        "time": {
+          "name": "Hora",
+          "description": "Quando foi dado. Agora, se ficar vazio."
+        }
+      }
     }
   },
   "exceptions": {
@@ -390,12 +469,29 @@
     },
     "calendar_no_all_day": {
       "message": "Os registos não podem durar o dia todo; indica uma hora."
+    },
+    "unknown_medication": {
+      "message": "{name} não tem nenhum medicamento ativo chamado \"{medication}\"."
     }
   },
   "entity": {
     "binary_sensor": {
       "stool_prompt": {
         "name": "Tipo de cocó por indicar"
+      },
+      "medication_due": {
+        "name": "{medication} por dar",
+        "state_attributes": {
+          "baby": {
+            "name": "Bebé"
+          },
+          "medication": {
+            "name": "Medicamento"
+          },
+          "dose": {
+            "name": "Dose"
+          }
+        }
       }
     },
     "button": {
@@ -431,6 +527,9 @@
       },
       "sleep_log": {
         "name": "Registar sono"
+      },
+      "medication_take": {
+        "name": "{medication} dado"
       }
     },
     "calendar": {
@@ -521,6 +620,24 @@
       },
       "last_feed": {
         "name": "Última refeição"
+      },
+      "medication_last_dose": {
+        "name": "{medication} última dose",
+        "state_attributes": {
+          "event_id": {
+            "name": "Evento"
+          },
+          "dose": {
+            "name": "Dose"
+          }
+        }
+      },
+      "medication_doses_today": {
+        "name": "{medication} doses hoje",
+        "unit_of_measurement": "doses"
+      },
+      "medication_next_dose": {
+        "name": "{medication} próxima dose"
       }
     },
     "switch": {
