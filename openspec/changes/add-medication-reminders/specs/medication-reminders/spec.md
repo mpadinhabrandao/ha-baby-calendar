@@ -63,6 +63,10 @@ With fixed times, a dose SHALL be due from a scheduled time until that time is s
 - **WHEN** the schedule is 09:00 and 21:00, two doses were recorded in the morning and the time reaches 21:00
 - **THEN** a dose becomes due
 
+#### Scenario: Added after its time
+- **WHEN** a medication with the fixed time 09:00 is added, or reactivated, at 16:00
+- **THEN** it is not due until 09:00 the next day
+
 ### Requirement: Due with an interval
 With an interval, a dose SHALL be due once the interval has elapsed since the last recorded dose. With no recorded dose, no dose SHALL be due.
 

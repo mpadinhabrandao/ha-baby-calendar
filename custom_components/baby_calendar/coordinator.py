@@ -18,6 +18,7 @@ from .const import (
     FEEDING,
     MED_ID,
     MED_SCHEDULE,
+    MED_SINCE,
     TRACKER_BOTTLE,
     TRACKER_BREASTFEEDING,
     TRACKER_MEDICATION,
@@ -149,6 +150,7 @@ class BabyCoordinator(DataUpdateCoordinator[BabyState]):
                 [dose.start_ts for dose in doses if dose.kind == med_id],
                 now_dt,
                 zone,
+                med.get(MED_SINCE),
             )
             state[med_id] = {
                 "last_dose": self.store.last_event(

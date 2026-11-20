@@ -152,3 +152,11 @@ def test_interval_never_given() -> None:
 def test_no_schedule() -> None:
     """Without a schedule nothing is ever due."""
     assert not evaluate({"type": "none"}, [], at(20, 9), TZ).due
+
+
+def test_time_before_the_schedule_started() -> None:
+    """Added at 16:00 with 09:00: not due until tomorrow's 09:00."""
+    since = ts(at(20, 16))
+    state = evaluate(times("09:00"), [], at(20, 16, 5), TZ, since)
+    assert (state.due, state.next_dose) == (False, at(21, 9))
+    assert evaluate(times("09:00"), [], at(21, 9), TZ, since).due

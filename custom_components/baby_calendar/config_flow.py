@@ -12,6 +12,7 @@ from homeassistant.config_entries import (
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import selector
+from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_BABY_ID,
@@ -25,6 +26,7 @@ from .const import (
     MED_ID,
     MED_NAME,
     MED_SCHEDULE,
+    MED_SINCE,
     TRACKER_KEYS,
 )
 from .data import async_get_store, async_run
@@ -280,9 +282,7 @@ class BabyCalendarOptionsFlow(OptionsFlow):
             if action == ACTION_TOGGLE:
                 return self._save_medications(
                     [
-                        {**med, MED_ACTIVE: not med.get(MED_ACTIVE, True)}
-                        if med[MED_ID] == self._med_id
-                        else med
+                        _toggled(med) if med[MED_ID] == self._med_id else med
                         for med in meds
                     ]
                 )
@@ -392,7 +392,7 @@ def _medication_schema(values: dict[str, Any]) -> dict[Any, Any]:
         _suggested(SCHEDULE_TIMES_TEXT, values): selector.TextSelector(),
         _suggested(SCHEDULE_HOURS, values): selector.NumberSelector(
             selector.NumberSelectorConfig(
-                min=0, step=0.5, mode=selector.NumberSelectorMode.BOX
+                min=0, step="any", mode=selector.NumberSelectorMode.BOX
             )
         ),
     }
@@ -428,13 +428,28 @@ def _medication_from_input(
         schedule = {"type": SCHEDULE_INTERVAL, "hours": float(hours)}
 
     dose = str(user_input.get(MED_DOSE) or "").strip() or None
+    since = existing.get(MED_SINCE) if existing else None
+    if since is None or schedule != existing.get(MED_SCHEDULE):
+        since = _now_ts()
     return {
         MED_ID: own_id or uuid.uuid4().hex,
         MED_NAME: name,
         MED_DOSE: dose,
         MED_ACTIVE: existing.get(MED_ACTIVE, True) if existing else True,
         MED_SCHEDULE: schedule,
+        MED_SINCE: since,
     }, {}
+
+
+def _toggled(medication: dict) -> dict:
+    """Deactivate or reactivate; a reactivated schedule starts now."""
+    if medication.get(MED_ACTIVE, True):
+        return {**medication, MED_ACTIVE: False}
+    return {**medication, MED_ACTIVE: True, MED_SINCE: _now_ts()}
+
+
+def _now_ts() -> int:
+    return int(dt_util.utcnow().timestamp())
 
 
 def _ordered(trackers: list[str]) -> list[str]:

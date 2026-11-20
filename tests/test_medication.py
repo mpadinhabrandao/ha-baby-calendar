@@ -552,3 +552,43 @@ async def test_schedule_removed_drops_due_entities(hass: HomeAssistant) -> None:
     assert entity_id(hass, entry, "Vitamin D", "binary_sensor", "due") is None
     assert entity_id(hass, entry, "Vitamin D", "sensor", "next_dose") is None
     assert entity_id(hass, entry, "Vitamin D", "button", "take")
+
+
+async def test_added_after_its_time(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+) -> None:
+    """Added at 08:00 with 07:00: due tomorrow at 07:00, not now."""
+    entry = await baby_with_vitamin_d(hass, schedule_type="times", times="07:00")
+    due = entity_id(hass, entry, "Vitamin D", "binary_sensor", "due")
+    next_dose = entity_id(hass, entry, "Vitamin D", "sensor", "next_dose")
+
+    assert hass.states.get(due).state == "off"
+    tomorrow = NOW + timedelta(hours=23)
+    assert hass.states.get(next_dose).state == tomorrow.isoformat(timespec="seconds")
+
+    await move_to(hass, freezer, tomorrow)
+    assert hass.states.get(due).state == "on"
+
+
+async def test_reactivated_after_its_time(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+) -> None:
+    """Times missed while deactivated are not due on reactivation."""
+    entry = await baby_with_vitamin_d(hass, schedule_type="times", times="09:00")
+    await change_medication(hass, entry, "Vitamin D", "toggle")
+    freezer.move_to(NOW + timedelta(hours=2))
+
+    await change_medication(hass, entry, "Vitamin D", "toggle")
+
+    due = entity_id(hass, entry, "Vitamin D", "binary_sensor", "due")
+    assert hass.states.get(due).state == "off"
+
+
+async def test_interval_in_fractions_of_an_hour(hass: HomeAssistant) -> None:
+    """An interval of 0.1 hours is accepted."""
+    entry = await baby_with_vitamin_d(hass, schedule_type="interval", hours=0.1)
+
+    assert med_by_name(entry, "Vitamin D")["schedule"] == {
+        "type": "interval",
+        "hours": 0.1,
+    }
