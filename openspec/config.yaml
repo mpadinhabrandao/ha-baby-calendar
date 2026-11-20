@@ -1,0 +1,60 @@
+schema: spec-driven
+
+context: |
+  Project: Baby Calendar, a Home Assistant custom integration (domain `baby_calendar`,
+  repo `ha-baby-calendar`) distributed through HACS. MIT licensed.
+  It has no frontend of its own: it only provides entities, services and a calendar
+  entity. Dashboards are built by the user with stock cards.
+  All data stays local in Home Assistant. No cloud services, no outbound network calls.
+  It records and displays data only. It never interprets data or gives health advice.
+  Code, entity names, service names and OpenSpec artifacts are written in English.
+  User-facing strings are translated to English and Portuguese (pt).
+  Core idea: a fixed set of purpose-built trackers, each with behaviour designed for it.
+  The user chooses which trackers are enabled per baby.
+  Logging must work one-handed at night: one tap logs, details are optional follow-ups,
+  inputs never silently reuse a stale value, and a slip is undone with one tap.
+  Changes, in implementation order:
+    1. add-core-tracking (baby, diaper, bottle, undo, back-dating)
+    2. add-timed-tracking (breastfeeding, sleep, combined last feed)
+    3. add-calendar-view
+    4. add-medication-reminders
+    5. add-measurements (weight, length, temperature)
+    6. add-solids-tracking
+    7. add-pumping-tracking
+  Each later change extends services defined in add-core-tracking (update_event,
+  list_events, the tracker list). Until that change is archived these extensions are
+  written as new requirements in the later change, not as MODIFIED deltas.
+  Deferred, not planned for now: an ICS feed for phone calendar apps and user-defined
+  trackers.
+  These specs were revised on 2026-11-16 after an independent review.
+
+# Project context (optional)
+# Add only constraints that should guide OpenSpec artifacts and workflows.
+# Include constraints an agent cannot infer by reading the code.
+# Keep general project documentation and discoverable codebase facts out.
+# Example:
+#   context: |
+#     Designs and tasks must cover Windows, macOS, and Linux
+#     Write all artifacts in Spanish
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always state what is out of scope
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing
