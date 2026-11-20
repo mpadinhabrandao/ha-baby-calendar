@@ -14,6 +14,8 @@
 
 ## 3. Integration checks
 
+Superseded on 2026-11-20 by `add-baby-card`: the auto-entities view was judged neither usable nor intuitive on a real instance and was removed with `dashboards/baby.yaml` and its README section. Task 2.2 and the checks below will not be done; the attributes of task 1.1 remain.
+
 - [ ] 3.1 On a real instance, install auto-entities and add the view for the test baby; verify on a phone the section order, that the stool type appears only while the prompt is on, and that logging, timers and medications work from it
 - [ ] 3.2 On the real instance, add a medication and enable a tracker; verify both appear in the view without editing it, and disappear when deactivated and disabled
 - [ ] 3.3 Verify the view in Portuguese and in English shows the same sections

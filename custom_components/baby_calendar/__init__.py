@@ -22,6 +22,7 @@ from homeassistant.helpers import (
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import dt as dt_util
 
+from .cards import async_register_cards
 from .const import (
     CONF_BABY_ID,
     CONF_NAME,
@@ -38,6 +39,7 @@ from .services import async_register_services
 from .store import EventStore
 from .trackers import MEDICATION_KEY_PREFIX, TIMED_TRACKERS, trackers_of_key
 from .trackers.medication import medications
+from .websocket import async_babies_changed, async_register_websocket
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -57,7 +59,9 @@ PURGE_HISTORY_SCHEMA = probatio.Schema(
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Register the services that do not belong to one baby."""
+    """Register the services that do not belong to one baby, and the cards."""
+    async_register_websocket(hass)
+    await async_register_cards(hass)
 
     async def purge_history(call: ServiceCall) -> ServiceResponse:
         name = call.data[CONF_NAME].strip()
@@ -137,6 +141,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: BabyConfigEntry) -> bool
     entry.async_on_unload(entry.add_update_listener(_async_reload))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(coordinator.async_announce_due())
+    # Called once loaded, and again when unloading starts, when the entry no
+    # longer counts as loaded: the cards get the babies each time.
+    entry.async_on_unload(
+        entry.async_on_state_change(lambda: async_babies_changed(hass))
+    )
     return True
 
 

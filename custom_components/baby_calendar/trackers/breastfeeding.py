@@ -3,6 +3,7 @@
 from typing import Any, Final
 
 import probatio
+from homeassistant.util import dt as dt_util
 
 from ..const import TRACKER_BREASTFEEDING
 from ..store import Event, EventStore
@@ -18,6 +19,36 @@ OTHER_SIDE: Final = {LEFT: RIGHT, RIGHT: LEFT}
 # An entry starting within this many seconds of the previous entry's end
 # belongs to the same feed.
 FEED_GAP: Final = 30 * 60
+
+
+def last_feed(entries: list[Event]) -> list[Event]:
+    """Return the entries of the last feed, oldest first.
+
+    ``entries`` are sorted by start. Walking back from the latest, an entry
+    belongs to the feed while the next one starts within FEED_GAP of its end.
+    """
+    feed: list[Event] = []
+    for event in reversed(entries):
+        if feed and (
+            event.end_ts is None or feed[0].start_ts - event.end_ts > FEED_GAP
+        ):
+            break
+        feed.insert(0, event)
+    return feed
+
+
+def feed_attribute(feed: list[Event]) -> list[dict[str, Any]]:
+    """Return a feed's entries as the sensor attribute: side, start, end."""
+    return [
+        {
+            SIDE: event.kind,
+            "start": dt_util.utc_from_timestamp(event.start_ts).isoformat(),
+            "end": None
+            if event.end_ts is None
+            else dt_util.utc_from_timestamp(event.end_ts).isoformat(),
+        }
+        for event in feed
+    ]
 
 
 def count_feeds(previous: Event | None, today: list[Event], now: int) -> int:
@@ -68,7 +99,19 @@ class BreastfeedingTracker(TimedTracker):
         """Count today's feeds, grouping entries close together into one."""
         today = store.list_events(baby_id, day.start, day.end, self.key)
         previous = store.last_before(baby_id, self.key, day.start)
-        return {"breastfeeding_feeds_today": count_feeds(previous, today, now)}
+        latest = store.last_event(baby_id, self.key)
+        feed: list[Event] = []
+        if latest is not None:
+            # A feed is never a day long, so a day before its latest entry
+            # covers it, across midnight too.
+            recent = store.list_events(
+                baby_id, latest.start_ts - 86400, latest.start_ts + 1, self.key
+            )
+            feed = last_feed(sorted(recent, key=lambda event: event.start_ts))
+        return {
+            "breastfeeding_feeds_today": count_feeds(previous, today, now),
+            "breastfeeding_feed": feed_attribute(feed),
+        }
 
     def title_details(self, event: Event, text: dict[str, str]) -> list[str]:
         """Add the side, when there is one."""

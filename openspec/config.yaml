@@ -3,10 +3,11 @@ schema: spec-driven
 context: |
   Project: Baby Calendar, a Home Assistant custom integration (domain `baby_calendar`,
   repo `ha-baby-calendar`) distributed through HACS. MIT licensed.
-  It has no frontend of its own: it only provides entities, services and a calendar
-  entity. The repository ships a ready-made dashboard view (dashboards/baby.yaml) built
-  from stock cards inside the community card auto-entities (MIT), which the user installs
-  from the Marketplace; the integration never depends on it.
+  Besides entities, services and a calendar entity, it ships its own dashboard cards
+  (frontend/, TypeScript and Lit, bundled into custom_components/baby_calendar/frontend/
+  and registered by the integration). Cards call the integration's services and read
+  its entities; every rule stays in the integration. Dashboards are built by the user
+  from these cards and any others.
   All data stays local in Home Assistant. No cloud services, no outbound network calls.
   It records and displays data only. It never interprets data or gives health advice.
   Code, entity names, service names and OpenSpec artifacts are written in English.
@@ -23,7 +24,8 @@ context: |
     5. add-measurements (weight, length, temperature)
     6. add-solids-tracking
     7. add-pumping-tracking
-    8. add-baby-dashboard
+    8. add-baby-dashboard (superseded by add-baby-card; only its attributes remain)
+    9. add-baby-card
   Each later change extends services defined in add-core-tracking (update_event,
   list_events, the tracker list). Until that change is archived these extensions are
   written as new requirements in the later change, not as MODIFIED deltas.
