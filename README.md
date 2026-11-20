@@ -232,13 +232,114 @@ data:
   time: "2026-11-20 03:00:00"  # optional, now if left out
 ```
 
+## Timers: breastfeeding and sleep
+
+Breastfeeding and sleep have a start and an end. Each has a timer you start
+and stop while it happens, or you log a finished entry by its duration.
+
+| Entity | What it does |
+|---|---|
+| Breastfeeding, Sleeping (`switch`) | On while the timer runs, with `started_at` as an attribute. Turning it on starts the timer; turning it off stops it. "Minutes ago" moves the start or the end. |
+| Breastfeeding duration, Sleep duration (`number`) | Minutes of a finished entry to log with the button. Goes back to 0 after each entry and after a restart. |
+| Log breastfeeding, Log sleep (`button`) | Logs a finished entry of that duration, ending now, or "minutes ago". |
+| Last breastfeeding, Last sleep (`sensor`) | Start of the most recent entry, with `ended_at`, `duration` (seconds), `in_progress` and, for breastfeeding, `side`. |
+| Breastfeeding time today, Sleep time today (`sensor`) | Minutes within today, updated every minute while a timer runs. |
+| Breastfeeds today, Sleeps today (`sensor`) | Feeds and sleeps that started today. |
+
+A timer keeps running until it is stopped, across midnight and restarts. Only
+one timer per tracker runs at a time; breastfeeding and sleep can run
+together.
+
+Daily times are split at midnight: a sleep from 23:00 to 06:00 counts one
+hour on the first day and six hours on the second. The count goes to the day
+the sleep or feed started.
+
+Undo treats starting a timer and logging a finished entry as entries, so a
+timer started by mistake is undone. Undo after stopping a timer deletes the
+whole entry if it was started in the last 15 minutes.
+
+Disabling breastfeeding or sleep on a baby while its timer runs finishes the
+entry at that moment.
+
+### Breastfeeding
+
+| Entity | What it does |
+|---|---|
+| Breastfeeding side (`select`) | Not specified, left or right. Used by the switch and the button, kept after a restart. |
+
+Each entry has one side. To change side, turn the switch off and on again:
+that is two entries. When an entry with a side ends, the selector moves to
+the other side, ready for the next one.
+
+**Breastfeeds today** counts feeds, not entries: an entry that starts within
+30 minutes of the previous one's end belongs to the same feed, so left then
+right is one feed. A feed counts on the day its first entry started.
+Breastfeeding time today adds up every entry.
+
+```yaml
+action: baby_calendar.start_breastfeeding
+data:
+  device_id: <the baby's device>
+  side: left              # optional: left or right
+  time: "2026-11-20 03:00:00"  # optional start, now if left out
+```
+
+```yaml
+action: baby_calendar.stop_breastfeeding
+data:
+  device_id: <the baby's device>
+  time: "2026-11-20 03:12:00"  # optional end, now if left out
+```
+
+```yaml
+action: baby_calendar.log_breastfeeding
+data:
+  device_id: <the baby's device>
+  duration: "00:15:00"
+  side: right             # optional
+  time: "2026-11-20 03:00:00"  # optional start; without it the entry ends now
+```
+
+### Sleep
+
+| Entity | What it does |
+|---|---|
+| Awake since (`sensor`) | End of the last finished sleep; unknown while asleep. |
+
+The Sleeping switch is on exactly while a sleep runs, so it works as the
+baby's sleeping state in automations:
+
+```yaml
+alias: Dim the nursery while the baby sleeps
+triggers:
+  - trigger: state
+    entity_id: switch.alice_sleeping
+    to: "on"
+actions:
+  - action: light.turn_on
+    target:
+      entity_id: light.nursery
+    data:
+      brightness_pct: 5
+```
+
+`start_sleep`, `stop_sleep` and `log_sleep` take the same fields as the
+breastfeeding actions, without `side`.
+
+### Last feed
+
+With bottles, breastfeeding or both enabled, **Last feed** (`sensor`) shows
+the start of the most recent feed of either kind, with `kind` (`bottle` or
+`breastfeeding`) as an attribute.
+
 ## Correcting, deleting and listing entries
 
 ```yaml
 action: baby_calendar.update_event
 data:
   event_id: <id>
-  time: "2026-11-20 02:40:00"   # optional
+  time: "2026-11-20 02:40:00"   # optional, new start
+  end_time: "2026-11-20 03:10:00"  # optional, new end of a finished timed entry
   notes: ""                     # optional, empty removes the notes
   fields:                       # optional, only the fields to change
     content: wet                # a wet diaper drops its stool type
@@ -263,6 +364,11 @@ response_variable: entries
 
 Every entry has an `event_id`; the action that logs it returns it, listings
 include it, and the "last" sensors expose it.
+
+Timed entries in a listing also have `end`, `duration` (seconds) and
+`in_progress`, and a listing includes every timed entry that overlaps the
+period, such as a sleep that started the night before. The end of a running
+timer is set only by stopping it.
 
 Charts of the daily sensors show each day as it stood that day. Correcting a
 past day changes the entries, not the statistics already recorded.
