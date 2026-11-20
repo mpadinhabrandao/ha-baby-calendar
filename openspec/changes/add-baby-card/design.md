@@ -26,7 +26,7 @@ Alternatives: plain JavaScript with no framework (no build, but hand-written DOM
 
 ### D2. Registration
 
-`async_setup` registers a static path `/baby_calendar/frontend` for the bundle's folder (cached) and calls `frontend.add_extra_js_url(hass, "/baby_calendar/frontend/baby-calendar-cards.js?v=<version>")`, the version read from the manifest. The module defines `baby-calendar-diaper-card`, `-bottle-card`, `-breastfeeding-card`, `-sleep-card`, `-medication-card`, `-summary-card`, `-today-card`, `-entry-card` and `-recent-card`, one shared editor, and adds each to `window.customCards` so they are in the card picker. `manifest.json` adds `http` and `websocket_api` to `dependencies` and `frontend` to `after_dependencies`: the frontend needs its compiled package, absent in the test environment, so the module is added only when the frontend is loaded.
+`async_setup` registers a static path `/baby_calendar/frontend` for the bundle's folder (cached) and calls `frontend.add_extra_js_url(hass, "/baby_calendar/frontend/baby-calendar-cards.js?v=<hash>")`, with a short hash of the bundle's content: the manifest version stays the same when the integration is installed from a commit, so it would not bust the cache. The module defines `baby-calendar-diaper-card`, `-bottle-card`, `-breastfeeding-card`, `-sleep-card`, `-medication-card`, `-summary-card`, `-today-card`, `-entry-card` and `-recent-card`, one shared editor, and adds each to `window.customCards` so they are in the card picker. `manifest.json` adds `http` and `websocket_api` to `dependencies` and `frontend` to `after_dependencies`: the frontend needs its compiled package, absent in the test environment, so the module is added only when the frontend is loaded.
 
 ### D3. Finding the baby's entities
 
@@ -76,7 +76,7 @@ Its view and README section are removed; its attributes stay (harmless, and usef
 ## Risks / Trade-offs
 
 - [Frontend code to maintain, in another language] → Logic stays in the integration; the card only displays and calls services, and its pure parts are unit tested.
-- [A cached old bundle after an update] → The module URL carries the version (D2).
+- [A cached old bundle after an update] → The module URL carries the bundle's hash (D2).
 - [Home Assistant changes how cards are loaded] → `add_extra_js_url` and `customCards` have been stable for years; the README keeps the manual resource as a fallback.
 - [Two parents tap at once] → Each call is independent; the integration's repeat guard and the shown state settle it, as with the current buttons.
 - [First version will need corrections after use] → Accepted by the user; changes go through OpenSpec as usual.
