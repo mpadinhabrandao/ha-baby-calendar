@@ -29,6 +29,8 @@ class BabyData:
     # Pending "duration" inputs of the timed trackers, in minutes, by tracker.
     # Not restored, like minutes_ago.
     durations: dict[str, int] = field(default_factory=dict)
+    # Pending measurement inputs, by tracker. Not restored, like minutes_ago.
+    measurements: dict[str, float] = field(default_factory=dict)
     # When each logging button last logged, for the repeated press guard.
     last_press: dict[str, datetime] = field(default_factory=dict)
 

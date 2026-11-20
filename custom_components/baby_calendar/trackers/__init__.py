@@ -10,13 +10,21 @@ from .base import Tracker
 from .bottle import BOTTLE
 from .breastfeeding import BREASTFEEDING
 from .diaper import DIAPER
+from .measurement import MEASUREMENTS
 from .medication import MEDICATION_TRACKER
 from .sleep import SLEEP
 from .timed import TimedTracker
 
 TRACKERS: dict[str, Tracker] = {
     tracker.key: tracker
-    for tracker in (DIAPER, BOTTLE, BREASTFEEDING, SLEEP, MEDICATION_TRACKER)
+    for tracker in (
+        DIAPER,
+        BOTTLE,
+        BREASTFEEDING,
+        SLEEP,
+        *MEASUREMENTS,
+        MEDICATION_TRACKER,
+    )
 }
 
 TIMED_TRACKERS: dict[str, TimedTracker] = {
@@ -79,6 +87,10 @@ TRACKER_ENTITY_KEYS: dict[str, frozenset[str]] = {
             "sleep_duration_today",
         }
     ),
+    **{
+        m.key: frozenset({f"{m.key}_value", f"{m.key}_log", m.key, f"{m.key}_last"})
+        for m in MEASUREMENTS
+    },
 }
 
 # Entities that exist while any of several trackers is enabled.

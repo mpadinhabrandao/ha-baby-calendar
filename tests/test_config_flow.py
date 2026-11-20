@@ -43,7 +43,15 @@ async def test_baby_added_before_birth(hass: HomeAssistant) -> None:
     assert entry.data[CONF_NAME] == "Alice"
     assert entry.options == {
         CONF_BIRTH_DATE: None,
-        CONF_TRACKERS: ["diaper", "bottle", "breastfeeding", "sleep"],
+        CONF_TRACKERS: [
+            "diaper",
+            "bottle",
+            "breastfeeding",
+            "sleep",
+            "weight",
+            "length",
+            "temperature",
+        ],
     }
     assert entry.unique_id == entry.data[CONF_BABY_ID]
     assert entry.state is ConfigEntryState.LOADED

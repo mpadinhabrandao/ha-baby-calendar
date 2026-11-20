@@ -33,6 +33,7 @@ from .services import (
     event_response,
 )
 from .store import Event
+from .trackers.measurement import MEASUREMENTS
 from .trackers.medication import has_schedule, medications
 
 ATTR_ENDED_AT = "ended_at"
@@ -115,6 +116,23 @@ SENSORS: tuple[BabySensorDescription, ...] = (
         FEEDING,
         "mdi:food-apple-outline",
         requires=FEEDING_TRACKERS,
+    ),
+    *(
+        description
+        for tracker in MEASUREMENTS
+        for description in (
+            BabySensorDescription(
+                key=tracker.key,
+                translation_key=tracker.key,
+                tracker=tracker.key,
+                icon=tracker.measurement.icon,
+                device_class=tracker.measurement.device_class,
+                state_class=SensorStateClass.MEASUREMENT,
+                native_unit_of_measurement=tracker.measurement.unit,
+                suggested_display_precision=tracker.measurement.precision,
+            ),
+            _last(f"{tracker.key}_last", tracker.key, "mdi:clock-outline"),
+        )
     ),
 )
 

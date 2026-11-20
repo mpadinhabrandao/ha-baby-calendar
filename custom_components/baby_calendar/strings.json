@@ -101,7 +101,10 @@
         "bottle": "Bottles",
         "breastfeeding": "Breastfeeding",
         "sleep": "Sleep",
-        "medication": "Medication"
+        "medication": "Medication",
+        "weight": "Weight",
+        "length": "Length",
+        "temperature": "Temperature"
       }
     },
     "diaper_content": {
@@ -404,6 +407,72 @@
           "description": "When it was given. Now if left empty."
         }
       }
+    },
+    "log_weight": {
+      "name": "Log weight",
+      "description": "Records a weight reading for a baby.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "value": {
+          "name": "Value",
+          "description": "Grams, from 300 to 30000."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional notes."
+        },
+        "time": {
+          "name": "Time",
+          "description": "When it was measured. Now if left empty."
+        }
+      }
+    },
+    "log_length": {
+      "name": "Log length",
+      "description": "Records a length reading for a baby.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "value": {
+          "name": "Value",
+          "description": "Centimetres, from 20 to 130."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional notes."
+        },
+        "time": {
+          "name": "Time",
+          "description": "When it was measured. Now if left empty."
+        }
+      }
+    },
+    "log_temperature": {
+      "name": "Log temperature",
+      "description": "Records a temperature reading for a baby.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "value": {
+          "name": "Value",
+          "description": "Degrees Celsius, from 30 to 45."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional notes."
+        },
+        "time": {
+          "name": "Time",
+          "description": "When it was measured. Now if left empty."
+        }
+      }
     }
   },
   "exceptions": {
@@ -472,6 +541,9 @@
     },
     "unknown_medication": {
       "message": "{name} has no active medication called \"{medication}\"."
+    },
+    "value_out_of_range": {
+      "message": "Enter a value from {minimum} to {maximum} {unit}."
     }
   },
   "entity": {
@@ -530,6 +602,15 @@
       },
       "medication_take": {
         "name": "{medication} given"
+      },
+      "weight_log": {
+        "name": "Log weight"
+      },
+      "length_log": {
+        "name": "Log length"
+      },
+      "temperature_log": {
+        "name": "Log temperature"
       }
     },
     "calendar": {
@@ -549,6 +630,15 @@
       },
       "sleep_duration": {
         "name": "Sleep duration"
+      },
+      "weight_value": {
+        "name": "Weight to log"
+      },
+      "length_value": {
+        "name": "Length to log"
+      },
+      "temperature_value": {
+        "name": "Temperature to log"
       }
     },
     "select": {
@@ -638,6 +728,57 @@
       },
       "medication_next_dose": {
         "name": "{medication} next dose"
+      },
+      "weight": {
+        "name": "Weight"
+      },
+      "weight_last": {
+        "name": "Last weight",
+        "state_attributes": {
+          "event_id": {
+            "name": "Event"
+          },
+          "value": {
+            "name": "Value"
+          },
+          "notes": {
+            "name": "Notes"
+          }
+        }
+      },
+      "length": {
+        "name": "Length"
+      },
+      "length_last": {
+        "name": "Last length",
+        "state_attributes": {
+          "event_id": {
+            "name": "Event"
+          },
+          "value": {
+            "name": "Value"
+          },
+          "notes": {
+            "name": "Notes"
+          }
+        }
+      },
+      "temperature": {
+        "name": "Temperature"
+      },
+      "temperature_last": {
+        "name": "Last temperature",
+        "state_attributes": {
+          "event_id": {
+            "name": "Event"
+          },
+          "value": {
+            "name": "Value"
+          },
+          "notes": {
+            "name": "Notes"
+          }
+        }
       }
     },
     "switch": {

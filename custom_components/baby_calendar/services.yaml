@@ -65,6 +65,84 @@ log_bottle:
       selector:
         datetime:
 
+log_weight:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    value:
+      required: true
+      example: 3450
+      selector:
+        number:
+          min: 300
+          max: 30000
+          step: 1
+          unit_of_measurement: "g"
+          mode: box
+    notes:
+      selector:
+        text:
+          multiline: true
+    time:
+      selector:
+        datetime:
+
+log_length:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    value:
+      required: true
+      example: 51.5
+      selector:
+        number:
+          min: 20
+          max: 130
+          step: 0.5
+          unit_of_measurement: "cm"
+          mode: box
+    notes:
+      selector:
+        text:
+          multiline: true
+    time:
+      selector:
+        datetime:
+
+log_temperature:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    value:
+      required: true
+      example: 37.8
+      selector:
+        number:
+          min: 30
+          max: 45
+          step: 0.1
+          unit_of_measurement: "°C"
+          mode: box
+    notes:
+      selector:
+        text:
+          multiline: true
+    time:
+      selector:
+        datetime:
+
 log_medication:
   fields:
     device_id:
@@ -251,6 +329,9 @@ list_events:
             - bottle
             - breastfeeding
             - sleep
+            - weight
+            - length
+            - temperature
             - medication
 
 purge_history:
