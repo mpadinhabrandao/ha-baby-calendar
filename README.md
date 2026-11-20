@@ -511,19 +511,43 @@ and records nothing.
 [![Import the reminder blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/create-link/?redirect=blueprint_import&blueprint_url=https%3A%2F%2Fgithub.com%2Fmpadinhabrandao%2Fha-baby-calendar%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fbaby_calendar%2Fmedication_reminder.yaml)
 
 Baby Calendar sends no notifications itself. Import the **medication
-reminder** blueprint with the button above, then create an automation from
-it: pick the medication's **due** sensor, the actions to run (such as a
-notification to your phone) and, optionally, how often to repeat them while
-the dose is still due. In the actions, `{{ baby }}`, `{{ medication }}`
-and `{{ dose }}` hold the names and the dose text:
+reminder** blueprint with the button above and create **one** automation
+from it: it reminds you of every medication of every baby, including
+medications you add later. Choose:
+
+- the actions to run, such as a notification to each parent's phone;
+- optionally, how often to repeat them while the dose is still due;
+- optionally, which babies it covers (all by default).
+
+In the actions, `{{ baby }}`, `{{ medication }}` and `{{ dose }}` hold the
+names and the dose text, and `{{ button }}` the medication's dose button. A
+notification action with the id `BABY_CALENDAR_DOSE:{{ button }}` records
+the dose when you choose it on the phone, which also stops the repeats:
 
 ```yaml
 action: notify.mobile_app_my_phone
 data:
+  title: "💊 {{ medication }}"
   message: "{{ baby }}: {{ medication }} ({{ dose }})"
+  data:
+    tag: "{{ button }}"   # a repeat replaces the previous notification
+    actions:
+      - action: "BABY_CALENDAR_DOSE:{{ button }}"
+        title: Given
 ```
 
-The automation also runs when Home Assistant starts if a dose is already due.
+Add one such action per phone. The reminder is sent again when Home
+Assistant starts, or when you save the baby's configuration, if a dose is
+still due.
+
+#### The due event
+
+To build your own reminders, use the event the blueprint reacts to:
+`baby_calendar_medication_due`, fired when a dose becomes due, and again
+after a start or a reload for every dose still due. Its data are `baby`,
+`device_id`, `medication`, `dose`, `due_entity` (the **due** sensor) and
+`button_entity` (the dose button). The **due** sensors stay available for
+dashboards and for automations of your own.
 
 ## Calendar
 
