@@ -47,9 +47,9 @@
 
 - [ ] 7.1 Install the repository through HACS as a custom repository on a real instance, add a baby with both trackers and build the README's example dashboard; on a phone, log each kind of entry, back-date one, undo one, and set a bottle amount and press the button immediately to check the logged amount
 - [ ] 7.2 Restart Home Assistant and verify events, sensor values and the bottle inputs are unchanged and `minutes_ago` is 0
-- [ ] 7.3 Take a Home Assistant backup while pressing buttons, confirm `baby_calendar.db` is inside it, restore it and verify events are present
+- [x] 7.3 Take a Home Assistant backup while pressing buttons, confirm `baby_calendar.db` is inside it, restore it and verify events are present. Done on 2026-11-20 without the restore, at the owner's request, since restoring would revert his whole instance: the backup completed with the store in use, buttons worked right after it, and `baby_calendar.db` is not matched by Home Assistant's backup exclude list
 - [ ] 7.4 Remove the baby, add it again with "restore history" and verify the events and sensors are back
-- [ ] 7.5 Run `openspec validate add-core-tracking --strict` and verify it passes
+- [x] 7.5 Run `openspec validate add-core-tracking --strict` and verify it passes
 
 ## Workflow follow-up
 

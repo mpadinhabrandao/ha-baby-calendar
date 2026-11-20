@@ -20,6 +20,7 @@ from homeassistant.helpers import (
     entity_registry as er,
 )
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_BABY_ID,
@@ -32,7 +33,8 @@ from .coordinator import BabyCoordinator
 from .data import async_get_store, async_run
 from .models import BabyConfigEntry, BabyData
 from .services import async_register_services
-from .trackers import tracker_of_key
+from .store import EventStore
+from .trackers import TIMED_TRACKERS, trackers_of_key
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -42,6 +44,7 @@ PLATFORMS: list[Platform] = [
     Platform.NUMBER,
     Platform.SELECT,
     Platform.SENSOR,
+    Platform.SWITCH,
 ]
 
 PURGE_HISTORY_SCHEMA = probatio.Schema(
@@ -115,6 +118,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: BabyConfigEntry) -> bool
 
     trackers = frozenset(entry.options.get(CONF_TRACKERS, []))
     _remove_disabled_tracker_entities(hass, entry, baby_id, trackers)
+    await async_run(hass, _stop_disabled_timers, store, baby_id, trackers)
 
     coordinator = BabyCoordinator(hass, entry, store, baby_id, trackers)
     entry.runtime_data = BabyData(
@@ -153,6 +157,22 @@ def _remove_disabled_tracker_entities(
     for registry_entry in er.async_entries_for_config_entry(registry, entry.entry_id):
         if not registry_entry.unique_id.startswith(prefix):
             continue
-        tracker = tracker_of_key(registry_entry.unique_id.removeprefix(prefix))
-        if tracker is not None and tracker not in trackers:
+        needed = trackers_of_key(registry_entry.unique_id.removeprefix(prefix))
+        if needed is not None and not needed & trackers:
             registry.async_remove(registry_entry.entity_id)
+
+
+def _stop_disabled_timers(
+    store: EventStore, baby_id: str, trackers: frozenset[str]
+) -> None:
+    """Finish the running timer of every timed tracker that is not enabled.
+
+    Runs on every setup, so disabling a tracker in the options finishes its
+    timer when the entry reloads. Runs in the executor.
+    """
+    now = int(dt_util.utcnow().timestamp())
+    for key in TIMED_TRACKERS.keys() - trackers:
+        if (running := store.running_event(baby_id, key)) is not None:
+            store.update_event(
+                running.id, {"end_ts": max(now, running.start_ts + 1)}, now=now
+            )

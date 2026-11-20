@@ -69,6 +69,10 @@ class UnknownEventError(StoreError):
     """No event has this identifier."""
 
 
+class TimerRunningError(StoreError):
+    """The tracker already has an event in progress for this baby."""
+
+
 @dataclass(frozen=True, slots=True)
 class Baby:
     """A row of the babies table."""
@@ -422,14 +426,43 @@ class EventStore:
         return _event(row)
 
     def list_events(
-        self, baby_id: str, start_ts: int, end_ts: int, tracker: str | None = None
+        self,
+        baby_id: str,
+        start_ts: int,
+        end_ts: int,
+        tracker: str | None = None,
+        timed: Iterable[str] = (),
     ) -> list[Event]:
-        """Return a baby's events of a period, oldest first."""
-        query = (
-            f"SELECT {_EVENT_COLUMNS} FROM events "
-            "WHERE baby_id = ? AND start_ts >= ? AND start_ts < ?"
-        )
-        params: list[Any] = [baby_id, start_ts, end_ts]
+        """Return a baby's events of a period, oldest first.
+
+        An event of a tracker named in ``timed`` is returned when it overlaps
+        the period: it starts before the period ends and ends after it starts,
+        or is still running. Other events are returned when they start in it.
+        """
+        timed = list(timed)
+        if timed:
+            marks = ", ".join("?" * len(timed))
+            query = (
+                f"SELECT {_EVENT_COLUMNS} FROM events WHERE baby_id = ? AND ("
+                f"(tracker IN ({marks}) AND start_ts < ? "
+                "AND (end_ts IS NULL OR end_ts > ?)) "
+                f"OR (tracker NOT IN ({marks}) AND start_ts >= ? AND start_ts < ?))"
+            )
+            params: list[Any] = [
+                baby_id,
+                *timed,
+                end_ts,
+                start_ts,
+                *timed,
+                start_ts,
+                end_ts,
+            ]
+        else:
+            query = (
+                f"SELECT {_EVENT_COLUMNS} FROM events "
+                "WHERE baby_id = ? AND start_ts >= ? AND start_ts < ?"
+            )
+            params = [baby_id, start_ts, end_ts]
         if tracker is not None:
             query += " AND tracker = ?"
             params.append(tracker)
@@ -449,6 +482,113 @@ class EventStore:
         with self._lock:
             row = self._require().execute(query, params).fetchone()
         return _event(row) if row else None
+
+    # ----------------------------------------------------------- timers
+
+    def start_timer(
+        self,
+        *,
+        baby_id: str,
+        tracker: str,
+        start_ts: int,
+        kind: str | None = None,
+        data: dict[str, Any] | None = None,
+        notes: str | None = None,
+        now: int | None = None,
+    ) -> Event:
+        """Record an in-progress event of a timed tracker.
+
+        Refused when the tracker already has one running for the baby; the
+        check and the insert happen under the same lock.
+        """
+        recorded_ts = int(time.time()) if now is None else now
+        event = Event(
+            id=str(uuid.uuid4()),
+            baby_id=baby_id,
+            tracker=tracker,
+            start_ts=start_ts,
+            end_ts=None,
+            kind=kind,
+            amount=None,
+            data=dict(data or {}),
+            notes=notes,
+            created_ts=recorded_ts,
+            updated_ts=recorded_ts,
+        )
+        with self._lock:
+            conn = self._require()
+            if self._select_running(conn, baby_id, tracker) is not None:
+                raise TimerRunningError(tracker)
+            try:
+                with conn:
+                    conn.execute(
+                        f"INSERT INTO events ({_EVENT_COLUMNS}) "
+                        "VALUES (?, ?, ?, ?, NULL, ?, NULL, ?, ?, ?, ?)",
+                        (
+                            event.id,
+                            baby_id,
+                            tracker,
+                            start_ts,
+                            kind,
+                            _dump(event.data),
+                            notes,
+                            recorded_ts,
+                            recorded_ts,
+                        ),
+                    )
+            except sqlite3.IntegrityError as err:
+                raise UnknownBabyError(baby_id) from err
+        return event
+
+    def running_event(self, baby_id: str, tracker: str) -> Event | None:
+        """Return the tracker's in-progress event for the baby, if any.
+
+        Only meaningful for timed trackers: instant events also have no end.
+        """
+        with self._lock:
+            row = self._select_running(self._require(), baby_id, tracker)
+        return _event(row) if row else None
+
+    def last_before(self, baby_id: str, tracker: str, before_ts: int) -> Event | None:
+        """Return the tracker's latest event that started before a time."""
+        with self._lock:
+            row = (
+                self._require()
+                .execute(
+                    f"SELECT {_EVENT_COLUMNS} FROM events WHERE baby_id = ? "
+                    "AND tracker = ? AND start_ts < ? "
+                    "ORDER BY start_ts DESC, created_ts DESC, rowid DESC LIMIT 1",
+                    (baby_id, tracker, before_ts),
+                )
+                .fetchone()
+            )
+        return _event(row) if row else None
+
+    def last_finished(self, baby_id: str, tracker: str) -> Event | None:
+        """Return the tracker's event that ended last."""
+        with self._lock:
+            row = (
+                self._require()
+                .execute(
+                    f"SELECT {_EVENT_COLUMNS} FROM events WHERE baby_id = ? "
+                    "AND tracker = ? AND end_ts IS NOT NULL "
+                    "ORDER BY end_ts DESC, created_ts DESC, rowid DESC LIMIT 1",
+                    (baby_id, tracker),
+                )
+                .fetchone()
+            )
+        return _event(row) if row else None
+
+    @staticmethod
+    def _select_running(
+        conn: sqlite3.Connection, baby_id: str, tracker: str
+    ) -> sqlite3.Row | None:
+        return conn.execute(
+            f"SELECT {_EVENT_COLUMNS} FROM events WHERE baby_id = ? "
+            "AND tracker = ? AND end_ts IS NULL "
+            "ORDER BY start_ts DESC, rowid DESC LIMIT 1",
+            (baby_id, tracker),
+        ).fetchone()
 
     # ------------------------------------------- helpers for tracker state
 

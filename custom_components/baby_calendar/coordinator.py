@@ -13,8 +13,8 @@ from homeassistant.helpers.event import (
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN
-from .store import EventStore
+from .const import DOMAIN, FEEDING, TRACKER_BOTTLE, TRACKER_BREASTFEEDING
+from .store import Event, EventStore
 from .trackers import TRACKERS
 from .trackers.base import Day
 
@@ -27,6 +27,9 @@ type BabyState = dict[str, Any]
 
 # Key of the BabyState entry holding the day the daily values cover.
 DAY = "day"
+
+# Trackers whose entries count as a feed for the last feed sensor.
+FEEDING_TRACKERS = frozenset({TRACKER_BOTTLE, TRACKER_BREASTFEEDING})
 
 
 def local_day(now: datetime) -> Day:
@@ -106,7 +109,18 @@ class BabyCoordinator(DataUpdateCoordinator[BabyState]):
                 refresh_at is None or tracker_state.refresh_at < refresh_at
             ):
                 refresh_at = tracker_state.refresh_at
+        if FEEDING_TRACKERS & self.trackers:
+            state[FEEDING] = {"last_feed": self._last_feed()}
         return state, refresh_at
+
+    def _last_feed(self) -> Event | None:
+        """Return the latest bottle or breastfeeding entry, by its start."""
+        candidates = [
+            event
+            for key in FEEDING_TRACKERS & self.trackers
+            if (event := self.store.last_event(self.baby_id, key)) is not None
+        ]
+        return max(candidates, key=lambda event: event.start_ts, default=None)
 
     @callback
     def _schedule_expiry(self, refresh_at: int | None) -> None:
