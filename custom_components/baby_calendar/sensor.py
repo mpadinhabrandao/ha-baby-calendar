@@ -255,10 +255,9 @@ class MedicationSensor(MedicationEntity, SensorEntity):
     @property
     @override
     def extra_state_attributes(self) -> dict[str, Any] | None:
-        if self._value_key != "last_dose":
-            return None
-        dose = self.medication_state["last_dose"]
-        return {
-            ATTR_EVENT_ID: dose.id if dose else None,
-            "dose": self.medication.get("dose"),
-        }
+        attributes = {"medication": self.medication["name"]}
+        if self._value_key == "last_dose":
+            dose = self.medication_state["last_dose"]
+            attributes[ATTR_EVENT_ID] = dose.id if dose else None
+            attributes["dose"] = self.medication.get("dose")
+        return attributes

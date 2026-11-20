@@ -363,3 +363,17 @@ async def test_no_diaper_entities_without_the_tracker(hass: HomeAssistant) -> No
     assert eid(hass, entry, "sensor", "diaper_last") is None
     assert eid(hass, entry, "binary_sensor", "stool_prompt") is None
     assert eid(hass, entry, "button", "undo") is not None
+
+
+@pytest.mark.parametrize("language", ["en", "pt"])
+async def test_stool_type_attribute(hass: HomeAssistant, language: str) -> None:
+    """Each stool button carries its type, and only stool buttons do."""
+    hass.config.language = language
+    entry = await add_baby(hass)
+
+    def button_attrs(key: str) -> dict:
+        return dict(hass.states.get(eid(hass, entry, "button", key)).attributes)
+
+    for stool in ("normal", "soft", "hard", "diarrhea"):
+        assert button_attrs(f"stool_{stool}")["stool_type"] == stool
+    assert "stool_type" not in button_attrs("diaper_wet")

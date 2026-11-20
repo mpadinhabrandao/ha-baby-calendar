@@ -636,16 +636,36 @@
         "name": "Wet and dirty diaper"
       },
       "stool_normal": {
-        "name": "Stool normal"
+        "name": "Stool normal",
+        "state_attributes": {
+          "stool_type": {
+            "name": "Stool type"
+          }
+        }
       },
       "stool_soft": {
-        "name": "Stool soft"
+        "name": "Stool soft",
+        "state_attributes": {
+          "stool_type": {
+            "name": "Stool type"
+          }
+        }
       },
       "stool_hard": {
-        "name": "Stool hard"
+        "name": "Stool hard",
+        "state_attributes": {
+          "stool_type": {
+            "name": "Stool type"
+          }
+        }
       },
       "stool_diarrhea": {
-        "name": "Stool diarrhea"
+        "name": "Stool diarrhea",
+        "state_attributes": {
+          "stool_type": {
+            "name": "Stool type"
+          }
+        }
       },
       "bottle_log": {
         "name": "Log bottle"
@@ -657,7 +677,12 @@
         "name": "Log sleep"
       },
       "medication_take": {
-        "name": "{medication} given"
+        "name": "{medication} given",
+        "state_attributes": {
+          "medication": {
+            "name": "Medication"
+          }
+        }
       },
       "weight_log": {
         "name": "Log weight"
@@ -793,15 +818,28 @@
           },
           "dose": {
             "name": "Dose"
+          },
+          "medication": {
+            "name": "Medication"
           }
         }
       },
       "medication_doses_today": {
         "name": "{medication} doses today",
-        "unit_of_measurement": "doses"
+        "unit_of_measurement": "doses",
+        "state_attributes": {
+          "medication": {
+            "name": "Medication"
+          }
+        }
       },
       "medication_next_dose": {
-        "name": "{medication} next dose"
+        "name": "{medication} next dose",
+        "state_attributes": {
+          "medication": {
+            "name": "Medication"
+          }
+        }
       },
       "weight": {
         "name": "Weight"

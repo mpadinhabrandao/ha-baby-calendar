@@ -2,11 +2,11 @@
 
 ## 1. Attributes
 
-- [ ] 1.1 Add the `medication` attribute to every medication entity (button, last dose, doses today, next dose, due) and the `stool_type` attribute to each stool type button; verify with tests in English and Portuguese, and that existing attributes are unchanged
+- [x] 1.1 Add the `medication` attribute to every medication entity (button, last dose, doses today, next dose, due) and the `stool_type` attribute to each stool type button; verify with tests in English and Portuguese, and that existing attributes are unchanged
 
 ## 2. View
 
-- [ ] 2.1 Write `dashboards/baby.yaml` per design D3 and D4 with the `BABY_NAME` and `STOOL_PROMPT_ENTITY` placeholders; verify it parses as YAML and that every filter uses only domains, classes, the device, the integration and the two attributes
+- [x] 2.1 Write `dashboards/baby.yaml` per design D3 and D4 with the `BABY_NAME` and `STOOL_PROMPT_ENTITY` placeholders; verify it parses as YAML and that every filter uses only domains, classes, the device, the integration and the two attributes
 - [ ] 2.2 Document the dashboard in `README.md`: installing auto-entities from the Marketplace and its MIT licence, adding the view with its two values, one view per baby, renaming a baby, and that the integration works without the card; verify the steps against a real instance
 - [ ] 2.3 Update `openspec/config.yaml`: the project context names the documented dashboard and its auto-entities dependency, and lists this change as the eighth; verify `openspec validate add-baby-dashboard --strict` passes
 

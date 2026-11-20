@@ -110,6 +110,8 @@ class StoolButton(BabyEntity, ButtonEntity):
         """Create the button for one stool type."""
         super().__init__(entry, f"stool_{stool}")
         self._stool = stool
+        # Lets a dashboard select the stool buttons in any language.
+        self._attr_extra_state_attributes = {"stool_type": stool}
 
     @override
     async def async_press(self) -> None:

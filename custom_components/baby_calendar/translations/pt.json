@@ -636,16 +636,36 @@
         "name": "Fralda com xixi e cocó"
       },
       "stool_normal": {
-        "name": "Cocó normal"
+        "name": "Cocó normal",
+        "state_attributes": {
+          "stool_type": {
+            "name": "Tipo de cocó"
+          }
+        }
       },
       "stool_soft": {
-        "name": "Cocó mole"
+        "name": "Cocó mole",
+        "state_attributes": {
+          "stool_type": {
+            "name": "Tipo de cocó"
+          }
+        }
       },
       "stool_hard": {
-        "name": "Cocó duro"
+        "name": "Cocó duro",
+        "state_attributes": {
+          "stool_type": {
+            "name": "Tipo de cocó"
+          }
+        }
       },
       "stool_diarrhea": {
-        "name": "Cocó diarreia"
+        "name": "Cocó diarreia",
+        "state_attributes": {
+          "stool_type": {
+            "name": "Tipo de cocó"
+          }
+        }
       },
       "bottle_log": {
         "name": "Registar biberão"
@@ -657,7 +677,12 @@
         "name": "Registar sono"
       },
       "medication_take": {
-        "name": "{medication} dado"
+        "name": "{medication} dado",
+        "state_attributes": {
+          "medication": {
+            "name": "Medicamento"
+          }
+        }
       },
       "weight_log": {
         "name": "Registar peso"
@@ -793,15 +818,28 @@
           },
           "dose": {
             "name": "Dose"
+          },
+          "medication": {
+            "name": "Medicamento"
           }
         }
       },
       "medication_doses_today": {
         "name": "{medication} doses hoje",
-        "unit_of_measurement": "doses"
+        "unit_of_measurement": "doses",
+        "state_attributes": {
+          "medication": {
+            "name": "Medicamento"
+          }
+        }
       },
       "medication_next_dose": {
-        "name": "{medication} próxima dose"
+        "name": "{medication} próxima dose",
+        "state_attributes": {
+          "medication": {
+            "name": "Medicamento"
+          }
+        }
       },
       "weight": {
         "name": "Peso"

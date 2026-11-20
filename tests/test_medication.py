@@ -706,3 +706,30 @@ async def test_no_due_event_without_a_schedule(
     await move_to(hass, freezer, NOW + timedelta(days=2))
 
     assert events == []
+
+
+# ----------------------------------------------------- dashboard attributes
+
+
+@pytest.mark.parametrize("language", ["en", "pt"])
+async def test_medication_attribute_on_every_entity(
+    hass: HomeAssistant, language: str
+) -> None:
+    """Every medication entity names its medication, in any language."""
+    hass.config.language = language
+    entry = await baby_with_vitamin_d(hass, schedule_type="times", times="09:00")
+    keys = [
+        ("button", "take"),
+        ("sensor", "last_dose"),
+        ("sensor", "doses_today"),
+        ("sensor", "next_dose"),
+        ("binary_sensor", "due"),
+    ]
+
+    for platform, key in keys:
+        state = hass.states.get(entity_id(hass, entry, "Vitamin D", platform, key))
+        assert state.attributes["medication"] == "Vitamin D", (platform, key)
+    last = hass.states.get(entity_id(hass, entry, "Vitamin D", "sensor", "last_dose"))
+    assert {"event_id", "dose"} <= set(last.attributes)
+    due = hass.states.get(entity_id(hass, entry, "Vitamin D", "binary_sensor", "due"))
+    assert due.attributes["baby"] == "Alice"
