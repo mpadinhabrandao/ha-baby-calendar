@@ -1,183 +1,204 @@
 # Baby Calendar: a dashboard view for one baby.
 #
 # Needs the auto-entities card (thomasloven/lovelace-auto-entities, MIT),
-# installed from the Marketplace. Replace the two values before pasting:
+# installed from the Marketplace. Replace the three values before pasting:
 #   BABY_NAME            the baby's name, as its device is named
-#   STOOL_PROMPT_ENTITY  the baby's "stool type prompt" binary sensor
+#   STOOL_PROMPT_ENTITY  the baby's "stool type pending" binary sensor
+#   CALENDAR_ENTITY      the baby's calendar
+# Paste the whole file into a new dashboard's raw configuration editor. For
+# another baby, copy the view (from "- title") with its values and path.
 # Every list below fills itself from the baby's entities, so trackers and
 # medications enabled or added later appear without editing this view.
-title: BABY_NAME
-path: baby-name
-icon: mdi:baby-face-outline
-type: sections
-max_columns: 3
-sections:
-  # 1. Logging buttons and running timers.
-  - cards:
-      - type: custom:auto-entities
-        show_empty: false
-        card:
-          type: grid
-          columns: 2
-          square: false
-          title: Log
-        card_param: cards
-        filter:
-          include:
-            - integration: baby_calendar
-              device: BABY_NAME
-              domain: switch
-              options:
-                type: tile
-                tap_action:
-                  action: toggle
-            - integration: baby_calendar
-              device: BABY_NAME
-              domain: button
-              not:
-                or:
-                  - attributes:
-                      medication: "*"
-                  - attributes:
+views:
+  - title: BABY_NAME
+    path: baby-name
+    icon: mdi:baby-face-outline
+    type: sections
+    max_columns: 3
+    sections:
+      # 1. Logging buttons and running timers.
+      - cards:
+          - type: custom:auto-entities
+            show_empty: false
+            card:
+              type: grid
+              columns: 2
+              square: false
+              title: Log
+            card_param: cards
+            filter:
+              include:
+                - integration: baby_calendar
+                  device: BABY_NAME
+                  domain: switch
+                  options:
+                    type: tile
+                    name:
+                      type: entity
+                    tap_action:
+                      action: toggle
+                - integration: baby_calendar
+                  device: BABY_NAME
+                  domain: button
+                  not:
+                    or:
+                      - attributes:
+                          medication: "*"
+                      - attributes:
+                          stool_type: "*"
+                  options:
+                    type: tile
+                    name:
+                      type: entity
+                    tap_action:
+                      action: toggle
+              exclude: []
+            sort:
+              method: domain
+              reverse: true
+
+      # 2. Stool type, only while the dirty diaper just logged has none.
+      - cards:
+          - type: conditional
+            conditions:
+              - condition: state
+                entity: STOOL_PROMPT_ENTITY
+                state: "on"
+            card:
+              type: custom:auto-entities
+              show_empty: false
+              card:
+                type: grid
+                columns: 2
+                square: false
+                title: Stool type
+              card_param: cards
+              filter:
+                include:
+                  - integration: baby_calendar
+                    device: BABY_NAME
+                    domain: button
+                    attributes:
                       stool_type: "*"
-              options:
-                type: tile
-                tap_action:
-                  action: toggle
-          exclude: []
-        sort:
-          method: domain
-          reverse: true
+                    options:
+                      type: tile
+                      name:
+                        type: entity
+                      tap_action:
+                        action: toggle
 
-  # 2. Stool type, only while the dirty diaper just logged has none.
-  - cards:
-      - type: conditional
-        conditions:
-          - condition: state
-            entity: STOOL_PROMPT_ENTITY
-            state: "on"
-        card:
-          type: custom:auto-entities
-          show_empty: false
-          card:
-            type: grid
-            columns: 2
-            square: false
-            title: Stool type
-          card_param: cards
-          filter:
-            include:
-              - integration: baby_calendar
-                device: BABY_NAME
-                domain: button
-                attributes:
-                  stool_type: "*"
-                options:
-                  type: tile
-                  tap_action:
-                    action: toggle
+      # 3. Medications, grouped by medication.
+      - cards:
+          - type: custom:auto-entities
+            show_empty: false
+            card:
+              type: grid
+              columns: 2
+              square: false
+              title: Medications
+            card_param: cards
+            filter:
+              include:
+                - integration: baby_calendar
+                  device: BABY_NAME
+                  attributes:
+                    medication: "*"
+                  options:
+                    type: tile
+                    name:
+                      type: entity
+                    tap_action:
+                      action: toggle
+            sort:
+              method: attribute
+              attribute: medication
 
-  # 3. Medications, grouped by medication.
-  - cards:
-      - type: custom:auto-entities
-        show_empty: false
-        card:
-          type: grid
-          columns: 2
-          square: false
-          title: Medications
-        card_param: cards
-        filter:
-          include:
-            - integration: baby_calendar
-              device: BABY_NAME
-              attributes:
-                medication: "*"
-              options:
-                type: tile
-                tap_action:
-                  action: toggle
-        sort:
-          method: attribute
-          attribute: medication
+      # 4. Today's totals.
+      - cards:
+          - type: custom:auto-entities
+            show_empty: false
+            card:
+              type: entities
+              title: Today
+            filter:
+              include:
+                - integration: baby_calendar
+                  device: BABY_NAME
+                  domain: sensor
+                  attributes:
+                    state_class: total
+                  not:
+                    attributes:
+                      medication: "*"
+                  options:
+                    name:
+                      type: entity
 
-  # 4. Today's totals.
-  - cards:
-      - type: custom:auto-entities
-        show_empty: false
-        card:
-          type: entities
-          title: Today
-        filter:
-          include:
-            - integration: baby_calendar
-              device: BABY_NAME
-              domain: sensor
-              attributes:
-                state_class: total
-              not:
-                attributes:
-                  medication: "*"
+      # 5. Last times.
+      - cards:
+          - type: custom:auto-entities
+            show_empty: false
+            card:
+              type: entities
+              title: Last
+            filter:
+              include:
+                - integration: baby_calendar
+                  device: BABY_NAME
+                  domain: sensor
+                  attributes:
+                    device_class: timestamp
+                  not:
+                    attributes:
+                      medication: "*"
+                  options:
+                    name:
+                      type: entity
 
-  # 5. Last times.
-  - cards:
-      - type: custom:auto-entities
-        show_empty: false
-        card:
-          type: entities
-          title: Last
-        filter:
-          include:
-            - integration: baby_calendar
-              device: BABY_NAME
-              domain: sensor
-              attributes:
-                device_class: timestamp
-              not:
-                attributes:
-                  medication: "*"
+      # 6. Measurements.
+      - cards:
+          - type: custom:auto-entities
+            show_empty: false
+            card:
+              type: entities
+              title: Measurements
+            filter:
+              include:
+                - integration: baby_calendar
+                  device: BABY_NAME
+                  domain: sensor
+                  attributes:
+                    state_class: measurement
+                  options:
+                    name:
+                      type: entity
 
-  # 6. Measurements.
-  - cards:
-      - type: custom:auto-entities
-        show_empty: false
-        card:
-          type: entities
-          title: Measurements
-        filter:
-          include:
-            - integration: baby_calendar
-              device: BABY_NAME
-              domain: sensor
-              attributes:
-                state_class: measurement
+      # 7. Inputs: minutes ago, amounts, content and side.
+      - cards:
+          - type: custom:auto-entities
+            show_empty: false
+            card:
+              type: entities
+              title: Inputs
+            filter:
+              include:
+                - integration: baby_calendar
+                  device: BABY_NAME
+                  domain: number
+                  options:
+                    name:
+                      type: entity
+                - integration: baby_calendar
+                  device: BABY_NAME
+                  domain: select
+                  options:
+                    name:
+                      type: entity
 
-  # 7. Inputs: minutes ago, amounts, content and side.
-  - cards:
-      - type: custom:auto-entities
-        show_empty: false
-        card:
-          type: entities
-          title: Inputs
-        filter:
-          include:
-            - integration: baby_calendar
-              device: BABY_NAME
-              domain: number
-            - integration: baby_calendar
-              device: BABY_NAME
-              domain: select
-
-  # 8. Calendar.
-  - column_span: 3
-    cards:
-      - type: custom:auto-entities
-        show_empty: false
-        card:
-          type: calendar
-          initial_view: listWeek
-        filter:
-          include:
-            - integration: baby_calendar
-              device: BABY_NAME
-              domain: calendar
+      # 8. Calendar. Named directly: it does not render inside auto-entities.
+      - column_span: 3
+        cards:
+          - type: calendar
+            initial_view: listWeek
+            entities:
+              - CALENDAR_ENTITY

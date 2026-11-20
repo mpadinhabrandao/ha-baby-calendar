@@ -4,7 +4,9 @@ context: |
   Project: Baby Calendar, a Home Assistant custom integration (domain `baby_calendar`,
   repo `ha-baby-calendar`) distributed through HACS. MIT licensed.
   It has no frontend of its own: it only provides entities, services and a calendar
-  entity. Dashboards are built by the user with stock cards.
+  entity. The repository ships a ready-made dashboard view (dashboards/baby.yaml) built
+  from stock cards inside the community card auto-entities (MIT), which the user installs
+  from the Marketplace; the integration never depends on it.
   All data stays local in Home Assistant. No cloud services, no outbound network calls.
   It records and displays data only. It never interprets data or gives health advice.
   Code, entity names, service names and OpenSpec artifacts are written in English.
@@ -21,6 +23,7 @@ context: |
     5. add-measurements (weight, length, temperature)
     6. add-solids-tracking
     7. add-pumping-tracking
+    8. add-baby-dashboard
   Each later change extends services defined in add-core-tracking (update_event,
   list_events, the tracker list). Until that change is archived these extensions are
   written as new requirements in the later change, not as MODIFIED deltas.

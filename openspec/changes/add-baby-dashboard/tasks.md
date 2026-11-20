@@ -6,9 +6,11 @@
 
 ## 2. View
 
-- [x] 2.1 Write `dashboards/baby.yaml` per design D3 and D4 with the `BABY_NAME` and `STOOL_PROMPT_ENTITY` placeholders; verify it parses as YAML and that every filter uses only domains, classes, the device, the integration and the two attributes
-- [ ] 2.2 Document the dashboard in `README.md`: installing auto-entities from the Marketplace and its MIT licence, adding the view with its two values, one view per baby, renaming a baby, and that the integration works without the card; verify the steps against a real instance
-- [ ] 2.3 Update `openspec/config.yaml`: the project context names the documented dashboard and its auto-entities dependency, and lists this change as the eighth; verify `openspec validate add-baby-dashboard --strict` passes
+- [x] 2.1 Write `dashboards/baby.yaml` per design D3 and D4 with the `BABY_NAME`, `STOOL_PROMPT_ENTITY` and `CALENDAR_ENTITY` placeholders; verify it parses as YAML and that every filter uses only domains, classes, the device, the integration and the two attributes
+- [ ] 2.2 Document the dashboard in `README.md`: installing auto-entities from the Marketplace and its MIT licence, adding the view with its three values, one view per baby, renaming a baby, and that the integration works without the card; verify the steps against a real instance
+- [x] 2.3 Update `openspec/config.yaml`: the project context names the documented dashboard and its auto-entities dependency, and lists this change as the eighth; verify `openspec validate add-baby-dashboard --strict` passes
+
+  - 2.2: the README section is written and the file in the repository was deployed on a real instance on 2026-11-20 through the API and renders (mobile and desktop); following the written steps by hand in the UI is still to do.
 
 ## 3. Integration checks
 
