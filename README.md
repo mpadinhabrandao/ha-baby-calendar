@@ -23,6 +23,12 @@ Settings > Devices & services > Add integration > **Baby Calendar**.
 Each baby is one device, named after it, holding all of its entities. Add one
 entry per baby; two babies cannot share a name.
 
+Entity ids are made from the baby's name and the entity names in your Home
+Assistant language. The examples below use an English install and a baby
+called Alice; with Portuguese, for example, the wet diaper button is
+`button.alice_fralda_com_xixi`. Look up the real ids on the baby's device
+page.
+
 ### Editing a baby
 
 Open the baby's entry and choose **Configure** to change the name, the birth
@@ -91,8 +97,8 @@ dirty.
 ### Dashboard example
 
 The stool type buttons appear only after a dirty diaper, and disappear once a
-type is chosen or after 10 minutes. Replace `alice` with your baby's entity
-ids.
+type is chosen or after 10 minutes. Replace the entity ids with your baby's
+(see the note under *Adding a baby*).
 
 ```yaml
 type: vertical-stack
