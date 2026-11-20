@@ -1,0 +1,23 @@
+{
+  "name": "baby-calendar-cards",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "node e2e/run.mjs",
+    "check": "npm run typecheck && npm run test && npm run build && npm run e2e"
+  },
+  "dependencies": {
+    "lit": "3.3.3"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "happy-dom": "21.0.4",
+    "playwright": "1.63.0",
+    "typescript": "5.9.3",
+    "vitest": "5.1.1"
+  }
+}

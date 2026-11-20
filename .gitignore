@@ -12,3 +12,7 @@ htmlcov/
 
 # OpenSpec scratch files
 .openspec-test-*
+
+# Frontend
+frontend/node_modules/
+frontend/e2e/screenshots/
