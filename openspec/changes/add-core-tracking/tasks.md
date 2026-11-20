@@ -2,18 +2,18 @@
 
 ## 1. Scaffolding and statistics spike
 
-- [ ] 1.1 Create `custom_components/baby_calendar/` with `manifest.json` (domain, name, version, `config_flow`, `integration_type: device`, `iot_class: local_push`, empty `requirements`) and `const.py`; verify the hassfest GitHub Action passes
+- [x] 1.1 Create `custom_components/baby_calendar/` with `manifest.json` (domain, name, version, `config_flow`, `integration_type: device`, `iot_class: local_push`, empty `requirements`) and `const.py`; verify the hassfest GitHub Action passes
 - [ ] 1.2 Add `hacs.json` with the minimum Home Assistant version set to the release used for development, `LICENSE` (MIT), `.gitignore` and a `README.md` stub; verify the HACS validation action passes
-- [ ] 1.3 Add `pyproject.toml` with ruff and pytest configuration and `pytest-homeassistant-custom-component` as a dev dependency; verify `pytest` runs and collects zero tests without error
+- [x] 1.3 Add `pyproject.toml` with ruff and pytest configuration and `pytest-homeassistant-custom-component` as a dev dependency; verify `pytest` runs and collects zero tests without error
 - [ ] 1.4 Add GitHub Actions workflows for hassfest, HACS validation, ruff and pytest; verify all four are green on a push
 - [ ] 1.5 On a real instance, add a throwaway sensor with `state_class: total` and a daily `last_reset`, leave it over two midnights and open a statistics graph card with `chart_type: bar`, `period: day`, `stat_types: [change]`; verify it shows one bar per day with that day's total, as the harness test in design.md D9 predicts
 
 ## 2. Event store
 
-- [ ] 2.1 Implement `EventStore` (single locked connection, schema creation for `babies` and `events`, `PRAGMA user_version`, single pre-migration copy, refusal of a newer schema) per design D1 and D2; verify with tests for a fresh file, a reopened file and a file with a newer version
-- [ ] 2.2 Implement add, get, update, delete, list by baby and period with optional tracker filter, latest by `created_ts`, and the baby operations (create, mark removed, find removed by name, re-attach, purge); verify with unit tests covering each operation, unknown identifiers and ordering
-- [ ] 2.3 Implement the query helpers used by tracker state (last event by tracker and kinds, count and amount sum for a period); verify with unit tests including an empty store
-- [ ] 2.4 Implement `backup.py` with pre and post backup hooks per design D1; verify with a test that the store is closed between the hooks and usable after, and that a write issued during a backup completes afterwards
+- [x] 2.1 Implement `EventStore` (single locked connection, schema creation for `babies` and `events`, `PRAGMA user_version`, single pre-migration copy, refusal of a newer schema) per design D1 and D2; verify with tests for a fresh file, a reopened file and a file with a newer version
+- [x] 2.2 Implement add, get, update, delete, list by baby and period with optional tracker filter, latest by `created_ts`, and the baby operations (create, mark removed, find removed by name, re-attach, purge); verify with unit tests covering each operation, unknown identifiers and ordering
+- [x] 2.3 Implement the query helpers used by tracker state (last event by tracker and kinds, count and amount sum for a period); verify with unit tests including an empty store
+- [x] 2.4 Implement `backup.py` with pre and post backup hooks per design D1; verify with a test that the store is closed between the hooks and usable after, and that a write issued during a backup completes afterwards
 
 ## 3. Baby profile
 
