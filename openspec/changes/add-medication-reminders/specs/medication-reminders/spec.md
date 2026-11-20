@@ -112,8 +112,23 @@ Each active medication with a schedule SHALL have a binary sensor that is on whi
 - **WHEN** a medication has no schedule
 - **THEN** it has no due sensor and no next dose sensor
 
+### Requirement: Due event
+The integration SHALL fire the event `baby_calendar_medication_due` when a dose of a medication becomes due, and again after Home Assistant starts or the baby's configuration is reloaded, for every dose that is then due. The event data SHALL give the baby's name, the medication's name, its dose text, the entity id of its due sensor and the entity id of its dose button.
+
+#### Scenario: Dose becomes due
+- **WHEN** the 09:00 dose of "Vitamin D" becomes due
+- **THEN** one `baby_calendar_medication_due` event is fired with the baby's name, "Vitamin D", its dose text, its due sensor and its dose button
+
+#### Scenario: Started while due
+- **WHEN** Home Assistant starts while a dose is due
+- **THEN** the event is fired for that dose after start
+
+#### Scenario: No schedule, no event
+- **WHEN** a medication has no schedule
+- **THEN** no due event is ever fired for it
+
 ### Requirement: Reminder blueprint
-The project SHALL provide an automation blueprint that, for a chosen medication, sends a notification through an action chosen by the user when a dose becomes due, and optionally repeats it at a chosen interval until the dose is recorded.
+The project SHALL provide an automation blueprint, triggered by the due event, that sends a notification through actions chosen by the user when a dose becomes due, and optionally repeats them at a chosen interval, for each medication separately, until its dose is recorded. One automation created from it SHALL cover every medication, including medications added later, of every baby or of the babies chosen. When the notification carries a "Given" action, choosing it SHALL record the dose.
 
 #### Scenario: Reminder on a phone
 - **WHEN** an automation created from the blueprint targets a phone and a dose becomes due
@@ -123,12 +138,20 @@ The project SHALL provide an automation blueprint that, for a chosen medication,
 - **WHEN** the blueprint's repeat is set to 15 minutes and the dose stays due
 - **THEN** the notification is sent again every 15 minutes and stops once a dose is recorded
 
+#### Scenario: Medication added later
+- **WHEN** a medication with a schedule is added after the automation was created and its dose becomes due
+- **THEN** the same automation sends its reminder, with no new automation
+
+#### Scenario: Given from the notification
+- **WHEN** the "Given" action of a reminder notification is chosen
+- **THEN** a dose of that medication is recorded and its reminders stop
+
 ### Requirement: No notifications from the integration
-The integration SHALL NOT send notifications itself. A due dose SHALL be signalled only through its entities, which automations, including those created from the blueprint, act on.
+The integration SHALL NOT send notifications itself. A due dose SHALL be signalled only through its entities and the due event, which automations, including those created from the blueprint, act on.
 
 #### Scenario: Due with no automation
-- **WHEN** a dose becomes due and no automation uses its due sensor
-- **THEN** the due sensor turns on and no notification is sent
+- **WHEN** a dose becomes due and no automation uses its due sensor or the due event
+- **THEN** the due sensor turns on, the due event is fired and no notification is sent
 
 ### Requirement: Due state across restarts
 The due state SHALL be recomputed when Home Assistant starts. A dose that became due while Home Assistant was not running SHALL be shown as due after start.

@@ -10,7 +10,7 @@ Babies are given vitamin D every day for months, and at times a course of medici
 - Two schedule types, chosen per medication: fixed times of day (vitamin D at 09:00) or an interval since the last dose (every 6 hours). A medication can also have no schedule and simply be logged. With fixed times, each scheduled time is satisfied by a dose given near it, and a missed dose stays due until it is given or the next scheduled time arrives, including across midnight.
 - A service and a one-tap button per medication to record a dose, with optional notes and time.
 - Per medication: sensors for the last dose, today's doses and the next dose, and a binary sensor that is on while a dose is due.
-- Reminders through the due sensor and a ready-made automation blueprint that sends the notification wherever the user wants (a phone, a speaker, a light), optionally repeating until the dose is recorded. The integration itself sends no notifications.
+- Reminders through a due event that the integration fires when a dose becomes due, and a ready-made automation blueprint that sends the notification wherever the user wants (a phone, a speaker, a light), optionally repeating until the dose is recorded. One automation from the blueprint covers every medication of every baby, including medications added later, and its notification can carry a "Given" action that records the dose. The integration itself sends no notifications.
 - Doses are corrected, deleted and listed through the existing event services.
 
 Depends on `add-core-tracking` being implemented and archived first. If `add-calendar-view` is in place, doses appear in the calendar as "💊" followed by the medication name.

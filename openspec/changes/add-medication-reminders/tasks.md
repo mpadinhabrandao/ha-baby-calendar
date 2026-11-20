@@ -25,12 +25,13 @@
 ## 4. Reminders
 
 - [x] 4.1 Verify with tests that the due state is recomputed at startup: Home Assistant down at dose time, and a restart while a dose is due
-- [ ] 4.2 Write the reminder blueprint per design R6; verify on a real instance that an automation created from it notifies a phone when a dose becomes due, repeats until the dose is recorded, and receives the baby name, medication name and dose text
-- [ ] 4.3 Document reminders in `README.md`, leading with the blueprint import link and stating that the integration sends no notifications itself; verify the import link works on a real instance
+- [ ] 4.2 Write the reminder blueprint per design R6, triggered by the due event; verify with tests that one automation reminds for two medications, a medication added later, a repeat until the dose is recorded, a baby filter and the "Given" action recording the dose; then verify on a real instance that a phone receives the reminder with the baby name, medication name and dose text, and that "Given" records the dose
+- [ ] 4.3 Document reminders in `README.md`, leading with the blueprint import link, stating that the integration sends no notifications itself, and describing the due event and the "Given" action; verify the import link works on a real instance
+- [ ] 4.4 Fire the due event per design R5; verify with tests for a dose becoming due, a start while due, a reload while due, a dose recorded and due again later, and a medication with no schedule
 
 ## 5. Integration checks
 
-- [ ] 5.1 On a real instance, add a fixed-times medication and an interval medication, each with an automation from the blueprint; verify both reminders arrive and stop once a dose is recorded
+- [ ] 5.1 On a real instance, add a fixed-times medication and an interval medication and one automation from the blueprint; verify both reminders arrive and stop once a dose is recorded
 - [ ] 5.2 Restart Home Assistant while a dose is due and verify the due sensor is on after start
 - [ ] 5.3 Verify that the other trackers and their existing events behave exactly as before
 - [x] 5.4 Run `openspec validate add-medication-reminders --strict` and verify it passes
