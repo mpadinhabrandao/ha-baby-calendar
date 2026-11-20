@@ -333,6 +333,71 @@ With bottles, breastfeeding or both enabled, **Last feed** (`sensor`) shows
 the start of the most recent feed of either kind, with `kind` (`bottle` or
 `breastfeeding`) as an attribute.
 
+## Measurements: weight, length and temperature
+
+Each measurement is a tracker you enable per baby. Values are always entered
+in grams, centimetres and degrees Celsius; Home Assistant may display the
+sensors converted to your unit system, but the inputs and the actions stay
+metric.
+
+| Measurement | Unit | Accepted range | Input step |
+|---|---|---|---|
+| Weight | g | 300 to 30000 | 1 |
+| Length | cm | 20 to 130 | 0.5 |
+| Temperature | °C | 30 to 45 | 0.1 |
+
+A reading outside the range is refused, which catches kilograms typed as
+grams; a value in the wrong unit but inside the range is accepted, so check
+the sensor and correct it with `update_event` if needed. Baby Calendar does
+not interpret readings: no percentiles, no alerts.
+
+### Entities
+
+Per enabled measurement, with weight as the example:
+
+| Entity | What it shows or does |
+|---|---|
+| **Weight to log** (`number`) | The value for the button; back to 0 after a reading and after a restart |
+| **Log weight** (`button`) | Logs the value now, or "minutes ago" earlier; a press at 0 fails |
+| **Weight** (`sensor`) | The reading with the latest time, in its unit |
+| **Last weight** (`sensor`) | The time of that reading, with `event_id`, `value` and `notes` |
+
+The sensor shows the reading with the latest *time*, so entering an old
+check-up does not replace today's value. The temperature sensor becomes
+unknown 24 hours after its reading, so one fever reading does not stay the
+current temperature for weeks; the reading itself stays in the history.
+
+### Charts
+
+Weight and length are kept in Home Assistant's long-term statistics, so a
+**Statistics graph** card of the weight sensor charts growth over months.
+The chart follows the sensor as it changes: a reading logged with a past
+time, or corrected later, is charted when it was entered, not at its own
+time, and a mistaken reading that was shown for an hour stays in that hour
+of the chart after you delete it. `list_events` and the calendar always
+show the readings at their own times.
+
+### Actions
+
+```yaml
+action: baby_calendar.log_weight      # or log_length, log_temperature
+data:
+  device_id: <the baby's device>
+  value: 3450                  # grams; centimetres or °C for the others
+  notes: Check-up              # optional
+  time: "2026-11-17 10:30:00"  # optional, now if left out
+```
+
+To correct a value:
+
+```yaml
+action: baby_calendar.update_event
+data:
+  event_id: <the reading's event_id>
+  fields:
+    value: 3540
+```
+
 ## Medications
 
 Baby Calendar records doses of the medications you enter and tells you when

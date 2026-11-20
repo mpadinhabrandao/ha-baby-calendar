@@ -1,4 +1,4 @@
-"""Number entities: the "minutes ago" input and the bottle amount."""
+"""Number entities: "minutes ago", the bottle amount, durations and readings."""
 
 from typing import override
 
@@ -12,6 +12,7 @@ from .entity import BabyEntity
 from .models import BabyConfigEntry
 from .trackers import TIMED_TRACKERS
 from .trackers.bottle import MAX_AMOUNT
+from .trackers.measurement import MEASUREMENTS, MeasurementTracker
 
 MAX_MINUTES_AGO = 720
 MAX_DURATION = 1440
@@ -30,6 +31,11 @@ async def async_setup_entry(
         DurationNumber(entry, key)
         for key in TIMED_TRACKERS
         if key in entry.runtime_data.trackers
+    ]
+    entities += [
+        MeasurementNumber(entry, tracker)
+        for tracker in MEASUREMENTS
+        if tracker.key in entry.runtime_data.trackers
     ]
     async_add_entities(entities)
 
@@ -127,4 +133,35 @@ class DurationNumber(BabyEntity, NumberEntity):
     @override
     async def async_set_native_value(self, value: float) -> None:
         self.entry.runtime_data.durations[self._tracker] = int(value)
+        self.async_write_ha_state()
+
+
+class MeasurementNumber(BabyEntity, NumberEntity):
+    """The reading to log with the measurement's button.
+
+    A one-shot input: not restored, and set back to 0 after a reading. Zero
+    is below every range, so a press without a value fails.
+    """
+
+    _attr_mode = NumberMode.BOX
+    _attr_native_min_value = 0
+
+    def __init__(self, entry: BabyConfigEntry, tracker: MeasurementTracker) -> None:
+        """Create the input of one measurement."""
+        super().__init__(entry, f"{tracker.key}_value")
+        measurement = tracker.measurement
+        self._tracker = tracker.key
+        self._attr_icon = measurement.icon
+        self._attr_native_max_value = measurement.maximum
+        self._attr_native_step = measurement.step
+        self._attr_native_unit_of_measurement = measurement.unit
+
+    @property
+    @override
+    def native_value(self) -> float:
+        return self.entry.runtime_data.measurements.get(self._tracker, 0)
+
+    @override
+    async def async_set_native_value(self, value: float) -> None:
+        self.entry.runtime_data.measurements[self._tracker] = value
         self.async_write_ha_state()

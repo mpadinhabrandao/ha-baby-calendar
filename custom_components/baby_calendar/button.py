@@ -21,6 +21,7 @@ from .services import (
 )
 from .trackers import TIMED_TRACKERS, bottle
 from .trackers.diaper import BOTH, CONTENT, DIAPER, DIRTY, STOOLS, WET
+from .trackers.measurement import MEASUREMENTS, VALUE, MeasurementTracker
 from .trackers.medication import medications
 from .trackers.timed import TimedTracker
 
@@ -42,6 +43,11 @@ async def async_setup_entry(
         DurationLogButton(entry, tracker)
         for key, tracker in TIMED_TRACKERS.items()
         if key in trackers
+    ]
+    entities += [
+        MeasurementButton(entry, tracker)
+        for tracker in MEASUREMENTS
+        if tracker.key in trackers
     ]
     entities += [
         MedicationButton(entry, med) for med in medications(entry.options, active=True)
@@ -168,5 +174,30 @@ class MedicationButton(MedicationEntity, ButtonEntity):
     async def async_press(self) -> None:
         async def log(when: datetime) -> None:
             await async_log_dose(self.hass, self.entry, self.medication, when=when)
+
+        await async_log_from_dashboard(self.hass, self.entry, self.key, log)
+
+
+class MeasurementButton(BabyEntity, ButtonEntity):
+    """Log a reading with the value of the measurement's input."""
+
+    def __init__(self, entry: BabyConfigEntry, tracker: MeasurementTracker) -> None:
+        """Create the log button of one measurement."""
+        super().__init__(entry, f"{tracker.key}_log")
+        self._tracker = tracker
+        self._attr_icon = tracker.measurement.icon
+
+    @override
+    async def async_press(self) -> None:
+        data = self.entry.runtime_data
+        key = self._tracker.key
+
+        async def log(when: datetime) -> None:
+            value = data.measurements.get(key, 0)
+            await async_log(
+                self.hass, self.entry, self._tracker, {VALUE: value}, when=when
+            )
+            data.measurements[key] = 0
+            data.coordinator.async_update_listeners()
 
         await async_log_from_dashboard(self.hass, self.entry, self.key, log)

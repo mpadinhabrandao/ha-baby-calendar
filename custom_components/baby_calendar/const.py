@@ -21,6 +21,9 @@ TRACKER_DIAPER: Final = "diaper"
 TRACKER_BOTTLE: Final = "bottle"
 TRACKER_BREASTFEEDING: Final = "breastfeeding"
 TRACKER_SLEEP: Final = "sleep"
+TRACKER_WEIGHT: Final = "weight"
+TRACKER_LENGTH: Final = "length"
+TRACKER_TEMPERATURE: Final = "temperature"
 
 # Every tracker the integration offers, in the order the UI lists them.
 TRACKER_KEYS: Final = (
@@ -28,6 +31,9 @@ TRACKER_KEYS: Final = (
     TRACKER_BOTTLE,
     TRACKER_BREASTFEEDING,
     TRACKER_SLEEP,
+    TRACKER_WEIGHT,
+    TRACKER_LENGTH,
+    TRACKER_TEMPERATURE,
 )
 
 # State group of the values computed across trackers, such as the last feed.
