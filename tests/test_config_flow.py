@@ -48,6 +48,7 @@ async def test_baby_added_before_birth(hass: HomeAssistant) -> None:
             "bottle",
             "breastfeeding",
             "sleep",
+            "solids",
             "weight",
             "length",
             "temperature",

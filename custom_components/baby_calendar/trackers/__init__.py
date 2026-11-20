@@ -5,6 +5,7 @@ from ..const import (
     TRACKER_BREASTFEEDING,
     TRACKER_DIAPER,
     TRACKER_SLEEP,
+    TRACKER_SOLIDS,
 )
 from .base import Tracker
 from .bottle import BOTTLE
@@ -13,6 +14,7 @@ from .diaper import DIAPER
 from .measurement import MEASUREMENTS
 from .medication import MEDICATION_TRACKER
 from .sleep import SLEEP
+from .solids import SOLIDS
 from .timed import TimedTracker
 
 TRACKERS: dict[str, Tracker] = {
@@ -22,6 +24,7 @@ TRACKERS: dict[str, Tracker] = {
         BOTTLE,
         BREASTFEEDING,
         SLEEP,
+        SOLIDS,
         *MEASUREMENTS,
         MEDICATION_TRACKER,
     )
@@ -87,6 +90,7 @@ TRACKER_ENTITY_KEYS: dict[str, frozenset[str]] = {
             "sleep_duration_today",
         }
     ),
+    TRACKER_SOLIDS: frozenset({"solids_log", "solids_last", "solids_count_today"}),
     **{
         m.key: frozenset({f"{m.key}_value", f"{m.key}_log", m.key, f"{m.key}_last"})
         for m in MEASUREMENTS

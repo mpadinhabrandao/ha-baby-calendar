@@ -101,6 +101,7 @@
         "bottle": "Bottles",
         "breastfeeding": "Breastfeeding",
         "sleep": "Sleep",
+        "solids": "Solids",
         "medication": "Medication",
         "weight": "Weight",
         "length": "Length",
@@ -473,6 +474,24 @@
           "description": "When it was measured. Now if left empty."
         }
       }
+    },
+    "log_solids": {
+      "name": "Log solids",
+      "description": "Records a solid food meal for a baby.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "What was eaten, such as carrot puree. Optional."
+        },
+        "time": {
+          "name": "Time",
+          "description": "When it happened. Now if left empty."
+        }
+      }
     }
   },
   "exceptions": {
@@ -611,6 +630,9 @@
       },
       "temperature_log": {
         "name": "Log temperature"
+      },
+      "solids_log": {
+        "name": "Log meal"
       }
     },
     "calendar": {
@@ -779,6 +801,20 @@
             "name": "Notes"
           }
         }
+      },
+      "solids_last": {
+        "name": "Last meal",
+        "state_attributes": {
+          "event_id": {
+            "name": "Event"
+          },
+          "notes": {
+            "name": "Notes"
+          }
+        }
+      },
+      "solids_count_today": {
+        "name": "Meals today"
       }
     },
     "switch": {
