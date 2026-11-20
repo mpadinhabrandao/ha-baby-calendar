@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .const import DOMAIN, TRACKER_BOTTLE, TRACKER_DIAPER
+from .const import DOMAIN, TRACKER_BOTTLE, TRACKER_DIAPER, TRACKER_SOLIDS
 from .entity import BabyEntity, MedicationEntity
 from .models import BabyConfigEntry
 from .services import (
@@ -23,6 +23,7 @@ from .trackers import TIMED_TRACKERS, bottle
 from .trackers.diaper import BOTH, CONTENT, DIAPER, DIRTY, STOOLS, WET
 from .trackers.measurement import MEASUREMENTS, VALUE, MeasurementTracker
 from .trackers.medication import medications
+from .trackers.solids import SOLIDS
 from .trackers.timed import TimedTracker
 
 
@@ -39,6 +40,8 @@ async def async_setup_entry(
         entities += [StoolButton(entry, stool) for stool in STOOLS]
     if TRACKER_BOTTLE in trackers:
         entities.append(BottleButton(entry))
+    if TRACKER_SOLIDS in trackers:
+        entities.append(SolidsButton(entry))
     entities += [
         DurationLogButton(entry, tracker)
         for key, tracker in TIMED_TRACKERS.items()
@@ -199,5 +202,22 @@ class MeasurementButton(BabyEntity, ButtonEntity):
             )
             data.measurements[key] = 0
             data.coordinator.async_update_listeners()
+
+        await async_log_from_dashboard(self.hass, self.entry, self.key, log)
+
+
+class SolidsButton(BabyEntity, ButtonEntity):
+    """Log a meal with no note; what was eaten is added in the calendar."""
+
+    _attr_icon = "mdi:bowl-mix"
+
+    def __init__(self, entry: BabyConfigEntry) -> None:
+        """Create the solids button of one baby."""
+        super().__init__(entry, "solids_log")
+
+    @override
+    async def async_press(self) -> None:
+        async def log(when: datetime) -> None:
+            await async_log(self.hass, self.entry, SOLIDS, {}, when=when)
 
         await async_log_from_dashboard(self.hass, self.entry, self.key, log)

@@ -21,6 +21,7 @@ from .const import (
     TRACKER_BREASTFEEDING,
     TRACKER_DIAPER,
     TRACKER_SLEEP,
+    TRACKER_SOLIDS,
 )
 from .coordinator import DAY, FEEDING_TRACKERS
 from .entity import BabyEntity, MedicationEntity
@@ -111,6 +112,8 @@ SENSORS: tuple[BabySensorDescription, ...] = (
     _today(
         "sleep_duration_today", TRACKER_SLEEP, "mdi:timer-outline", UnitOfTime.MINUTES
     ),
+    _last("solids_last", TRACKER_SOLIDS, "mdi:bowl-mix"),
+    _today("solids_count_today", TRACKER_SOLIDS, "mdi:bowl-mix-outline"),
     _last(
         "last_feed",
         FEEDING,

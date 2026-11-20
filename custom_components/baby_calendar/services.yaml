@@ -65,6 +65,23 @@ log_bottle:
       selector:
         datetime:
 
+log_solids:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    notes:
+      example: Carrot puree
+      selector:
+        text:
+          multiline: true
+    time:
+      selector:
+        datetime:
+
 log_weight:
   fields:
     device_id:
@@ -329,6 +346,7 @@ list_events:
             - bottle
             - breastfeeding
             - sleep
+            - solids
             - weight
             - length
             - temperature

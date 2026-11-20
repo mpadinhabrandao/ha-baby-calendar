@@ -21,6 +21,7 @@ TRACKER_DIAPER: Final = "diaper"
 TRACKER_BOTTLE: Final = "bottle"
 TRACKER_BREASTFEEDING: Final = "breastfeeding"
 TRACKER_SLEEP: Final = "sleep"
+TRACKER_SOLIDS: Final = "solids"
 TRACKER_WEIGHT: Final = "weight"
 TRACKER_LENGTH: Final = "length"
 TRACKER_TEMPERATURE: Final = "temperature"
@@ -31,6 +32,7 @@ TRACKER_KEYS: Final = (
     TRACKER_BOTTLE,
     TRACKER_BREASTFEEDING,
     TRACKER_SLEEP,
+    TRACKER_SOLIDS,
     TRACKER_WEIGHT,
     TRACKER_LENGTH,
     TRACKER_TEMPERATURE,

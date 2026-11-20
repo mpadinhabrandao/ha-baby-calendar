@@ -101,6 +101,7 @@
         "bottle": "Biberões",
         "breastfeeding": "Amamentação",
         "sleep": "Sono",
+        "solids": "Sólidos",
         "medication": "Medicação",
         "weight": "Peso",
         "length": "Comprimento",
@@ -473,6 +474,24 @@
           "description": "Quando foi medido. Agora, se ficar vazio."
         }
       }
+    },
+    "log_solids": {
+      "name": "Registar sólidos",
+      "description": "Regista uma refeição de sólidos de um bebé.",
+      "fields": {
+        "device_id": {
+          "name": "Bebé",
+          "description": "O bebé."
+        },
+        "notes": {
+          "name": "Notas",
+          "description": "O que comeu, como puré de cenoura. Opcional."
+        },
+        "time": {
+          "name": "Hora",
+          "description": "Quando aconteceu. Agora, se ficar vazio."
+        }
+      }
     }
   },
   "exceptions": {
@@ -611,6 +630,9 @@
       },
       "temperature_log": {
         "name": "Registar temperatura"
+      },
+      "solids_log": {
+        "name": "Registar refeição"
       }
     },
     "calendar": {
@@ -779,6 +801,20 @@
             "name": "Notas"
           }
         }
+      },
+      "solids_last": {
+        "name": "Última refeição de sólidos",
+        "state_attributes": {
+          "event_id": {
+            "name": "Evento"
+          },
+          "notes": {
+            "name": "Notas"
+          }
+        }
+      },
+      "solids_count_today": {
+        "name": "Refeições hoje"
       }
     },
     "switch": {
