@@ -235,6 +235,9 @@
     },
     "stool_too_late": {
       "message": "The last dirty diaper was recorded more than 10 minutes ago. Correct it with the Correct entry action."
+    },
+    "bottle_amount_zero": {
+      "message": "Set the bottle amount before logging the bottle."
     }
   },
   "entity": {
@@ -267,11 +270,27 @@
       },
       "stool_diarrhea": {
         "name": "Stool diarrhea"
+      },
+      "bottle_log": {
+        "name": "Log bottle"
       }
     },
     "number": {
       "minutes_ago": {
         "name": "Minutes ago"
+      },
+      "bottle_amount": {
+        "name": "Bottle amount"
+      }
+    },
+    "select": {
+      "bottle_content": {
+        "name": "Bottle content",
+        "state": {
+          "not_specified": "Not specified",
+          "formula": "Formula",
+          "breast_milk": "Breast milk"
+        }
       }
     },
     "sensor": {
@@ -292,6 +311,15 @@
       },
       "diaper_dirty_today": {
         "name": "Dirty diapers today"
+      },
+      "bottle_last": {
+        "name": "Last bottle"
+      },
+      "bottle_count_today": {
+        "name": "Bottles today"
+      },
+      "bottle_ml_today": {
+        "name": "Bottle millilitres today"
       }
     }
   }

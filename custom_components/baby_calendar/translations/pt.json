@@ -235,6 +235,9 @@
     },
     "stool_too_late": {
       "message": "O último cocó foi registado há mais de 10 minutos. Corrige-o com a ação Corrigir registo."
+    },
+    "bottle_amount_zero": {
+      "message": "Indica a quantidade do biberão antes de o registar."
     }
   },
   "entity": {
@@ -267,11 +270,27 @@
       },
       "stool_diarrhea": {
         "name": "Cocó diarreia"
+      },
+      "bottle_log": {
+        "name": "Registar biberão"
       }
     },
     "number": {
       "minutes_ago": {
         "name": "Há minutos"
+      },
+      "bottle_amount": {
+        "name": "Quantidade do biberão"
+      }
+    },
+    "select": {
+      "bottle_content": {
+        "name": "Conteúdo do biberão",
+        "state": {
+          "not_specified": "Não indicado",
+          "formula": "Leite de fórmula",
+          "breast_milk": "Leite materno"
+        }
       }
     },
     "sensor": {
@@ -292,6 +311,15 @@
       },
       "diaper_dirty_today": {
         "name": "Cocós hoje"
+      },
+      "bottle_last": {
+        "name": "Último biberão"
+      },
+      "bottle_count_today": {
+        "name": "Biberões hoje"
+      },
+      "bottle_ml_today": {
+        "name": "Mililitros de biberão hoje"
       }
     }
   }

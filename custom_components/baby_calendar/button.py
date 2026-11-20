@@ -5,12 +5,14 @@ from typing import override
 
 from homeassistant.components.button import ButtonEntity
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .const import TRACKER_DIAPER
+from .const import DOMAIN, TRACKER_BOTTLE, TRACKER_DIAPER
 from .entity import BabyEntity
 from .models import BabyConfigEntry
 from .services import async_log, async_log_from_dashboard, async_set_stool, async_undo
+from .trackers import bottle
 from .trackers.diaper import BOTH, CONTENT, DIAPER, DIRTY, STOOLS, WET
 
 
@@ -25,6 +27,8 @@ async def async_setup_entry(
     if TRACKER_DIAPER in trackers:
         entities += [DiaperButton(entry, content) for content in (WET, DIRTY, BOTH)]
         entities += [StoolButton(entry, stool) for stool in STOOLS]
+    if TRACKER_BOTTLE in trackers:
+        entities.append(BottleButton(entry))
     async_add_entities(entities)
 
 
@@ -75,3 +79,30 @@ class StoolButton(BabyEntity, ButtonEntity):
     @override
     async def async_press(self) -> None:
         await async_set_stool(self.hass, self.entry, self._stool)
+
+
+class BottleButton(BabyEntity, ButtonEntity):
+    """Log a bottle with the amount and content currently set."""
+
+    _attr_icon = "mdi:baby-bottle"
+
+    def __init__(self, entry: BabyConfigEntry) -> None:
+        """Create the bottle button of one baby."""
+        super().__init__(entry, "bottle_log")
+
+    @override
+    async def async_press(self) -> None:
+        data = self.entry.runtime_data
+
+        async def log(when: datetime) -> None:
+            # Checked inside the dashboard path, so "minutes ago" still resets.
+            if data.bottle_amount <= 0:
+                raise ServiceValidationError(
+                    translation_domain=DOMAIN, translation_key="bottle_amount_zero"
+                )
+            fields = {bottle.AMOUNT: data.bottle_amount}
+            if data.bottle_content:
+                fields[bottle.CONTENT] = data.bottle_content
+            await async_log(self.hass, self.entry, bottle.BOTTLE, fields, when=when)
+
+        await async_log_from_dashboard(self.hass, self.entry, self.key, log)

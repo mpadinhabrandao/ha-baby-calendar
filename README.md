@@ -181,6 +181,51 @@ data:
 response_variable: logged      # optional, holds event_id
 ```
 
+## Bottles
+
+### Entities
+
+| Entity | What it does |
+|---|---|
+| Bottle amount (`number`) | Millilitres of the next bottle, 0 to 500 in steps of 1. |
+| Bottle content (`select`) | Not specified, formula or breast milk. |
+| Log bottle (`button`) | Logs a bottle with the amount and content set. Fails while the amount is 0. |
+| Last bottle (`sensor`) | Time of the last bottle, with its `event_id`, `amount`, `content` and `notes` as attributes. |
+| Bottles today, Bottle millilitres today (`sensor`) | Today's count and total, from local midnight. |
+
+The amount and the content keep their value after a press and after a
+restart, since a baby's usual bottle rarely changes from one feed to the
+next. They are the only inputs that do.
+
+On a phone, the amount box saves its value when it loses focus. Check the
+amount shown before pressing the button; if it was wrong, press **Undo last
+entry** or correct the bottle with `update_event`.
+
+### Dashboard example
+
+```yaml
+type: entities
+entities:
+  - number.alice_bottle_amount
+  - select.alice_bottle_content
+  - button.alice_log_bottle
+  - sensor.alice_last_bottle
+  - sensor.alice_bottles_today
+  - sensor.alice_bottle_millilitres_today
+```
+
+### Action
+
+```yaml
+action: baby_calendar.log_bottle
+data:
+  device_id: <the baby's device>
+  amount: 90                # millilitres, more than 0
+  content: formula          # optional: formula or breast_milk
+  notes: Took a while       # optional
+  time: "2026-11-20 03:00:00"  # optional, now if left out
+```
+
 ## Correcting, deleting and listing entries
 
 ```yaml

@@ -10,11 +10,12 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
+from homeassistant.const import UnitOfVolume
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util import dt as dt_util
 
-from .const import TRACKER_DIAPER
+from .const import TRACKER_BOTTLE, TRACKER_DIAPER
 from .coordinator import DAY
 from .entity import BabyEntity
 from .models import BabyConfigEntry
@@ -61,6 +62,14 @@ SENSORS: tuple[BabySensorDescription, ...] = (
     _today("diaper_changes_today", TRACKER_DIAPER, "mdi:human-baby-changing-table"),
     _today("diaper_wet_today", TRACKER_DIAPER, "mdi:water"),
     _today("diaper_dirty_today", TRACKER_DIAPER, "mdi:emoticon-poop"),
+    _last("bottle_last", TRACKER_BOTTLE, "mdi:baby-bottle"),
+    _today("bottle_count_today", TRACKER_BOTTLE, "mdi:baby-bottle-outline"),
+    _today(
+        "bottle_ml_today",
+        TRACKER_BOTTLE,
+        "mdi:baby-bottle",
+        UnitOfVolume.MILLILITERS,
+    ),
 )
 
 
