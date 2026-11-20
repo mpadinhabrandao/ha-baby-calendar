@@ -95,7 +95,7 @@ async def settle(hass: HomeAssistant, until=lambda: False) -> None:
     sleeping would never return either. Run until ``until`` holds, then a
     little more so the automation reaches its next wait.
     """
-    for _ in range(200):
+    for _ in range(2000):
         if until():
             break
         await hass.async_add_executor_job(lambda: None)

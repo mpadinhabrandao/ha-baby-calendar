@@ -4,7 +4,7 @@
 
 - [x] 1.1 Add the `feed` attribute to the last breastfeeding sensor per design D6; verify with tests for one side, two sides with a pause, the same side twice, a pause over 30 minutes, a feed across midnight and a running side
 - [x] 1.2 Add the `baby_calendar/subscribe_babies` WebSocket subscription per design D3; verify with tests for the message's content, a non-administrator user, and a new message after a medication is added and after a baby is removed
-- [ ] 1.3 Serve and register the cards' module per design D2, with the `http` and `websocket_api` dependencies and `frontend` after; verify with a test that the static path serves the bundle and the module URL carries the version, and that Hassfest passes
+- [x] 1.3 Serve and register the cards' module per design D2, with the `http` and `websocket_api` dependencies and `frontend` after; verify with a test that the static path serves the bundle and the module URL carries the bundle's hash, and that Hassfest passes
 
 ## 2. Frontend tooling
 

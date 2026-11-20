@@ -7,7 +7,7 @@ What the integration provides so its cards work with no setup: their registratio
 ## ADDED Requirements
 
 ### Requirement: Cards registered by the integration
-When the integration is loaded, it SHALL serve the cards' module and add it to every dashboard, so the cards need no dashboard resource. The module's URL SHALL change with the integration's version, so an update reaches clients.
+When the integration is loaded, it SHALL serve the cards' module and add it to every dashboard, so the cards need no dashboard resource. The module's URL SHALL change whenever the cards change, so an update reaches clients.
 
 #### Scenario: After installing
 - **WHEN** the integration is installed and Home Assistant restarted

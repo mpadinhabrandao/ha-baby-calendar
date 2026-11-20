@@ -6,7 +6,12 @@ from unittest.mock import patch
 from homeassistant.core import HomeAssistant
 from homeassistant.setup import async_setup_component
 
-from custom_components.baby_calendar.cards import MODULE, URL_BASE, module_url
+from custom_components.baby_calendar.cards import (
+    MODULE,
+    URL_BASE,
+    bundle_hash,
+    module_url,
+)
 from custom_components.baby_calendar.const import CONF_BABY_ID, DOMAIN
 
 from .conftest import add_baby
@@ -104,7 +109,7 @@ async def test_module_served(hass: HomeAssistant, hass_client) -> None:
 
 
 async def test_module_added_to_dashboards(hass: HomeAssistant) -> None:
-    """With the frontend loaded, the module URL carrying the version is added."""
+    """With the frontend loaded, the module URL carrying the bundle hash is added."""
     hass.config.components.add("frontend")
     with patch(
         "homeassistant.components.frontend.add_extra_js_url"
@@ -112,6 +117,5 @@ async def test_module_added_to_dashboards(hass: HomeAssistant) -> None:
         assert await async_setup_component(hass, DOMAIN, {})
 
     [(_, url)] = [call.args for call in add_extra_js_url.call_args_list]
-    assert url.startswith(f"{URL_BASE}/{MODULE}?v=")
-    assert url == module_url(url.rpartition("=")[2])
-    assert url.rpartition("=")[2] != ""
+    assert url == module_url(bundle_hash())
+    assert len(bundle_hash()) == 12
