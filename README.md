@@ -80,6 +80,44 @@ Every baby has two entities that work with all trackers:
 A second press of the same logging button within 3 seconds is ignored, so a
 double tap records one entry.
 
+## Ready-made dashboard
+
+`dashboards/baby.yaml` is a dashboard view for one baby that fills itself:
+trackers you enable and medications you add later appear without editing
+it, and those you disable, remove or deactivate disappear. It shows, in this
+order: logging buttons and running timers; the stool type, only while a
+dirty diaper is waiting for one; medications; today's totals; last times;
+measurements; the inputs (minutes ago, amounts, content and side); the
+calendar. Empty sections are hidden.
+
+It needs the **auto-entities** card by Thomas Lovén
+([thomasloven/lovelace-auto-entities](https://github.com/thomasloven/lovelace-auto-entities),
+MIT licence), a community card that is not part of Home Assistant or of
+Baby Calendar. Baby Calendar works without it; only this view needs it.
+
+1. Install auto-entities: **Settings** > **Marketplace**, search for
+   *auto-entities*, **Download**, then reload the page.
+2. Create a dashboard: **Settings** > **Dashboards** > **Add dashboard** >
+   **New dashboard from scratch**.
+3. Open it, choose **Edit** > the three dots > **Raw configuration editor**,
+   and replace its contents with `dashboards/baby.yaml`.
+4. Replace the three values:
+   - `BABY_NAME`: the baby's name, as its device is named;
+   - `STOOL_PROMPT_ENTITY`: the baby's **Stool type pending** binary sensor,
+     such as `binary_sensor.alice_stool_type_pending`;
+   - `CALENDAR_ENTITY`: the baby's calendar, such as `calendar.alice_calendar`.
+
+   Both entity ids are on the baby's device page.
+5. Save. The section titles are in English; edit the `title:` lines to
+   change them.
+
+For a second baby, copy the view, from `- title:` to the end, below the first one, with that baby's values and a different `path`. If you rename
+a baby, change `BABY_NAME` in its view, or the view shows nothing.
+
+The view tells entities apart by their domain, classes and two attributes
+that do not depend on the language: `medication` on every medication entity
+and `stool_type` on each stool type button.
+
 ## Diapers
 
 ### Entities
