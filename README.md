@@ -354,6 +354,32 @@ data:
   time: "2026-11-20 12:30:00"  # optional, now if left out
 ```
 
+## Pumping
+
+| Entity | What it shows or does |
+|---|---|
+| **Pumping amount** (`number`) | Millilitres of the next session |
+| **Pumping side** (`select`) | Not specified, left, right or both |
+| **Log pumping** (`button`) | Logs a session with the amount and side, now or "minutes ago" earlier |
+| **Last pumping** (`sensor`) | Time of the last session, with `event_id`, `amount`, `side` and `notes` |
+| **Pumping sessions today** (`sensor`) | Sessions since midnight |
+| **Millilitres pumped today** (`sensor`) | Total since midnight |
+
+Unlike the bottle inputs, the amount and side are cleared after each session
+and are empty after a restart: every session is different, so pressing the
+button again without a new amount fails instead of logging the last one
+again. Pumping describes the parent; with twins, enable it on one baby.
+
+```yaml
+action: baby_calendar.log_pumping
+data:
+  device_id: <the baby's device>
+  amount: 80                   # millilitres, more than 0
+  side: both                   # optional: left, right or both
+  notes: Evening               # optional
+  time: "2026-11-20 21:00:00"  # optional, now if left out
+```
+
 ## Measurements: weight, length and temperature
 
 Each measurement is a tracker you enable per baby. Values are always entered

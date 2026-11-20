@@ -1,4 +1,4 @@
-"""Select entities: the next bottle's content and the next breastfeeding side."""
+"""Select entities: bottle content, breastfeeding side and pumping side."""
 
 from typing import Final, override
 
@@ -7,11 +7,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
-from .const import TRACKER_BOTTLE, TRACKER_BREASTFEEDING
+from .const import TRACKER_BOTTLE, TRACKER_BREASTFEEDING, TRACKER_PUMPING
 from .entity import BabyEntity
 from .models import BabyConfigEntry
 from .trackers.bottle import CONTENTS
 from .trackers.breastfeeding import SIDES
+from .trackers.pumping import SIDES as PUMPING_SIDES
 
 NOT_SPECIFIED: Final = "not_specified"
 
@@ -28,6 +29,8 @@ async def async_setup_entry(
         entities.append(BottleContentSelect(entry))
     if TRACKER_BREASTFEEDING in trackers:
         entities.append(BreastfeedingSideSelect(entry))
+    if TRACKER_PUMPING in trackers:
+        entities.append(PumpingSideSelect(entry))
     async_add_entities(entities)
 
 
@@ -95,6 +98,33 @@ class BreastfeedingSideSelect(BabyEntity, SelectEntity, RestoreEntity):
     @override
     async def async_select_option(self, option: str) -> None:
         self.entry.runtime_data.breastfeeding_side = (
+            None if option == NOT_SPECIFIED else option
+        )
+        self.async_write_ha_state()
+
+
+class PumpingSideSelect(BabyEntity, SelectEntity):
+    """Side of the next pumping session.
+
+    A one-shot input: not restored, and back to "not specified" after a
+    session.
+    """
+
+    _attr_icon = "mdi:cup-water"
+    _attr_options = [NOT_SPECIFIED, *PUMPING_SIDES]
+
+    def __init__(self, entry: BabyConfigEntry) -> None:
+        """Create the pumping side selector of one baby."""
+        super().__init__(entry, "pumping_side")
+
+    @property
+    @override
+    def current_option(self) -> str:
+        return self.entry.runtime_data.pumping_side or NOT_SPECIFIED
+
+    @override
+    async def async_select_option(self, option: str) -> None:
+        self.entry.runtime_data.pumping_side = (
             None if option == NOT_SPECIFIED else option
         )
         self.async_write_ha_state()

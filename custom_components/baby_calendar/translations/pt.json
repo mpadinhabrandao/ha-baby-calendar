@@ -102,6 +102,7 @@
         "breastfeeding": "Amamentação",
         "sleep": "Sono",
         "solids": "Sólidos",
+        "pumping": "Extração de leite",
         "medication": "Medicação",
         "weight": "Peso",
         "length": "Comprimento",
@@ -147,6 +148,13 @@
         "edit": "Editar",
         "toggle": "Desativar ou reativar",
         "remove": "Remover"
+      }
+    },
+    "pumping_side": {
+      "options": {
+        "left": "Esquerdo",
+        "right": "Direito",
+        "both": "Ambos"
       }
     }
   },
@@ -492,6 +500,32 @@
           "description": "Quando aconteceu. Agora, se ficar vazio."
         }
       }
+    },
+    "log_pumping": {
+      "name": "Registar extração",
+      "description": "Regista uma extração de leite.",
+      "fields": {
+        "device_id": {
+          "name": "Bebé",
+          "description": "O bebé."
+        },
+        "amount": {
+          "name": "Quantidade",
+          "description": "Mililitros, mais de 0."
+        },
+        "side": {
+          "name": "Lado",
+          "description": "Esquerdo, direito ou ambos."
+        },
+        "notes": {
+          "name": "Notas",
+          "description": "Notas opcionais."
+        },
+        "time": {
+          "name": "Hora",
+          "description": "Quando aconteceu. Agora, se ficar vazio."
+        }
+      }
     }
   },
   "exceptions": {
@@ -563,6 +597,9 @@
     },
     "value_out_of_range": {
       "message": "Indica um valor de {minimum} a {maximum} {unit}."
+    },
+    "pumping_amount_zero": {
+      "message": "Indica a quantidade extraída antes de registar a extração."
     }
   },
   "entity": {
@@ -633,6 +670,9 @@
       },
       "solids_log": {
         "name": "Registar refeição"
+      },
+      "pumping_log": {
+        "name": "Registar extração"
       }
     },
     "calendar": {
@@ -661,6 +701,9 @@
       },
       "temperature_value": {
         "name": "Temperatura a registar"
+      },
+      "pumping_amount": {
+        "name": "Quantidade extraída"
       }
     },
     "select": {
@@ -678,6 +721,15 @@
           "not_specified": "Não indicado",
           "left": "Esquerdo",
           "right": "Direito"
+        }
+      },
+      "pumping_side": {
+        "name": "Lado da extração",
+        "state": {
+          "not_specified": "Não indicado",
+          "left": "Esquerdo",
+          "right": "Direito",
+          "both": "Ambos"
         }
       }
     },
@@ -815,6 +867,29 @@
       },
       "solids_count_today": {
         "name": "Refeições hoje"
+      },
+      "pumping_last": {
+        "name": "Última extração",
+        "state_attributes": {
+          "event_id": {
+            "name": "Evento"
+          },
+          "amount": {
+            "name": "Quantidade"
+          },
+          "side": {
+            "name": "Lado"
+          },
+          "notes": {
+            "name": "Notas"
+          }
+        }
+      },
+      "pumping_count_today": {
+        "name": "Extrações hoje"
+      },
+      "pumping_ml_today": {
+        "name": "Mililitros extraídos hoje"
       }
     },
     "switch": {

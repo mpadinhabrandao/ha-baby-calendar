@@ -20,6 +20,7 @@ from .const import (
     TRACKER_BOTTLE,
     TRACKER_BREASTFEEDING,
     TRACKER_DIAPER,
+    TRACKER_PUMPING,
     TRACKER_SLEEP,
     TRACKER_SOLIDS,
 )
@@ -111,6 +112,14 @@ SENSORS: tuple[BabySensorDescription, ...] = (
     _today("sleep_count_today", TRACKER_SLEEP, "mdi:sleep"),
     _today(
         "sleep_duration_today", TRACKER_SLEEP, "mdi:timer-outline", UnitOfTime.MINUTES
+    ),
+    _last("pumping_last", TRACKER_PUMPING, "mdi:cup-water"),
+    _today("pumping_count_today", TRACKER_PUMPING, "mdi:cup-water"),
+    _today(
+        "pumping_ml_today",
+        TRACKER_PUMPING,
+        "mdi:cup-water",
+        UnitOfVolume.MILLILITERS,
     ),
     _last("solids_last", TRACKER_SOLIDS, "mdi:bowl-mix"),
     _today("solids_count_today", TRACKER_SOLIDS, "mdi:bowl-mix-outline"),
