@@ -39,8 +39,8 @@
 
 ## 6. Bottle tracker
 
-- [ ] 6.1 Implement `baby_calendar.log_bottle` and the bottle number, select and button; verify with tests for a bottle with content, a 7 ml bottle, missing and zero amount, invalid content, the usual bottle from the dashboard, a press with the amount at zero, and inputs restored after a restart
-- [ ] 6.2 Implement the bottle sensors; verify with tests for two bottles, a corrected amount and no bottles yet
+- [x] 6.1 Implement `baby_calendar.log_bottle` and the bottle number, select and button; verify with tests for a bottle with content, a 7 ml bottle, missing and zero amount, invalid content, the usual bottle from the dashboard, a press with the amount at zero, and inputs restored after a restart
+- [x] 6.2 Implement the bottle sensors; verify with tests for two bottles, a corrected amount and no bottles yet
 - [ ] 6.3 Document the bottle service and entities with examples in `README.md`; verify each example runs as written on a real instance
 
 ## 7. Integration checks
