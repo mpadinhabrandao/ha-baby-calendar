@@ -1,0 +1,123 @@
+log_diaper:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    content:
+      required: true
+      selector:
+        select:
+          translation_key: diaper_content
+          options:
+            - wet
+            - dirty
+            - both
+    stool:
+      selector:
+        select:
+          translation_key: stool
+          options:
+            - normal
+            - soft
+            - hard
+            - diarrhea
+    notes:
+      selector:
+        text:
+          multiline: true
+    time:
+      selector:
+        datetime:
+
+log_bottle:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    amount:
+      required: true
+      example: 90
+      selector:
+        number:
+          min: 1
+          max: 500
+          step: 1
+          unit_of_measurement: mL
+          mode: box
+    content:
+      selector:
+        select:
+          translation_key: bottle_content
+          options:
+            - formula
+            - breast_milk
+    notes:
+      selector:
+        text:
+          multiline: true
+    time:
+      selector:
+        datetime:
+
+update_event:
+  fields:
+    event_id:
+      required: true
+      selector:
+        text:
+    time:
+      selector:
+        datetime:
+    notes:
+      selector:
+        text:
+          multiline: true
+    fields:
+      example: '{"content": "wet"}'
+      selector:
+        object:
+
+delete_event:
+  fields:
+    event_id:
+      required: true
+      selector:
+        text:
+
+list_events:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    start:
+      required: true
+      selector:
+        datetime:
+    end:
+      required: true
+      selector:
+        datetime:
+    tracker:
+      selector:
+        select:
+          translation_key: trackers
+          options:
+            - diaper
+            - bottle
+
+purge_history:
+  fields:
+    name:
+      required: true
+      example: Alice
+      selector:
+        text:
