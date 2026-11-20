@@ -364,6 +364,26 @@ export abstract class BabyCard extends LitElement {
     .step {
       font-size: 24px;
     }
+    .value {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .big.primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--bc-accent);
+      color: var(--text-primary-color, #fff);
+      font-size: 17px;
+    }
+    .big.primary:hover {
+      background: color-mix(in srgb, var(--bc-accent) 85%, black);
+    }
     .choices {
       display: flex;
       flex-wrap: wrap;

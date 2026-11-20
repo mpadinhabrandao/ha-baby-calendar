@@ -56,21 +56,7 @@ export class BottleCard extends BabyCard {
         >
           −
         </button>
-        <button
-          class="big"
-          @click=${() =>
-            this.log(
-              "bottle",
-              "log_bottle",
-              {
-                amount,
-                ...(content && CONTENTS.includes(content as any) ? { content } : {}),
-              },
-              this.text("bottle_of", { amount }),
-            )}
-        >
-          ${this.text("bottle_button", { amount })}
-        </button>
+        <div class="value" aria-live="polite">${amount} ml</div>
         <button
           class="big step"
           aria-label=${this.text("more")}
@@ -96,6 +82,22 @@ export class BottleCard extends BabyCard {
           </button>`,
         )}
       </div>
+      <button
+        class="big primary"
+        @click=${() =>
+          this.log(
+            "bottle",
+            "log_bottle",
+            {
+              amount,
+              ...(content && CONTENTS.includes(content as any) ? { content } : {}),
+            },
+            this.text("bottle_of", { amount }),
+          )}
+      >
+        <ha-icon icon="mdi:baby-bottle-outline"></ha-icon>
+        <span>${this.text("log_bottle")}</span>
+      </button>
     `;
   }
 }
