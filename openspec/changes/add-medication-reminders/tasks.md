@@ -7,8 +7,9 @@
 - [ ] 1.3 Document managing medications in `README.md`, including that neither removal nor deactivation deletes history; verify the steps match the UI on a real instance
 
   - 1.1 outcome (2026-11-20): the harness test was not repeated. The options-flow menu was chosen: it needs no subentry, so the one-subentry-per-device rule from 2026.8 does not apply, and the entity cleanup it needs is the same as for disabled trackers. Fixed times, the doses and the specs are unchanged by the choice.
-  - 1.3, 2.4 and 4.3: the README sections are written; checking them against the UI and running the examples on a real instance is still to do.
-  - 4.2: the blueprint is written and runs in the tests as a real automation (notification with the names and dose text, repeat until the dose is recorded); the phone check on a real instance is still to do.
+  - 1.3 and 2.4: the README sections are written; checking them against the UI and running the examples on a real instance is still to do.
+  - 4.2: the event-triggered blueprint is written and runs in the tests as a real automation (two medications and one added later, repeat until recorded, baby filter, "Given" recording the dose); the phone check on a real instance is still to do.
+  - 4.3: the import link was checked on a real instance on 2026-11-20 (the blueprint imported from its GitHub URL).
 
 ## 2. Doses
 
@@ -25,12 +26,13 @@
 ## 4. Reminders
 
 - [x] 4.1 Verify with tests that the due state is recomputed at startup: Home Assistant down at dose time, and a restart while a dose is due
-- [ ] 4.2 Write the reminder blueprint per design R6; verify on a real instance that an automation created from it notifies a phone when a dose becomes due, repeats until the dose is recorded, and receives the baby name, medication name and dose text
-- [ ] 4.3 Document reminders in `README.md`, leading with the blueprint import link and stating that the integration sends no notifications itself; verify the import link works on a real instance
+- [ ] 4.2 Write the reminder blueprint per design R6, triggered by the due event; verify with tests that one automation reminds for two medications, a medication added later, a repeat until the dose is recorded, a baby filter and the "Given" action recording the dose; then verify on a real instance that a phone receives the reminder with the baby name, medication name and dose text, and that "Given" records the dose
+- [x] 4.3 Document reminders in `README.md`, leading with the blueprint import link, stating that the integration sends no notifications itself, and describing the due event and the "Given" action; verify the import link works on a real instance
+- [x] 4.4 Fire the due event per design R5; verify with tests for a dose becoming due, a start while due, a reload while due, a dose recorded and due again later, and a medication with no schedule
 
 ## 5. Integration checks
 
-- [ ] 5.1 On a real instance, add a fixed-times medication and an interval medication, each with an automation from the blueprint; verify both reminders arrive and stop once a dose is recorded
+- [ ] 5.1 On a real instance, add a fixed-times medication and an interval medication and one automation from the blueprint; verify both reminders arrive and stop once a dose is recorded
 - [ ] 5.2 Restart Home Assistant while a dose is due and verify the due sensor is on after start
 - [ ] 5.3 Verify that the other trackers and their existing events behave exactly as before
 - [x] 5.4 Run `openspec validate add-medication-reminders --strict` and verify it passes

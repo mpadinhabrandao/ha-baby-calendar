@@ -85,9 +85,17 @@ Matching doses to slots, rather than counting doses per day, is what makes an ea
 
 Each entry has a medication scheduler. For every active medication with a schedule it evaluates R4 and arms one `async_track_point_in_time` at `next_change`. It re-evaluates when that fires, when a dose of that medication is recorded, corrected or deleted, at local midnight, and on entry reload. The binary sensor and `next_dose` sensor take their state from the evaluation. Because the state is always recomputed from the schedule, the stored doses and the clock, nothing about reminders needs to be persisted: after a restart a dose that became due while Home Assistant was down simply evaluates as due.
 
+The coordinator also fires the event `baby_calendar_medication_due` (R6) when a medication's evaluation goes from not due to due. On the first evaluation after the entry is set up, which follows a start or a reload, it fires the event for every medication that is due. The event data are `baby`, `medication`, `dose`, `due_entity` and `button_entity`; the entity ids are looked up in the entity registry by unique id.
+
 ### R6. Blueprint
 
-`blueprints/automation/baby_calendar/medication_reminder.yaml`: inputs are the `due` binary sensor, an action sequence, and an optional repeat interval. It triggers when the sensor turns on, and also at Home Assistant start if the sensor is already on, runs the action, and if a repeat is set loops `delay` then action while the sensor is on. The action receives the baby and medication names and the dose text as variables. HACS does not install blueprints, so the README carries an import link.
+`blueprints/automation/baby_calendar/medication_reminder.yaml` is triggered by the due event, so one automation covers every medication, including those added later, without naming any entity. Inputs: an action sequence, an optional repeat interval, an optional list of babies (devices) to limit it to, and whether to handle the "Given" notification action (on by default).
+
+- On a due event for a chosen baby it runs the actions with the variables `baby`, `medication`, `dose` and `button` (the dose button's entity id), and if a repeat is set loops: wait for the event's `due_entity` to turn off, with the repeat interval as timeout, and run the actions again while it is still on.
+- A notification action whose id is `BABY_CALENDAR_DOSE:<button entity id>` is a "Given" action: on `mobile_app_notification_action` with such an id the automation presses that button, which records the dose through the shared dashboard path.
+- Mode `parallel`, so each medication repeats on its own.
+
+HACS does not install blueprints, so the README carries an import link. The earlier form, triggered by one due sensor and so needing one automation per medication, was replaced after testing on a real instance.
 
 ## Risks / Trade-offs
 
@@ -96,6 +104,8 @@ Each entry has a medication scheduler. For every active medication with a schedu
 - [An interval reminder says a dose is due when the medicine may be "as needed"] → The user chooses whether to give an interval at all; without a schedule nothing is ever due. The README says so, and the integration gives no advice either way.
 - [No reminder arrives unless the user creates an automation] → The README's medication section leads with the blueprint import link, and the due sensor is usable on a dashboard on its own.
 - [A restart while a dose is due makes a blueprint automation notify again] → Accepted; a second reminder for a dose that is still due is harmless.
+- [Saving the baby's options while a dose is due sends one more reminder] → Needed: the reload makes the due sensor unavailable for a moment, which ends a running repeat, so the event fired after setup starts it again.
+- [Two automations from the blueprint that both handle "Given" press the button twice] → The repeated press guard of the dashboard path drops the second press.
 - [Dynamic entity names are not translated for the medication part] → Accepted; the name is the user's own text.
 
 ## Open Questions

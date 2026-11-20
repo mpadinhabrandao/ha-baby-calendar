@@ -6,13 +6,17 @@ from typing import Any
 import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
+from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.common import async_fire_time_changed
+from pytest_homeassistant_custom_component.common import (
+    async_capture_events,
+    async_fire_time_changed,
+)
 
 from custom_components.baby_calendar.const import (
     CONF_BABY_ID,
@@ -610,3 +614,95 @@ async def test_interval_in_hours_and_minutes(hass: HomeAssistant) -> None:
         "minutes": 6,
         "seconds": 0,
     }
+
+
+# -------------------------------------------------------------- due event
+
+
+async def test_due_event_when_a_dose_becomes_due(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+) -> None:
+    """One event at 09:00 with the names and the two entity ids."""
+    events = async_capture_events(hass, "baby_calendar_medication_due")
+    entry = await baby_with_vitamin_d(hass, schedule_type="times", times="09:00")
+    assert events == []
+
+    await move_to(hass, freezer, NOW + timedelta(hours=1))
+    await move_to(hass, freezer, NOW + timedelta(hours=1, minutes=1))
+
+    assert len(events) == 1
+    assert events[0].data == {
+        "baby": "Alice",
+        "device_id": device_id(hass, entry),
+        "medication": "Vitamin D",
+        "dose": "1 drop",
+        "due_entity": entity_id(hass, entry, "Vitamin D", "binary_sensor", "due"),
+        "button_entity": entity_id(hass, entry, "Vitamin D", "button", "take"),
+    }
+
+
+async def test_due_event_again_after_a_dose(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+) -> None:
+    """A dose ends it; the next interval fires a new event."""
+    events = async_capture_events(hass, "baby_calendar_medication_due")
+    entry = await baby_with_vitamin_d(
+        hass, schedule_type="interval", interval={"hours": 1}
+    )
+    await log_dose(hass, entry, "Vitamin D")
+
+    await move_to(hass, freezer, NOW + timedelta(hours=1))
+    assert len(events) == 1
+    await log_dose(hass, entry, "Vitamin D")
+    await move_to(hass, freezer, NOW + timedelta(hours=2))
+
+    assert len(events) == 2
+
+
+async def test_due_event_after_a_reload(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+) -> None:
+    """A reload while due fires the event again."""
+    events = async_capture_events(hass, "baby_calendar_medication_due")
+    entry = await baby_with_vitamin_d(hass, schedule_type="times", times="09:00")
+    await move_to(hass, freezer, NOW + timedelta(hours=1, minutes=5))
+
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert len(events) == 2
+    assert events[1].data["due_entity"] == entity_id(
+        hass, entry, "Vitamin D", "binary_sensor", "due"
+    )
+
+
+async def test_due_event_waits_for_the_start(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+) -> None:
+    """Set up while starting and due: the event comes once started."""
+    entry = await baby_with_vitamin_d(hass, schedule_type="times", times="09:00")
+    await move_to(hass, freezer, NOW + timedelta(hours=1, minutes=5))
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    events = async_capture_events(hass, "baby_calendar_medication_due")
+
+    hass.set_state(CoreState.starting)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert events == []
+
+    hass.set_state(CoreState.running)
+    hass.bus.async_fire(EVENT_HOMEASSISTANT_STARTED)
+    await hass.async_block_till_done()
+    assert [event.data["medication"] for event in events] == ["Vitamin D"]
+
+
+async def test_no_due_event_without_a_schedule(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+) -> None:
+    """A medication with no schedule never fires the event."""
+    events = async_capture_events(hass, "baby_calendar_medication_due")
+    await baby_with_vitamin_d(hass)
+
+    await move_to(hass, freezer, NOW + timedelta(days=2))
+
+    assert events == []
