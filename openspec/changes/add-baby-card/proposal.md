@@ -39,6 +39,6 @@ None. The breastfeeding attribute is a new requirement here, since `add-timed-tr
 
 - New `frontend/` source in the repository (TypeScript, Lit), bundled into `custom_components/baby_calendar/frontend/baby-calendar-cards.js`, which is committed so HACS installs it. New build and test tooling (Node, esbuild, Vitest, Playwright) in development and CI only.
 - Lit, bundled into the cards, is BSD-3-Clause licensed; its notice ships with the bundle.
-- `custom_components/baby_calendar/`: static path and module registration, a WebSocket command, the `feed` attribute; `manifest.json` gains the `http`, `frontend` and `websocket_api` dependencies.
+- `custom_components/baby_calendar/`: static path and module registration, a WebSocket command, the `feed` attribute; `manifest.json` gains the `http` and `websocket_api` dependencies and `frontend` as an after dependency.
 - `README.md`, `dashboards/baby.yaml` (removed), `openspec/config.yaml`.
 - No new runtime dependency for Home Assistant, no network access.

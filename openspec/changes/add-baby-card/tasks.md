@@ -2,35 +2,35 @@
 
 ## 1. Integration support
 
-- [ ] 1.1 Add the `feed` attribute to the last breastfeeding sensor per design D6; verify with tests for one side, two sides with a pause, the same side twice, a pause over 30 minutes, a feed across midnight and a running side
-- [ ] 1.2 Add the `baby_calendar/subscribe_babies` WebSocket subscription per design D3; verify with tests for the message's content, a non-administrator user, and a new message after a medication is added and after a baby is removed
-- [ ] 1.3 Serve and register the cards' module per design D2, with the `http`, `frontend` and `websocket_api` dependencies; verify with a test that the static path serves the bundle and the module URL carries the version, and that Hassfest passes
+- [x] 1.1 Add the `feed` attribute to the last breastfeeding sensor per design D6; verify with tests for one side, two sides with a pause, the same side twice, a pause over 30 minutes, a feed across midnight and a running side
+- [x] 1.2 Add the `baby_calendar/subscribe_babies` WebSocket subscription per design D3; verify with tests for the message's content, a non-administrator user, and a new message after a medication is added and after a baby is removed
+- [ ] 1.3 Serve and register the cards' module per design D2, with the `http` and `websocket_api` dependencies and `frontend` after; verify with a test that the static path serves the bundle and the module URL carries the version, and that Hassfest passes
 
 ## 2. Frontend tooling
 
-- [ ] 2.1 Set up `frontend/` (package.json with pinned versions, TypeScript, Lit, esbuild, Vitest, Playwright) and a build script writing the bundle with Lit's licence notice; verify the build produces `custom_components/baby_calendar/frontend/baby-calendar-cards.js`
+- [x] 2.1 Set up `frontend/` (package.json with pinned versions, TypeScript, Lit, esbuild, Vitest, Playwright) and a build script writing the bundle with Lit's licence notice; verify the build produces `custom_components/baby_calendar/frontend/baby-calendar-cards.js`
 - [ ] 2.2 Add a CI job that installs, runs the frontend tests, rebuilds the bundle and fails if it differs from the committed one; verify on the pull request
 
 ## 3. Shared card base
 
-- [ ] 3.1 The base every card uses: the shared subscription, the baby lookup and "baby not found", "tracker not enabled", the visual editor listing babies, `window.customCards`, theme styling per design D7, `getGridOptions`, the English and Portuguese texts; verify with Vitest and a Playwright render of a minimal card in each language, light and dark
-- [ ] 3.2 The time chip, the 3-second repeat guard, the undo bar and the error line; verify with Vitest for the chip and guard, and Playwright that undo calls `delete_event` with the returned id and a failed call shows the message and keeps the inputs
+- [x] 3.1 The base every card uses: the shared subscription, the baby lookup and "baby not found", "tracker not enabled", the visual editor listing babies, `window.customCards`, theme styling per design D7, `getGridOptions`, the English and Portuguese texts; verify with Vitest and a Playwright render of a minimal card in each language, light and dark
+- [x] 3.2 The time chip, the 3-second repeat guard, the undo bar and the error line; verify with Vitest for the chip and guard, and Playwright that undo calls `delete_event` with the returned id and a failed call shows the message and keeps the inputs
 
 ## 4. Cards
 
-- [ ] 4.1 Diapers card with the stool type question; verify with Playwright for wet, dirty with a type, and the chip
-- [ ] 4.2 Bottle card with − / + and content; verify with Playwright that the amount entity is set and `log_bottle` gets the amount and content
-- [ ] 4.3 Breastfeeding card: sides, live time, side change, last feed line; verify with Vitest for every last feed case in the spec and Playwright for start, stop and side change
-- [ ] 4.4 Sleep card; verify with Playwright for asleep and awake
-- [ ] 4.5 Medications card, due doses and the optional full list; verify with Playwright that "Given" calls `log_medication` and nothing due is shown when none is
-- [ ] 4.6 Summary and Today cards; verify with Vitest for the totals and ago texts and Playwright renders
-- [ ] 4.7 Other entries card with its forms and range errors; verify with Playwright for weight, a refused weight, pumping and a medication dose
-- [ ] 4.8 Recent entries card; verify with Playwright that it lists `list_events` results newest first and refreshes after an entry
+- [x] 4.1 Diapers card with the stool type question; verify with Playwright for wet, dirty with a type, and the chip
+- [x] 4.2 Bottle card with − / + and content; verify with Playwright that the amount entity is set and `log_bottle` gets the amount and content
+- [x] 4.3 Breastfeeding card: sides, live time, side change, last feed line; verify with Vitest for every last feed case in the spec and Playwright for start, stop and side change
+- [x] 4.4 Sleep card; verify with Playwright for asleep and awake
+- [x] 4.5 Medications card, due doses and the optional full list; verify with Playwright that "Given" calls `log_medication` and nothing due is shown when none is
+- [x] 4.6 Summary and Today cards; verify with Vitest for the totals and ago texts and Playwright renders
+- [x] 4.7 Other entries card with its forms and range errors; verify with Playwright for weight, a refused weight, pumping and a medication dose
+- [x] 4.8 Recent entries card; verify with Playwright that it lists `list_events` results newest first and refreshes after an entry
 
 ## 5. Documentation and project
 
 - [ ] 5.1 Document the cards in `README.md` (adding them, what each does, a sample of a few together, the Lit licence) and remove the auto-entities section and `dashboards/baby.yaml`; verify the README's steps on a real instance
-- [ ] 5.2 Update `openspec/config.yaml` (the integration has a frontend of its own; this change listed as the ninth) and mark the open tasks of `add-baby-dashboard` as superseded by this change; verify `openspec validate --strict` passes for both changes
+- [x] 5.2 Update `openspec/config.yaml` (the integration has a frontend of its own; this change listed as the ninth) and mark the open tasks of `add-baby-dashboard` as superseded by this change; verify `openspec validate --strict` passes for both changes
 
 ## 6. Integration checks
 
