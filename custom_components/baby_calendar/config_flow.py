@@ -1,5 +1,6 @@
 """Config and options flows: add, edit and restore a baby from the UI."""
 
+import uuid
 from typing import Any, override
 
 import probatio
@@ -15,15 +16,36 @@ from homeassistant.helpers import selector
 from .const import (
     CONF_BABY_ID,
     CONF_BIRTH_DATE,
+    CONF_MEDICATIONS,
     CONF_NAME,
     CONF_TRACKERS,
     DOMAIN,
+    MED_ACTIVE,
+    MED_DOSE,
+    MED_ID,
+    MED_NAME,
+    MED_SCHEDULE,
     TRACKER_KEYS,
 )
 from .data import async_get_store, async_run
+from .schedule import SCHEDULE_INTERVAL, SCHEDULE_NONE, SCHEDULE_TIMES, parse_times
+from .trackers.medication import medications
 
+STEP_DETAILS = "details"
+STEP_MEDICATIONS = "medications"
+STEP_ADD_MEDICATION = "add_medication"
+STEP_PICK_MEDICATION = "pick_medication"
 STEP_HISTORY_RESTORE = "restore"
 STEP_HISTORY_START_EMPTY = "start_empty"
+
+ACTION = "action"
+ACTION_EDIT = "edit"
+ACTION_TOGGLE = "toggle"
+ACTION_REMOVE = "remove"
+
+SCHEDULE_TYPE = "schedule_type"
+SCHEDULE_TIMES_TEXT = "times"
+SCHEDULE_HOURS = "hours"
 
 
 def _name_schema(name: str = "", birth_date: str | None = None) -> dict[Any, Any]:
@@ -175,12 +197,24 @@ class BabyCalendarConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class BabyCalendarOptionsFlow(OptionsFlow):
-    """Edit a baby's name, birth date and trackers."""
+    """Edit a baby: details and trackers, or its medications."""
+
+    def __init__(self) -> None:
+        """Start with no medication picked."""
+        self._med_id: str | None = None
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Show the current values and save the changes."""
+        """Choose what to edit."""
+        return self.async_show_menu(
+            step_id="init", menu_options=[STEP_DETAILS, STEP_MEDICATIONS]
+        )
+
+    async def async_step_details(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Show the name, birth date and trackers, and save the changes."""
         entry = self.config_entry
         errors: dict[str, str] = {}
         if user_input is not None:
@@ -193,6 +227,7 @@ class BabyCalendarOptionsFlow(OptionsFlow):
                     )
                 return self.async_create_entry(
                     data={
+                        **entry.options,
                         CONF_BIRTH_DATE: user_input.get(CONF_BIRTH_DATE) or None,
                         CONF_TRACKERS: _ordered(user_input.get(CONF_TRACKERS, [])),
                     }
@@ -204,7 +239,7 @@ class BabyCalendarOptionsFlow(OptionsFlow):
             CONF_TRACKERS: entry.options.get(CONF_TRACKERS, []),
         }
         return self.async_show_form(
-            step_id="init",
+            step_id="details",
             data_schema=probatio.Schema(
                 {
                     **_name_schema(
@@ -215,6 +250,191 @@ class BabyCalendarOptionsFlow(OptionsFlow):
             ),
             errors=errors,
         )
+
+    async def async_step_medications(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Add a medication, or pick one to change."""
+        options = [STEP_ADD_MEDICATION]
+        if medications(self.config_entry.options):
+            options.append(STEP_PICK_MEDICATION)
+        return self.async_show_menu(step_id="medications", menu_options=options)
+
+    async def async_step_add_medication(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Add a medication."""
+        self._med_id = None
+        return await self.async_step_medication(user_input)
+
+    async def async_step_pick_medication(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Pick a medication and what to do with it."""
+        meds = medications(self.config_entry.options)
+        if user_input is not None:
+            self._med_id = user_input[MED_ID]
+            action = user_input[ACTION]
+            if action == ACTION_EDIT:
+                return await self.async_step_medication()
+            if action == ACTION_TOGGLE:
+                return self._save_medications(
+                    [
+                        {**med, MED_ACTIVE: not med.get(MED_ACTIVE, True)}
+                        if med[MED_ID] == self._med_id
+                        else med
+                        for med in meds
+                    ]
+                )
+            return self._save_medications(
+                [med for med in meds if med[MED_ID] != self._med_id]
+            )
+
+        inactive = _inactive_word(self.hass.config.language)
+        choices = [
+            selector.SelectOptionDict(
+                value=med[MED_ID],
+                label=med[MED_NAME]
+                if med.get(MED_ACTIVE, True)
+                else f"{med[MED_NAME]} ({inactive})",
+            )
+            for med in meds
+        ]
+        return self.async_show_form(
+            step_id="pick_medication",
+            data_schema=probatio.Schema(
+                {
+                    probatio.Required(MED_ID): selector.SelectSelector(
+                        selector.SelectSelectorConfig(options=choices)
+                    ),
+                    probatio.Required(
+                        ACTION, default=ACTION_EDIT
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[ACTION_EDIT, ACTION_TOGGLE, ACTION_REMOVE],
+                            mode=selector.SelectSelectorMode.LIST,
+                            translation_key="medication_action",
+                        )
+                    ),
+                }
+            ),
+        )
+
+    async def async_step_medication(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Enter a medication's name, dose text and schedule."""
+        meds = medications(self.config_entry.options)
+        existing = next((m for m in meds if m[MED_ID] == self._med_id), None)
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            medication, errors = _medication_from_input(user_input, meds, existing)
+            if medication is not None:
+                if existing is None:
+                    return self._save_medications([*meds, medication])
+                return self._save_medications(
+                    [medication if m[MED_ID] == self._med_id else m for m in meds]
+                )
+
+        return self.async_show_form(
+            step_id="medication",
+            data_schema=probatio.Schema(
+                _medication_schema(user_input or _medication_values(existing))
+            ),
+            errors=errors,
+        )
+
+    def _save_medications(self, meds: list[dict]) -> ConfigFlowResult:
+        """Save the medication list; the entry reloads with the new entities."""
+        return self.async_create_entry(
+            data={**self.config_entry.options, CONF_MEDICATIONS: meds}
+        )
+
+
+def _inactive_word(language: str) -> str:
+    return "inativo" if language.startswith("pt") else "inactive"
+
+
+def _medication_values(medication: dict | None) -> dict[str, Any]:
+    if medication is None:
+        return {SCHEDULE_TYPE: SCHEDULE_NONE}
+    schedule = medication.get(MED_SCHEDULE, {})
+    return {
+        MED_NAME: medication[MED_NAME],
+        MED_DOSE: medication.get(MED_DOSE) or "",
+        SCHEDULE_TYPE: schedule.get("type", SCHEDULE_NONE),
+        SCHEDULE_TIMES_TEXT: ", ".join(schedule.get("times", [])),
+        SCHEDULE_HOURS: schedule.get("hours"),
+    }
+
+
+def _suggested(key: str, values: dict[str, Any], required: bool = False) -> Any:
+    value = values.get(key)
+    marker = probatio.Required if required else probatio.Optional
+    if value in (None, ""):
+        return marker(key)
+    return marker(key, description={"suggested_value": value})
+
+
+def _medication_schema(values: dict[str, Any]) -> dict[Any, Any]:
+    return {
+        _suggested(MED_NAME, values, required=True): selector.TextSelector(),
+        _suggested(MED_DOSE, values): selector.TextSelector(),
+        probatio.Required(
+            SCHEDULE_TYPE, default=values.get(SCHEDULE_TYPE) or SCHEDULE_NONE
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=[SCHEDULE_NONE, SCHEDULE_TIMES, SCHEDULE_INTERVAL],
+                mode=selector.SelectSelectorMode.LIST,
+                translation_key=SCHEDULE_TYPE,
+            )
+        ),
+        _suggested(SCHEDULE_TIMES_TEXT, values): selector.TextSelector(),
+        _suggested(SCHEDULE_HOURS, values): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0, step=0.5, mode=selector.NumberSelectorMode.BOX
+            )
+        ),
+    }
+
+
+def _medication_from_input(
+    user_input: dict[str, Any], meds: list[dict], existing: dict | None
+) -> tuple[dict | None, dict[str, str]]:
+    """Validate the form and return the medication to save, or the errors."""
+    name = str(user_input.get(MED_NAME, "")).strip()
+    if not name:
+        return None, {MED_NAME: "name_required"}
+    own_id = existing[MED_ID] if existing else None
+    if any(
+        m[MED_NAME].casefold() == name.casefold() and m[MED_ID] != own_id for m in meds
+    ):
+        return None, {MED_NAME: "medication_in_use"}
+
+    kind = user_input.get(SCHEDULE_TYPE, SCHEDULE_NONE)
+    schedule: dict[str, Any] = {"type": SCHEDULE_NONE}
+    if kind == SCHEDULE_TIMES:
+        text = str(user_input.get(SCHEDULE_TIMES_TEXT) or "")
+        if not text.strip():
+            return None, {SCHEDULE_TIMES_TEXT: "times_required"}
+        try:
+            schedule = {"type": SCHEDULE_TIMES, "times": parse_times(text)}
+        except ValueError:
+            return None, {SCHEDULE_TIMES_TEXT: "time_invalid"}
+    elif kind == SCHEDULE_INTERVAL:
+        hours = user_input.get(SCHEDULE_HOURS)
+        if hours is None or float(hours) <= 0:
+            return None, {SCHEDULE_HOURS: "hours_invalid"}
+        schedule = {"type": SCHEDULE_INTERVAL, "hours": float(hours)}
+
+    dose = str(user_input.get(MED_DOSE) or "").strip() or None
+    return {
+        MED_ID: own_id or uuid.uuid4().hex,
+        MED_NAME: name,
+        MED_DOSE: dose,
+        MED_ACTIVE: existing.get(MED_ACTIVE, True) if existing else True,
+        MED_SCHEDULE: schedule,
+    }, {}
 
 
 def _ordered(trackers: list[str]) -> list[str]:

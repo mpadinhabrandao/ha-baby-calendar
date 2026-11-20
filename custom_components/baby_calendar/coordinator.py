@@ -13,7 +13,16 @@ from homeassistant.helpers.event import (
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, FEEDING, TRACKER_BOTTLE, TRACKER_BREASTFEEDING
+from .const import (
+    DOMAIN,
+    FEEDING,
+    MED_ID,
+    MED_SCHEDULE,
+    TRACKER_BOTTLE,
+    TRACKER_BREASTFEEDING,
+    TRACKER_MEDICATION,
+)
+from .schedule import DAYS_BEFORE, evaluate
 from .store import Event, EventStore
 from .trackers import TRACKERS
 from .trackers.base import Day
@@ -57,6 +66,7 @@ class BabyCoordinator(DataUpdateCoordinator[BabyState]):
         store: EventStore,
         baby_id: str,
         trackers: frozenset[str],
+        medications: list[dict[str, Any]] | None = None,
     ) -> None:
         """Set up the state of one baby. Nothing is computed yet."""
         super().__init__(
@@ -69,6 +79,8 @@ class BabyCoordinator(DataUpdateCoordinator[BabyState]):
         self.store = store
         self.baby_id = baby_id
         self.trackers = trackers
+        # The baby's active medications.
+        self.medications = medications or []
         self._cancel_expiry: Callable[[], None] | None = None
 
     @callback
@@ -111,6 +123,47 @@ class BabyCoordinator(DataUpdateCoordinator[BabyState]):
                 refresh_at = tracker_state.refresh_at
         if FEEDING_TRACKERS & self.trackers:
             state[FEEDING] = {"last_feed": self._last_feed()}
+        if self.medications:
+            state[TRACKER_MEDICATION], med_change = self._medications(now, day)
+            if med_change is not None and (
+                refresh_at is None or med_change < refresh_at
+            ):
+                refresh_at = med_change
+        return state, refresh_at
+
+    def _medications(self, now: int, day: Day) -> tuple[BabyState, int | None]:
+        """Return each active medication's doses and due state."""
+        zone = dt_util.get_default_time_zone()
+        now_dt = dt_util.utc_from_timestamp(now)
+        window = now - (DAYS_BEFORE + 1) * 86400
+        doses = self.store.list_events(
+            self.baby_id, window, now + 1, TRACKER_MEDICATION
+        )
+        state: BabyState = {}
+        refresh_at: int | None = None
+        for med in self.medications:
+            med_id = med[MED_ID]
+            kinds = (med_id,)
+            due = evaluate(
+                med.get(MED_SCHEDULE, {}),
+                [dose.start_ts for dose in doses if dose.kind == med_id],
+                now_dt,
+                zone,
+            )
+            state[med_id] = {
+                "last_dose": self.store.last_event(
+                    self.baby_id, TRACKER_MEDICATION, kinds
+                ),
+                "doses_today": self.store.count_events(
+                    self.baby_id, TRACKER_MEDICATION, day.start, day.end, kinds
+                ),
+                "due": due.due,
+                "next_dose": due.next_dose,
+            }
+            if due.next_change is not None:
+                change = int(due.next_change.timestamp())
+                if refresh_at is None or change < refresh_at:
+                    refresh_at = change
         return state, refresh_at
 
     def _last_feed(self) -> Event | None:

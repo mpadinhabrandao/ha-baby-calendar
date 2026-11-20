@@ -1,6 +1,7 @@
 """Actions, and the logging path the dashboard buttons share with them."""
 
 from collections.abc import Awaitable, Callable
+from dataclasses import replace
 from datetime import datetime, timedelta
 from typing import Any, Final
 
@@ -18,13 +19,21 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.util import dt as dt_util
 
-from .const import CONF_BABY_ID, DOMAIN, TRACKER_KEYS
+from .const import (
+    CONF_BABY_ID,
+    DOMAIN,
+    MED_ID,
+    MED_NAME,
+    TRACKER_KEYS,
+    TRACKER_MEDICATION,
+)
 from .data import async_get_store, async_run
 from .models import BabyConfigEntry
 from .store import Event, TimerRunningError, UnknownEventError
 from .trackers import TIMED_TRACKERS, TRACKERS
 from .trackers.base import Tracker
 from .trackers.diaper import DIAPER, DIRTY_KINDS, STOOL, STOOL_WINDOW
+from .trackers.medication import MEDICATION_TRACKER, current_name, medications
 from .trackers.timed import TimedTracker
 
 ATTR_DEVICE_ID: Final = "device_id"
@@ -38,6 +47,7 @@ ATTR_TRACKER: Final = "tracker"
 ATTR_END_TIME: Final = "end_time"
 ATTR_DURATION: Final = "duration"
 ATTR_IN_PROGRESS: Final = "in_progress"
+ATTR_MEDICATION: Final = "medication"
 
 SERVICE_UPDATE_EVENT: Final = "update_event"
 SERVICE_DELETE_EVENT: Final = "delete_event"
@@ -114,6 +124,13 @@ def event_response(hass: HomeAssistant, event: Event) -> dict[str, Any]:
     is in progress; the end and the duration are None while it runs.
     """
     tracker = TRACKERS[event.tracker]
+    if event.tracker == TRACKER_MEDICATION and (
+        entry := entry_for_baby(hass, event.baby_id)
+    ):
+        # List doses under the medication's current name.
+        event = replace(
+            event, data={**event.data, MED_NAME: current_name(entry.options, event)}
+        )
     response: dict[str, Any] = {
         ATTR_EVENT_ID: event.id,
         ATTR_TRACKER: event.tracker,
@@ -290,6 +307,48 @@ async def async_update_fields(
             hass, store.update_event, event.id, changes, now=now_ts()
         )
         await entry.runtime_data.coordinator.async_refresh()
+    return event
+
+
+# ------------------------------------------------------------- medication
+
+
+def find_medication(entry: BabyConfigEntry, name: str) -> dict[str, Any]:
+    """Return the baby's active medication with this name, in any case."""
+    wanted = name.strip().casefold()
+    for med in medications(entry.options, active=True):
+        if med[MED_NAME].casefold() == wanted:
+            return med
+    raise _error("unknown_medication", medication=name, name=entry.runtime_data.name)
+
+
+async def async_log_dose(
+    hass: HomeAssistant,
+    entry: BabyConfigEntry,
+    medication: dict[str, Any],
+    *,
+    when: datetime | None = None,
+    notes: str | None = None,
+) -> Event:
+    """Record a dose of one of the baby's medications."""
+    data = entry.runtime_data
+    start_ts = now_ts() if when is None else to_timestamp(when)
+    columns = MEDICATION_TRACKER.to_columns(
+        {MED_ID: medication[MED_ID], MED_NAME: medication[MED_NAME]}
+    )
+    store = await async_get_store(hass)
+    event = await async_run(
+        hass,
+        store.add_event,
+        baby_id=data.baby_id,
+        tracker=TRACKER_MEDICATION,
+        start_ts=start_ts,
+        kind=columns.kind,
+        data=columns.data,
+        notes=notes or None,
+        now=now_ts(),
+    )
+    await data.coordinator.async_refresh()
     return event
 
 
@@ -511,6 +570,36 @@ def _register_timed(hass: HomeAssistant, tracker: TimedTracker) -> None:
         )
 
 
+def _register_medication(hass: HomeAssistant) -> None:
+    """Register the action that records a dose."""
+
+    async def log(call: ServiceCall) -> ServiceResponse:
+        entry = entry_for_device(hass, call.data[ATTR_DEVICE_ID])
+        event = await async_log_dose(
+            hass,
+            entry,
+            find_medication(entry, call.data[ATTR_MEDICATION]),
+            when=call.data.get(ATTR_TIME),
+            notes=call.data.get(ATTR_NOTES),
+        )
+        return {ATTR_EVENT_ID: event.id}
+
+    hass.services.async_register(
+        DOMAIN,
+        MEDICATION_TRACKER.log_service,
+        log,
+        schema=probatio.Schema(
+            {
+                probatio.Required(ATTR_DEVICE_ID): cv.string,
+                probatio.Required(ATTR_MEDICATION): cv.string,
+                probatio.Optional(ATTR_NOTES): _NOTES,
+                probatio.Optional(ATTR_TIME): cv.datetime,
+            }
+        ),
+        supports_response=SupportsResponse.OPTIONAL,
+    )
+
+
 def _log_schema(tracker: Tracker) -> probatio.Schema:
     return probatio.Schema(
         {
@@ -539,7 +628,9 @@ LIST_EVENTS_SCHEMA = probatio.Schema(
         probatio.Required(ATTR_DEVICE_ID): cv.string,
         probatio.Required(ATTR_START): cv.datetime,
         probatio.Required(ATTR_END): cv.datetime,
-        probatio.Optional(ATTR_TRACKER): probatio.In(TRACKER_KEYS),
+        probatio.Optional(ATTR_TRACKER): probatio.In(
+            [*TRACKER_KEYS, TRACKER_MEDICATION]
+        ),
     }
 )
 
@@ -561,6 +652,9 @@ def async_register_services(hass: HomeAssistant) -> None:
     for tracker in TRACKERS.values():
         if isinstance(tracker, TimedTracker):
             _register_timed(hass, tracker)
+            continue
+        if tracker is MEDICATION_TRACKER:
+            _register_medication(hass)
             continue
 
         async def log_service(

@@ -26,3 +26,23 @@ class BabyEntity(CoordinatorEntity[BabyCoordinator]):
         self._attr_translation_key = key
         self._attr_unique_id = f"{data.baby_id}_{key}"
         self._attr_device_info = DeviceInfo(identifiers={(DOMAIN, data.baby_id)})
+
+
+class MedicationEntity(BabyEntity):
+    """An entity of one of the baby's medications.
+
+    Its unique id is "<baby_id>_med_<medication id>_<key>"; its name is a
+    translation with the medication's name as the {medication} placeholder.
+    """
+
+    def __init__(self, entry: BabyConfigEntry, medication: dict, key: str) -> None:
+        """Attach the entity to the baby's device and to one medication."""
+        super().__init__(entry, f"med_{medication['id']}_{key}")
+        self.medication = medication
+        self._attr_translation_key = f"medication_{key}"
+        self._attr_translation_placeholders = {"medication": medication["name"]}
+
+    @property
+    def medication_state(self) -> dict:
+        """Return this medication's computed state."""
+        return self.coordinator.data["medication"][self.medication["id"]]

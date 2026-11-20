@@ -27,6 +27,8 @@ from .const import (
     CONF_NAME,
     CONF_TRACKERS,
     DOMAIN,
+    MED_ID,
+    MED_SCHEDULE,
     SERVICE_PURGE_HISTORY,
 )
 from .coordinator import BabyCoordinator
@@ -34,7 +36,8 @@ from .data import async_get_store, async_run
 from .models import BabyConfigEntry, BabyData
 from .services import async_register_services
 from .store import EventStore
-from .trackers import TIMED_TRACKERS, trackers_of_key
+from .trackers import MEDICATION_KEY_PREFIX, TIMED_TRACKERS, trackers_of_key
+from .trackers.medication import medications
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -119,9 +122,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: BabyConfigEntry) -> bool
 
     trackers = frozenset(entry.options.get(CONF_TRACKERS, []))
     _remove_disabled_tracker_entities(hass, entry, baby_id, trackers)
+    _remove_stale_medication_entities(
+        hass, entry, baby_id, medications(dict(entry.options), active=True)
+    )
     await async_run(hass, _stop_disabled_timers, store, baby_id, trackers)
 
-    coordinator = BabyCoordinator(hass, entry, store, baby_id, trackers)
+    active_meds = medications(dict(entry.options), active=True)
+    coordinator = BabyCoordinator(hass, entry, store, baby_id, trackers, active_meds)
     entry.runtime_data = BabyData(
         baby_id=baby_id, name=name, trackers=trackers, coordinator=coordinator
     )
@@ -177,3 +184,37 @@ def _stop_disabled_timers(
             store.update_event(
                 running.id, {"end_ts": max(now, running.start_ts + 1)}, now=now
             )
+
+
+# Medication entities that exist only while the medication has a schedule.
+SCHEDULED_MEDICATION_KEYS = frozenset({"due", "next_dose"})
+
+
+def _remove_stale_medication_entities(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    baby_id: str,
+    active: list[dict],
+) -> None:
+    """Drop entities of removed or deactivated medications, and of schedules.
+
+    A medication's entities have unique ids "<baby_id>_med_<id>_<key>".
+    """
+    scheduled = {
+        med[MED_ID]
+        for med in active
+        if med.get(MED_SCHEDULE, {}).get("type", "none") != "none"
+    }
+    active_ids = {med[MED_ID] for med in active}
+    prefix = f"{baby_id}_{MEDICATION_KEY_PREFIX}"
+    registry = er.async_get(hass)
+    for registry_entry in er.async_entries_for_config_entry(registry, entry.entry_id):
+        if not registry_entry.unique_id.startswith(prefix):
+            continue
+        rest = registry_entry.unique_id.removeprefix(prefix)
+        med_id = next((m for m in active_ids if rest.startswith(f"{m}_")), None)
+        if med_id is None or (
+            rest.removeprefix(f"{med_id}_") in SCHEDULED_MEDICATION_KEYS
+            and med_id not in scheduled
+        ):
+            registry.async_remove(registry_entry.entity_id)

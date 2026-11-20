@@ -17,6 +17,15 @@ from custom_components.baby_calendar.data import async_get_store
 from .conftest import add_baby
 
 
+async def _details(hass: HomeAssistant, entry_id: str) -> dict:
+    """Open the options and choose the baby's details."""
+    result = await hass.config_entries.options.async_init(entry_id)
+    assert result["type"] is FlowResultType.MENU
+    return await hass.config_entries.options.async_configure(
+        result["flow_id"], {"next_step_id": "details"}
+    )
+
+
 async def _start(hass: HomeAssistant, name: str) -> dict:
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": "user"}
@@ -142,7 +151,7 @@ async def test_options_edit_keeps_events(hass: HomeAssistant) -> None:
     store = await async_get_store(hass)
     event = store.add_event(baby_id=baby_id, tracker="diaper", start_ts=100)
 
-    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await _details(hass, entry.entry_id)
     assert result["type"] is FlowResultType.FORM
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
@@ -175,7 +184,7 @@ async def test_options_rejects_a_name_in_use(hass: HomeAssistant) -> None:
     await add_baby(hass, "Alice")
     bruno = await add_baby(hass, "Bruno")
 
-    result = await hass.config_entries.options.async_init(bruno.entry_id)
+    result = await _details(hass, bruno.entry_id)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], {CONF_NAME: "alice", CONF_TRACKERS: []}
     )
@@ -189,7 +198,7 @@ async def test_options_keeps_own_name(hass: HomeAssistant) -> None:
     """Saving without renaming is not a duplicate of itself."""
     entry = await add_baby(hass, "Alice")
 
-    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await _details(hass, entry.entry_id)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], {CONF_NAME: "Alice", CONF_TRACKERS: ["bottle"]}
     )
