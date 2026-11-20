@@ -76,12 +76,12 @@
           "dose": "Dose",
           "schedule_type": "Schedule",
           "times": "Times",
-          "hours": "Hours between doses"
+          "interval": "Time between doses"
         },
         "data_description": {
           "dose": "Text shown with the reminder, such as \"1 drop\".",
           "times": "For fixed times: times of day separated by commas, such as 09:00, 21:00.",
-          "hours": "For an interval: hours after the last dose."
+          "interval": "For an interval: hours and minutes after the last dose."
         }
       }
     },
@@ -91,7 +91,7 @@
       "medication_in_use": "This baby already has a medication with this name.",
       "times_required": "Enter at least one time.",
       "time_invalid": "Enter times as HH:MM, separated by commas.",
-      "hours_invalid": "Enter more than 0 hours."
+      "interval_invalid": "Enter a time between doses of more than 0."
     }
   },
   "selector": {

@@ -459,7 +459,8 @@ Open the baby's entry, choose **Configure**, then **Medications**:
   such as "1 drop", shown with reminders only, and a schedule:
   - **No schedule**: you only record doses.
   - **Fixed times**: times of day separated by commas, such as `09:00, 21:00`.
-  - **Interval**: hours between doses, counted from the last dose.
+  - **Interval**: the time between doses, in hours and minutes, counted from
+    the last dose.
 - **Change a medication**: pick it, then **Edit**, **Deactivate or
   reactivate**, or **Remove**.
 

@@ -76,12 +76,12 @@
           "dose": "Dose",
           "schedule_type": "Horário",
           "times": "Horas",
-          "hours": "Horas entre doses"
+          "interval": "Tempo entre doses"
         },
         "data_description": {
           "dose": "Texto mostrado com o lembrete, como \"1 gota\".",
           "times": "Para horas fixas: horas do dia separadas por vírgulas, como 09:00, 21:00.",
-          "hours": "Para intervalo: horas depois da última dose."
+          "interval": "Para intervalo: horas e minutos depois da última dose."
         }
       }
     },
@@ -91,7 +91,7 @@
       "medication_in_use": "Este bebé já tem um medicamento com este nome.",
       "times_required": "Indica pelo menos uma hora.",
       "time_invalid": "Indica as horas como HH:MM, separadas por vírgulas.",
-      "hours_invalid": "Indica mais de 0 horas."
+      "interval_invalid": "Indica um tempo entre doses maior que 0."
     }
   },
   "selector": {

@@ -214,8 +214,11 @@ async def test_duplicate_name(hass: HomeAssistant) -> None:
     [
         ({"schedule_type": "times"}, {"times": "times_required"}),
         ({"schedule_type": "times", "times": "25:00"}, {"times": "time_invalid"}),
-        ({"schedule_type": "interval", "hours": 0}, {"hours": "hours_invalid"}),
-        ({"schedule_type": "interval"}, {"hours": "hours_invalid"}),
+        (
+            {"schedule_type": "interval", "interval": {"hours": 0, "minutes": 0}},
+            {"interval": "interval_invalid"},
+        ),
+        ({"schedule_type": "interval"}, {"interval": "interval_invalid"}),
         ({"name": "  "}, {"name": "name_required"}),
     ],
 )
@@ -493,7 +496,9 @@ async def test_overdue(hass: HomeAssistant, freezer: FrozenDateTimeFactory) -> N
 
 async def test_interval(hass: HomeAssistant, freezer: FrozenDateTimeFactory) -> None:
     """Six hours after a dose it is due; the next dose is that time."""
-    entry = await baby_with_vitamin_d(hass, schedule_type="interval", hours=6)
+    entry = await baby_with_vitamin_d(
+        hass, schedule_type="interval", interval={"hours": 6}
+    )
     due = entity_id(hass, entry, "Vitamin D", "binary_sensor", "due")
     next_dose = entity_id(hass, entry, "Vitamin D", "sensor", "next_dose")
     assert hass.states.get(next_dose).state == "unknown"
@@ -584,11 +589,24 @@ async def test_reactivated_after_its_time(
     assert hass.states.get(due).state == "off"
 
 
-async def test_interval_in_fractions_of_an_hour(hass: HomeAssistant) -> None:
-    """An interval of 0.1 hours is accepted."""
-    entry = await baby_with_vitamin_d(hass, schedule_type="interval", hours=0.1)
+async def test_interval_in_hours_and_minutes(hass: HomeAssistant) -> None:
+    """6 minutes is stored as 0.1 hours and shown again as 0 h 6 min."""
+    entry = await baby_with_vitamin_d(
+        hass, schedule_type="interval", interval={"hours": 0, "minutes": 6}
+    )
 
     assert med_by_name(entry, "Vitamin D")["schedule"] == {
         "type": "interval",
         "hours": 0.1,
+    }
+    med_id = med_by_name(entry, "Vitamin D")["id"]
+    result = await options_step(hass, entry, "medications", "pick_medication")
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"id": med_id, "action": "edit"}
+    )
+    shown = next(key for key in result["data_schema"].schema if str(key) == "interval")
+    assert shown.description["suggested_value"] == {
+        "hours": 0,
+        "minutes": 6,
+        "seconds": 0,
     }

@@ -47,7 +47,7 @@ ACTION_REMOVE = "remove"
 
 SCHEDULE_TYPE = "schedule_type"
 SCHEDULE_TIMES_TEXT = "times"
-SCHEDULE_HOURS = "hours"
+SCHEDULE_INTERVAL_FIELD = "interval"
 
 
 def _name_schema(name: str = "", birth_date: str | None = None) -> dict[Any, Any]:
@@ -364,7 +364,7 @@ def _medication_values(medication: dict | None) -> dict[str, Any]:
         MED_DOSE: medication.get(MED_DOSE) or "",
         SCHEDULE_TYPE: schedule.get("type", SCHEDULE_NONE),
         SCHEDULE_TIMES_TEXT: ", ".join(schedule.get("times", [])),
-        SCHEDULE_HOURS: schedule.get("hours"),
+        SCHEDULE_INTERVAL_FIELD: _hours_to_duration(schedule.get("hours")),
     }
 
 
@@ -390,10 +390,8 @@ def _medication_schema(values: dict[str, Any]) -> dict[Any, Any]:
             )
         ),
         _suggested(SCHEDULE_TIMES_TEXT, values): selector.TextSelector(),
-        _suggested(SCHEDULE_HOURS, values): selector.NumberSelector(
-            selector.NumberSelectorConfig(
-                min=0, step="any", mode=selector.NumberSelectorMode.BOX
-            )
+        _suggested(SCHEDULE_INTERVAL_FIELD, values): selector.DurationSelector(
+            selector.DurationSelectorConfig(enable_day=False)
         ),
     }
 
@@ -422,10 +420,10 @@ def _medication_from_input(
         except ValueError:
             return None, {SCHEDULE_TIMES_TEXT: "time_invalid"}
     elif kind == SCHEDULE_INTERVAL:
-        hours = user_input.get(SCHEDULE_HOURS)
-        if hours is None or float(hours) <= 0:
-            return None, {SCHEDULE_HOURS: "hours_invalid"}
-        schedule = {"type": SCHEDULE_INTERVAL, "hours": float(hours)}
+        hours = _duration_to_hours(user_input.get(SCHEDULE_INTERVAL_FIELD))
+        if hours <= 0:
+            return None, {SCHEDULE_INTERVAL_FIELD: "interval_invalid"}
+        schedule = {"type": SCHEDULE_INTERVAL, "hours": hours}
 
     dose = str(user_input.get(MED_DOSE) or "").strip() or None
     since = existing.get(MED_SINCE) if existing else None
@@ -439,6 +437,27 @@ def _medication_from_input(
         MED_SCHEDULE: schedule,
         MED_SINCE: since,
     }, {}
+
+
+def _duration_to_hours(duration: dict[str, Any] | None) -> float:
+    """Return a duration from the form, such as {"hours": 0, "minutes": 6}, in hours."""
+    if not duration:
+        return 0.0
+    seconds = (
+        float(duration.get("days", 0)) * 86400
+        + float(duration.get("hours", 0)) * 3600
+        + float(duration.get("minutes", 0)) * 60
+        + float(duration.get("seconds", 0))
+    )
+    return round(seconds / 3600, 6)
+
+
+def _hours_to_duration(hours: float | None) -> dict[str, int] | None:
+    """Return stored hours as a duration for the form."""
+    if not hours:
+        return None
+    minutes = round(float(hours) * 60)
+    return {"hours": minutes // 60, "minutes": minutes % 60, "seconds": 0}
 
 
 def _toggled(medication: dict) -> dict:
