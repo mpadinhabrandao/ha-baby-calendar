@@ -74,11 +74,15 @@ The Diapers card SHALL offer wet, dirty and both. While the baby's stool type pr
 - **THEN** the diaper's stool type is soft and the question disappears
 
 ### Requirement: Bottle card
-The Bottle card's button SHALL show the amount it will record, with buttons beside it lowering and raising it by 10 ml, and the content choices. The amount and content SHALL be kept for the next bottle.
+The Bottle card SHALL show the amount it will record as a value, not a button, between buttons lowering and raising it by 10 ml, then the content choices, then one "Log bottle" button that records it. The amount and content SHALL be kept for the next bottle. Changing the amount or the content SHALL record nothing.
 
 #### Scenario: Larger bottle
-- **WHEN** the button shows 90 ml and the parent taps "+" twice and then the button
-- **THEN** a 110 ml bottle is recorded and the button shows 110 ml
+- **WHEN** the card shows 90 ml and the parent taps "+" twice and then "Log bottle"
+- **THEN** a 110 ml bottle is recorded and the card shows 110 ml
+
+#### Scenario: Only adjusting
+- **WHEN** the parent taps "+" and chooses breast milk
+- **THEN** no bottle is recorded
 
 ### Requirement: Breastfeeding sides
 The Breastfeeding card SHALL offer left and right, each started and stopped on its own. The running side SHALL show "Stop" and its live time. Tapping the other side while one runs SHALL stop it and start the other. The card SHALL suggest no side.

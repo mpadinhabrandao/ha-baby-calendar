@@ -8,7 +8,7 @@ The dashboard view of `add-baby-dashboard`, stock cards filled by auto-entities,
 
 - A set of custom Lovelace cards shipped inside the integration and registered by it, so they are in every dashboard's card picker with no separate install. Each is configured with one baby, has a visual editor, follows the Home Assistant theme and fits the sections grid:
   - **Diapers**: wet, dirty, both; after a dirty diaper the stool type question appears in the card.
-  - **Bottle**: the button shows the amount it will record, with − / + beside it and the content choices.
+  - **Bottle**: the amount it will record between − and +, the content choices, and a "Log bottle" button (first shown as a button carrying the amount, judged unclear on a phone).
   - **Breastfeeding**: left and right, each started and stopped on its own, pauses included; the running side shows its live time; the last feed shown as it happened, with no side suggested.
   - **Sleep**: fell asleep / woke up, with the live time.
   - **Medications**: the doses due, each with "Given"; optionally every active medication.

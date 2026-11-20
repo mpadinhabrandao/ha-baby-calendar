@@ -27,6 +27,8 @@
 - [x] 4.7 Other entries card with its forms and range errors; verify with Playwright for weight, a refused weight, pumping and a medication dose
 - [x] 4.8 Recent entries card; verify with Playwright that it lists `list_events` results newest first and refreshes after an entry
 
+- [ ] 4.9 Bottle card revised after use on a phone: the amount as a value between − and +, and a separate "Log bottle" button; verify with Playwright that − / + and the content record nothing and "Log bottle" records the amount and content
+
 ## 5. Documentation and project
 
 - [ ] 5.1 Document the cards in `README.md` (adding them, what each does, a sample of a few together, the Lit licence) and remove the auto-entities section and `dashboards/baby.yaml`; verify the README's steps on a real instance
