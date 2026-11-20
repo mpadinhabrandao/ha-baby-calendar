@@ -56,7 +56,9 @@
     "trackers": {
       "options": {
         "diaper": "Diapers",
-        "bottle": "Bottles"
+        "bottle": "Bottles",
+        "breastfeeding": "Breastfeeding",
+        "sleep": "Sleep"
       }
     },
     "diaper_content": {
@@ -78,6 +80,12 @@
       "options": {
         "formula": "Formula",
         "breast_milk": "Breast milk"
+      }
+    },
+    "breastfeeding_side": {
+      "options": {
+        "left": "Left",
+        "right": "Right"
       }
     }
   },
@@ -134,6 +142,122 @@
         }
       }
     },
+    "start_breastfeeding": {
+      "name": "Start breastfeeding",
+      "description": "Starts the breastfeeding timer. Fails if it is already running.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "side": {
+          "name": "Side",
+          "description": "Left or right. Optional."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional notes."
+        },
+        "time": {
+          "name": "Start",
+          "description": "When it started. Now if left empty."
+        }
+      }
+    },
+    "stop_breastfeeding": {
+      "name": "Stop breastfeeding",
+      "description": "Stops the running breastfeeding timer.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "time": {
+          "name": "End",
+          "description": "When it ended. Now if left empty."
+        }
+      }
+    },
+    "log_breastfeeding": {
+      "name": "Log breastfeeding",
+      "description": "Records a finished breastfeeding entry of a given duration, without the timer.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "duration": {
+          "name": "Duration",
+          "description": "How long it lasted, more than 0."
+        },
+        "side": {
+          "name": "Side",
+          "description": "Left or right. Optional."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional notes."
+        },
+        "time": {
+          "name": "Start",
+          "description": "When it started. If left empty, it ends now."
+        }
+      }
+    },
+    "start_sleep": {
+      "name": "Start sleep",
+      "description": "Starts the sleep timer. Fails if it is already running.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional notes."
+        },
+        "time": {
+          "name": "Start",
+          "description": "When it started. Now if left empty."
+        }
+      }
+    },
+    "stop_sleep": {
+      "name": "Stop sleep",
+      "description": "Stops the running sleep timer.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "time": {
+          "name": "End",
+          "description": "When it ended. Now if left empty."
+        }
+      }
+    },
+    "log_sleep": {
+      "name": "Log sleep",
+      "description": "Records a finished sleep entry of a given duration, without the timer.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "duration": {
+          "name": "Duration",
+          "description": "How long it lasted, more than 0."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional notes."
+        },
+        "time": {
+          "name": "Start",
+          "description": "When it started. If left empty, it ends now."
+        }
+      }
+    },
     "update_event": {
       "name": "Correct entry",
       "description": "Changes the time, the notes or the tracker fields of an entry. Fields left out keep their value.",
@@ -145,6 +269,10 @@
         "time": {
           "name": "Time",
           "description": "New time of the entry."
+        },
+        "end_time": {
+          "name": "End",
+          "description": "New end of a finished timed entry."
         },
         "notes": {
           "name": "Notes",
@@ -238,6 +366,24 @@
     },
     "bottle_amount_zero": {
       "message": "Set the bottle amount before logging the bottle."
+    },
+    "timer_running": {
+      "message": "The {tracker} timer is already running. Stop it first."
+    },
+    "timer_not_running": {
+      "message": "The {tracker} timer is not running."
+    },
+    "end_before_start": {
+      "message": "The end must be later than the start."
+    },
+    "duration_zero": {
+      "message": "Set a duration greater than 0."
+    },
+    "end_time_running": {
+      "message": "This entry is still running. Stop its timer to set the end."
+    },
+    "end_time_not_timed": {
+      "message": "Entries of the {tracker} tracker have no end time."
     }
   },
   "entity": {
@@ -273,6 +419,12 @@
       },
       "bottle_log": {
         "name": "Log bottle"
+      },
+      "breastfeeding_log": {
+        "name": "Log breastfeeding"
+      },
+      "sleep_log": {
+        "name": "Log sleep"
       }
     },
     "number": {
@@ -281,6 +433,12 @@
       },
       "bottle_amount": {
         "name": "Bottle amount"
+      },
+      "breastfeeding_duration": {
+        "name": "Breastfeeding duration"
+      },
+      "sleep_duration": {
+        "name": "Sleep duration"
       }
     },
     "select": {
@@ -290,6 +448,14 @@
           "not_specified": "Not specified",
           "formula": "Formula",
           "breast_milk": "Breast milk"
+        }
+      },
+      "breastfeeding_side": {
+        "name": "Breastfeeding side",
+        "state": {
+          "not_specified": "Not specified",
+          "left": "Left",
+          "right": "Right"
         }
       }
     },
@@ -320,6 +486,38 @@
       },
       "bottle_ml_today": {
         "name": "Bottle millilitres today"
+      },
+      "breastfeeding_last": {
+        "name": "Last breastfeeding"
+      },
+      "breastfeeding_feeds_today": {
+        "name": "Breastfeeds today"
+      },
+      "breastfeeding_duration_today": {
+        "name": "Breastfeeding time today"
+      },
+      "sleep_last": {
+        "name": "Last sleep"
+      },
+      "awake_since": {
+        "name": "Awake since"
+      },
+      "sleep_count_today": {
+        "name": "Sleeps today"
+      },
+      "sleep_duration_today": {
+        "name": "Sleep time today"
+      },
+      "last_feed": {
+        "name": "Last feed"
+      }
+    },
+    "switch": {
+      "breastfeeding_timer": {
+        "name": "Breastfeeding"
+      },
+      "sleep_timer": {
+        "name": "Sleeping"
       }
     }
   }

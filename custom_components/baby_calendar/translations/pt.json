@@ -56,7 +56,9 @@
     "trackers": {
       "options": {
         "diaper": "Fraldas",
-        "bottle": "Biberões"
+        "bottle": "Biberões",
+        "breastfeeding": "Amamentação",
+        "sleep": "Sono"
       }
     },
     "diaper_content": {
@@ -78,6 +80,12 @@
       "options": {
         "formula": "Leite de fórmula",
         "breast_milk": "Leite materno"
+      }
+    },
+    "breastfeeding_side": {
+      "options": {
+        "left": "Esquerdo",
+        "right": "Direito"
       }
     }
   },
@@ -134,6 +142,122 @@
         }
       }
     },
+    "start_breastfeeding": {
+      "name": "Iniciar amamentação",
+      "description": "Inicia o temporizador de amamentação. Falha se já estiver a correr.",
+      "fields": {
+        "device_id": {
+          "name": "Bebé",
+          "description": "O bebé."
+        },
+        "side": {
+          "name": "Lado",
+          "description": "Esquerdo ou direito. Opcional."
+        },
+        "notes": {
+          "name": "Notas",
+          "description": "Notas opcionais."
+        },
+        "time": {
+          "name": "Início",
+          "description": "Quando começou. Agora, se ficar vazio."
+        }
+      }
+    },
+    "stop_breastfeeding": {
+      "name": "Parar amamentação",
+      "description": "Para o temporizador de amamentação em curso.",
+      "fields": {
+        "device_id": {
+          "name": "Bebé",
+          "description": "O bebé."
+        },
+        "time": {
+          "name": "Fim",
+          "description": "Quando acabou. Agora, se ficar vazio."
+        }
+      }
+    },
+    "log_breastfeeding": {
+      "name": "Registar amamentação",
+      "description": "Regista uma amamentação já terminada com uma duração, sem usar o temporizador.",
+      "fields": {
+        "device_id": {
+          "name": "Bebé",
+          "description": "O bebé."
+        },
+        "duration": {
+          "name": "Duração",
+          "description": "Quanto tempo durou, mais de 0."
+        },
+        "side": {
+          "name": "Lado",
+          "description": "Esquerdo ou direito. Opcional."
+        },
+        "notes": {
+          "name": "Notas",
+          "description": "Notas opcionais."
+        },
+        "time": {
+          "name": "Início",
+          "description": "Quando começou. Se ficar vazio, acaba agora."
+        }
+      }
+    },
+    "start_sleep": {
+      "name": "Iniciar sono",
+      "description": "Inicia o temporizador de sono. Falha se já estiver a correr.",
+      "fields": {
+        "device_id": {
+          "name": "Bebé",
+          "description": "O bebé."
+        },
+        "notes": {
+          "name": "Notas",
+          "description": "Notas opcionais."
+        },
+        "time": {
+          "name": "Início",
+          "description": "Quando começou. Agora, se ficar vazio."
+        }
+      }
+    },
+    "stop_sleep": {
+      "name": "Parar sono",
+      "description": "Para o temporizador de sono em curso.",
+      "fields": {
+        "device_id": {
+          "name": "Bebé",
+          "description": "O bebé."
+        },
+        "time": {
+          "name": "Fim",
+          "description": "Quando acabou. Agora, se ficar vazio."
+        }
+      }
+    },
+    "log_sleep": {
+      "name": "Registar sono",
+      "description": "Regista uma sono já terminada com uma duração, sem usar o temporizador.",
+      "fields": {
+        "device_id": {
+          "name": "Bebé",
+          "description": "O bebé."
+        },
+        "duration": {
+          "name": "Duração",
+          "description": "Quanto tempo durou, mais de 0."
+        },
+        "notes": {
+          "name": "Notas",
+          "description": "Notas opcionais."
+        },
+        "time": {
+          "name": "Início",
+          "description": "Quando começou. Se ficar vazio, acaba agora."
+        }
+      }
+    },
     "update_event": {
       "name": "Corrigir registo",
       "description": "Muda a hora, as notas ou os campos de um registo. Os campos omitidos mantêm o valor.",
@@ -145,6 +269,10 @@
         "time": {
           "name": "Hora",
           "description": "Nova hora do registo."
+        },
+        "end_time": {
+          "name": "Fim",
+          "description": "Novo fim de um registo com duração já terminado."
         },
         "notes": {
           "name": "Notas",
@@ -238,6 +366,24 @@
     },
     "bottle_amount_zero": {
       "message": "Indica a quantidade do biberão antes de o registar."
+    },
+    "timer_running": {
+      "message": "O temporizador de {tracker} já está a correr. Para-o primeiro."
+    },
+    "timer_not_running": {
+      "message": "O temporizador de {tracker} não está a correr."
+    },
+    "end_before_start": {
+      "message": "O fim tem de ser depois do início."
+    },
+    "duration_zero": {
+      "message": "Indica uma duração maior que 0."
+    },
+    "end_time_running": {
+      "message": "Este registo ainda está a correr. Para o temporizador para definir o fim."
+    },
+    "end_time_not_timed": {
+      "message": "Os registos de {tracker} não têm hora de fim."
     }
   },
   "entity": {
@@ -273,6 +419,12 @@
       },
       "bottle_log": {
         "name": "Registar biberão"
+      },
+      "breastfeeding_log": {
+        "name": "Registar mamada"
+      },
+      "sleep_log": {
+        "name": "Registar sono"
       }
     },
     "number": {
@@ -281,6 +433,12 @@
       },
       "bottle_amount": {
         "name": "Quantidade do biberão"
+      },
+      "breastfeeding_duration": {
+        "name": "Duração da mamada"
+      },
+      "sleep_duration": {
+        "name": "Duração do sono"
       }
     },
     "select": {
@@ -290,6 +448,14 @@
           "not_specified": "Não indicado",
           "formula": "Leite de fórmula",
           "breast_milk": "Leite materno"
+        }
+      },
+      "breastfeeding_side": {
+        "name": "Lado da mama",
+        "state": {
+          "not_specified": "Não indicado",
+          "left": "Esquerdo",
+          "right": "Direito"
         }
       }
     },
@@ -320,6 +486,38 @@
       },
       "bottle_ml_today": {
         "name": "Mililitros de biberão hoje"
+      },
+      "breastfeeding_last": {
+        "name": "Última mamada"
+      },
+      "breastfeeding_feeds_today": {
+        "name": "Mamadas hoje"
+      },
+      "breastfeeding_duration_today": {
+        "name": "Tempo a mamar hoje"
+      },
+      "sleep_last": {
+        "name": "Último sono"
+      },
+      "awake_since": {
+        "name": "Acordado desde"
+      },
+      "sleep_count_today": {
+        "name": "Sonos hoje"
+      },
+      "sleep_duration_today": {
+        "name": "Tempo a dormir hoje"
+      },
+      "last_feed": {
+        "name": "Última refeição"
+      }
+    },
+    "switch": {
+      "breastfeeding_timer": {
+        "name": "A mamar"
+      },
+      "sleep_timer": {
+        "name": "A dormir"
       }
     }
   }

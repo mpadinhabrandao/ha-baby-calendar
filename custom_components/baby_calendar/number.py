@@ -10,9 +10,11 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .const import TRACKER_BOTTLE
 from .entity import BabyEntity
 from .models import BabyConfigEntry
+from .trackers import TIMED_TRACKERS
 from .trackers.bottle import MAX_AMOUNT
 
 MAX_MINUTES_AGO = 720
+MAX_DURATION = 1440
 
 
 async def async_setup_entry(
@@ -24,6 +26,11 @@ async def async_setup_entry(
     entities: list[NumberEntity] = [MinutesAgoNumber(entry)]
     if TRACKER_BOTTLE in entry.runtime_data.trackers:
         entities.append(BottleAmountNumber(entry))
+    entities += [
+        DurationNumber(entry, key)
+        for key in TIMED_TRACKERS
+        if key in entry.runtime_data.trackers
+    ]
     async_add_entities(entities)
 
 
@@ -90,4 +97,34 @@ class BottleAmountNumber(BabyEntity, RestoreNumber):
     @override
     async def async_set_native_value(self, value: float) -> None:
         self.entry.runtime_data.bottle_amount = value
+        self.async_write_ha_state()
+
+
+class DurationNumber(BabyEntity, NumberEntity):
+    """Minutes of a finished entry to log with the tracker's log button.
+
+    Not restored and set back to 0 after an entry, like "minutes ago",
+    because every feed or nap has its own length.
+    """
+
+    _attr_icon = "mdi:timer-outline"
+    _attr_mode = NumberMode.BOX
+    _attr_native_min_value = 0
+    _attr_native_max_value = MAX_DURATION
+    _attr_native_step = 1
+    _attr_native_unit_of_measurement = UnitOfTime.MINUTES
+
+    def __init__(self, entry: BabyConfigEntry, tracker: str) -> None:
+        """Create the duration input of one timed tracker."""
+        super().__init__(entry, f"{tracker}_duration")
+        self._tracker = tracker
+
+    @property
+    @override
+    def native_value(self) -> float:
+        return self.entry.runtime_data.durations.get(self._tracker, 0)
+
+    @override
+    async def async_set_native_value(self, value: float) -> None:
+        self.entry.runtime_data.durations[self._tracker] = int(value)
         self.async_write_ha_state()

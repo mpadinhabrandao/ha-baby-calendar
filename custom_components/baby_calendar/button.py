@@ -1,6 +1,6 @@
 """Button entities: undo, and each tracker's one-tap logging buttons."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import override
 
 from homeassistant.components.button import ButtonEntity
@@ -11,9 +11,16 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .const import DOMAIN, TRACKER_BOTTLE, TRACKER_DIAPER
 from .entity import BabyEntity
 from .models import BabyConfigEntry
-from .services import async_log, async_log_from_dashboard, async_set_stool, async_undo
-from .trackers import bottle
+from .services import (
+    async_log,
+    async_log_duration,
+    async_log_from_dashboard,
+    async_set_stool,
+    async_undo,
+)
+from .trackers import TIMED_TRACKERS, bottle
 from .trackers.diaper import BOTH, CONTENT, DIAPER, DIRTY, STOOLS, WET
+from .trackers.timed import TimedTracker
 
 
 async def async_setup_entry(
@@ -29,6 +36,11 @@ async def async_setup_entry(
         entities += [StoolButton(entry, stool) for stool in STOOLS]
     if TRACKER_BOTTLE in trackers:
         entities.append(BottleButton(entry))
+    entities += [
+        DurationLogButton(entry, tracker)
+        for key, tracker in TIMED_TRACKERS.items()
+        if key in trackers
+    ]
     async_add_entities(entities)
 
 
@@ -104,5 +116,35 @@ class BottleButton(BabyEntity, ButtonEntity):
             if data.bottle_content:
                 fields[bottle.CONTENT] = data.bottle_content
             await async_log(self.hass, self.entry, bottle.BOTTLE, fields, when=when)
+
+        await async_log_from_dashboard(self.hass, self.entry, self.key, log)
+
+
+class DurationLogButton(BabyEntity, ButtonEntity):
+    """Log a finished entry of the duration set, ending now or "minutes ago"."""
+
+    _attr_icon = "mdi:timer-check-outline"
+
+    def __init__(self, entry: BabyConfigEntry, tracker: TimedTracker) -> None:
+        """Create the log button of one timed tracker."""
+        super().__init__(entry, f"{tracker.key}_log")
+        self._tracker = tracker
+
+    @override
+    async def async_press(self) -> None:
+        data = self.entry.runtime_data
+        key = self._tracker.key
+
+        async def log(when: datetime) -> None:
+            await async_log_duration(
+                self.hass,
+                self.entry,
+                self._tracker,
+                self._tracker.dashboard_fields(data.breastfeeding_side),
+                timedelta(minutes=data.durations.get(key, 0)),
+                end=when,
+            )
+            data.durations[key] = 0
+            data.coordinator.async_update_listeners()
 
         await async_log_from_dashboard(self.hass, self.entry, self.key, log)

@@ -45,6 +45,8 @@ class Tracker(ABC):
     """
 
     key: str
+    # Timed trackers record events with a start and an end; see timed.py.
+    timed: bool = False
     log_service: str
     # Validators for the log service's own fields, keyed by probatio markers.
     log_fields: dict[Any, Any]

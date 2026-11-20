@@ -10,34 +10,58 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.const import UnitOfVolume
+from homeassistant.const import UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util import dt as dt_util
 
-from .const import TRACKER_BOTTLE, TRACKER_DIAPER
-from .coordinator import DAY
+from .const import (
+    FEEDING,
+    TRACKER_BOTTLE,
+    TRACKER_BREASTFEEDING,
+    TRACKER_DIAPER,
+    TRACKER_SLEEP,
+)
+from .coordinator import DAY, FEEDING_TRACKERS
 from .entity import BabyEntity
 from .models import BabyConfigEntry
-from .services import ATTR_TIME, ATTR_TRACKER, event_response
+from .services import (
+    ATTR_END,
+    ATTR_EVENT_ID,
+    ATTR_TIME,
+    ATTR_TRACKER,
+    event_response,
+)
 from .store import Event
+
+ATTR_ENDED_AT = "ended_at"
+ATTR_KIND = "kind"
 
 
 @dataclass(frozen=True, kw_only=True)
 class BabySensorDescription(SensorEntityDescription):
-    """A sensor of one tracker. ``daily`` sensors reset at local midnight."""
+    """A sensor reading one value of the baby's state.
+
+    ``tracker`` is the state group holding the value. The sensor exists while
+    any of ``requires`` is enabled, by default the tracker itself. ``daily``
+    sensors reset at local midnight. ``at_end`` shows an event's end instead
+    of its start.
+    """
 
     tracker: str
+    requires: frozenset[str] | None = None
     daily: bool = False
+    at_end: bool = False
 
 
-def _last(key: str, tracker: str, icon: str) -> BabySensorDescription:
+def _last(key: str, tracker: str, icon: str, **kwargs: Any) -> BabySensorDescription:
     return BabySensorDescription(
         key=key,
         translation_key=key,
         tracker=tracker,
         icon=icon,
         device_class=SensorDeviceClass.TIMESTAMP,
+        **kwargs,
     )
 
 
@@ -52,6 +76,7 @@ def _today(
         daily=True,
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement=unit,
+        device_class=SensorDeviceClass.DURATION if unit == UnitOfTime.MINUTES else None,
     )
 
 
@@ -70,6 +95,26 @@ SENSORS: tuple[BabySensorDescription, ...] = (
         "mdi:baby-bottle",
         UnitOfVolume.MILLILITERS,
     ),
+    _last("breastfeeding_last", TRACKER_BREASTFEEDING, "mdi:mother-nurse"),
+    _today("breastfeeding_feeds_today", TRACKER_BREASTFEEDING, "mdi:mother-nurse"),
+    _today(
+        "breastfeeding_duration_today",
+        TRACKER_BREASTFEEDING,
+        "mdi:timer-outline",
+        UnitOfTime.MINUTES,
+    ),
+    _last("sleep_last", TRACKER_SLEEP, "mdi:sleep"),
+    _last("awake_since", TRACKER_SLEEP, "mdi:weather-sunny", at_end=True),
+    _today("sleep_count_today", TRACKER_SLEEP, "mdi:sleep"),
+    _today(
+        "sleep_duration_today", TRACKER_SLEEP, "mdi:timer-outline", UnitOfTime.MINUTES
+    ),
+    _last(
+        "last_feed",
+        FEEDING,
+        "mdi:food-apple-outline",
+        requires=FEEDING_TRACKERS,
+    ),
 )
 
 
@@ -83,7 +128,7 @@ async def async_setup_entry(
     async_add_entities(
         BabySensor(entry, description)
         for description in SENSORS
-        if description.tracker in trackers
+        if (description.requires or {description.tracker}) & trackers
     )
 
 
@@ -109,6 +154,8 @@ class BabySensor(BabyEntity, SensorEntity):
     def native_value(self) -> datetime | float | None:
         value = self._value
         if isinstance(value, Event):
+            if self.entity_description.at_end:
+                return dt_util.utc_from_timestamp(value.end_ts)
             return dt_util.utc_from_timestamp(value.start_ts)
         return value
 
@@ -125,7 +172,13 @@ class BabySensor(BabyEntity, SensorEntity):
         value = self._value
         if not isinstance(value, Event):
             return None
+        if self.entity_description.tracker == FEEDING:
+            return {ATTR_KIND: value.tracker, ATTR_EVENT_ID: value.id}
+        if self.entity_description.at_end:
+            return {ATTR_EVENT_ID: value.id}
         # The event's id, fields and notes; the time is the state itself.
         attributes = event_response(self.hass, value)
         del attributes[ATTR_TIME], attributes[ATTR_TRACKER]
+        if ATTR_END in attributes:
+            attributes[ATTR_ENDED_AT] = attributes.pop(ATTR_END)
         return attributes

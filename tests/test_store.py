@@ -12,6 +12,7 @@ from custom_components.baby_calendar.store import (
     EventStore,
     NewerSchemaError,
     StoreError,
+    TimerRunningError,
     UnknownBabyError,
     UnknownEventError,
 )
@@ -482,3 +483,69 @@ def test_count_and_sum_for_a_period(store: EventStore) -> None:
     assert store.count_events(alice.baby_id, "bottle", 0, DAY) == 2
     assert store.sum_amount(alice.baby_id, "bottle", 0, DAY) == 210.5
     assert store.sum_amount(alice.baby_id, "diaper", 0, DAY) == 0.0
+
+
+# ------------------------------------------------------------------- timers
+
+
+def test_start_and_stop_a_timer(store: EventStore) -> None:
+    """A started timer is the running event until its end is set."""
+    baby = store.create_baby("Alice")
+    assert store.running_event(baby.baby_id, "sleep") is None
+
+    event = store.start_timer(baby_id=baby.baby_id, tracker="sleep", start_ts=100)
+
+    assert event.end_ts is None
+    assert store.running_event(baby.baby_id, "sleep") == event
+    store.update_event(event.id, {"end_ts": 400})
+    assert store.running_event(baby.baby_id, "sleep") is None
+    assert store.last_finished(baby.baby_id, "sleep").end_ts == 400
+
+
+def test_second_start_is_refused(store: EventStore) -> None:
+    """Only one timer per tracker and baby runs; others are independent."""
+    alice = store.create_baby("Alice")
+    bruno = store.create_baby("Bruno")
+    first = store.start_timer(baby_id=alice.baby_id, tracker="sleep", start_ts=100)
+
+    with pytest.raises(TimerRunningError):
+        store.start_timer(baby_id=alice.baby_id, tracker="sleep", start_ts=200)
+
+    store.start_timer(baby_id=alice.baby_id, tracker="breastfeeding", start_ts=200)
+    store.start_timer(baby_id=bruno.baby_id, tracker="sleep", start_ts=200)
+    assert store.running_event(alice.baby_id, "sleep") == first
+
+
+def test_overlap_listing(store: EventStore) -> None:
+    """Timed events overlapping the period at either edge are listed."""
+    baby = store.create_baby("Alice")
+    before = store.add_event(
+        baby_id=baby.baby_id, tracker="sleep", start_ts=50, end_ts=150
+    )
+    after = store.add_event(
+        baby_id=baby.baby_id, tracker="sleep", start_ts=180, end_ts=300
+    )
+    store.add_event(baby_id=baby.baby_id, tracker="sleep", start_ts=10, end_ts=100)
+    running = store.start_timer(
+        baby_id=baby.baby_id, tracker="breastfeeding", start_ts=20
+    )
+    diaper = store.add_event(baby_id=baby.baby_id, tracker="diaper", start_ts=120)
+    store.add_event(baby_id=baby.baby_id, tracker="diaper", start_ts=50)
+
+    listed = store.list_events(baby.baby_id, 100, 200, timed=("sleep", "breastfeeding"))
+
+    assert [event.id for event in listed] == [
+        running.id,
+        before.id,
+        diaper.id,
+        after.id,
+    ]
+
+
+def test_last_before(store: EventStore) -> None:
+    """The latest event starting before a time is found."""
+    baby = store.create_baby("Alice")
+    old = store.add_event(baby_id=baby.baby_id, tracker="sleep", start_ts=50, end_ts=60)
+    store.add_event(baby_id=baby.baby_id, tracker="sleep", start_ts=100, end_ts=160)
+    assert store.last_before(baby.baby_id, "sleep", 100) == old
+    assert store.last_before(baby.baby_id, "sleep", 50) is None

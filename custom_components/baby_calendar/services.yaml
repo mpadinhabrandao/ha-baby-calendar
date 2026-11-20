@@ -65,6 +65,118 @@ log_bottle:
       selector:
         datetime:
 
+start_breastfeeding:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    side:
+      selector:
+        select:
+          translation_key: breastfeeding_side
+          options:
+            - left
+            - right
+    notes:
+      selector:
+        text:
+          multiline: true
+    time:
+      selector:
+        datetime:
+
+stop_breastfeeding:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    time:
+      selector:
+        datetime:
+
+log_breastfeeding:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    duration:
+      required: true
+      example: "00:15:00"
+      selector:
+        duration:
+    side:
+      selector:
+        select:
+          translation_key: breastfeeding_side
+          options:
+            - left
+            - right
+    notes:
+      selector:
+        text:
+          multiline: true
+    time:
+      selector:
+        datetime:
+
+start_sleep:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    notes:
+      selector:
+        text:
+          multiline: true
+    time:
+      selector:
+        datetime:
+
+stop_sleep:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    time:
+      selector:
+        datetime:
+
+log_sleep:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    duration:
+      required: true
+      example: "00:15:00"
+      selector:
+        duration:
+    notes:
+      selector:
+        text:
+          multiline: true
+    time:
+      selector:
+        datetime:
+
 update_event:
   fields:
     event_id:
@@ -72,6 +184,9 @@ update_event:
       selector:
         text:
     time:
+      selector:
+        datetime:
+    end_time:
       selector:
         datetime:
     notes:
@@ -113,6 +228,8 @@ list_events:
           options:
             - diaper
             - bottle
+            - breastfeeding
+            - sleep
 
 purge_history:
   fields:

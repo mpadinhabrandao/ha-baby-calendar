@@ -24,6 +24,11 @@ class BabyData:
     minutes_ago: int = 0
     bottle_amount: float = 0
     bottle_content: str | None = None
+    # The breastfeeding side selection, restored by its entity.
+    breastfeeding_side: str | None = None
+    # Pending "duration" inputs of the timed trackers, in minutes, by tracker.
+    # Not restored, like minutes_ago.
+    durations: dict[str, int] = field(default_factory=dict)
     # When each logging button last logged, for the repeated press guard.
     last_press: dict[str, datetime] = field(default_factory=dict)
 
