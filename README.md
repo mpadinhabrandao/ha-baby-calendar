@@ -332,6 +332,45 @@ With bottles, breastfeeding or both enabled, **Last feed** (`sensor`) shows
 the start of the most recent feed of either kind, with `kind` (`bottle` or
 `breastfeeding`) as an attribute.
 
+## Calendar
+
+Each baby has a calendar entity with every recorded entry of every tracker,
+including trackers disabled later. Open it in the Calendar panel, or add a
+calendar card; the week and list views read best on days with many entries.
+
+```yaml
+type: calendar
+initial_view: listWeek
+entities:
+  - calendar.alice_calendar
+```
+
+| Emoji | Entry | Example title |
+|---|---|---|
+| 💧 | Wet diaper | 💧 Wet diaper |
+| 💩 | Dirty diaper, with the stool type | 💩 Dirty diaper (soft) |
+| 💧💩 | Wet and dirty diaper | 💧💩 Wet and dirty diaper |
+| 🍼 | Bottle, amount and content | 🍼 Bottle 90 ml formula |
+| 🤱 | Breastfeeding, side and duration | 🤱 Breastfeeding left 15 min |
+| 😴 | Sleep and duration | 😴 Sleep 1 h 20 min |
+
+Titles follow the Home Assistant language. A running timer shows "in
+progress" and reaches up to now; diaper changes and bottles are short blocks
+at their time. The calendar is on while a timer runs.
+
+From the calendar you can:
+
+- **Change the time** of an entry. For a finished breastfeeding or sleep,
+  both the start and the end; for anything else, the start. The same rules as
+  `update_event` apply, so a time in the future is refused.
+- **Write notes**: the description is the entry's notes, and this is where
+  they are meant to be written. Emptying it removes them. Saving a running
+  sleep or feed never stops its timer.
+- **Delete** an entry.
+
+The title is generated, so editing it changes nothing. Entries cannot be
+created from the calendar, and it shows recorded entries only.
+
 ## Correcting, deleting and listing entries
 
 ```yaml

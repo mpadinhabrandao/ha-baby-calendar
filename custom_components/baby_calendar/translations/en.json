@@ -384,6 +384,12 @@
     },
     "end_time_not_timed": {
       "message": "Entries of the {tracker} tracker have no end time."
+    },
+    "calendar_no_recurrence": {
+      "message": "Entries cannot repeat."
+    },
+    "calendar_no_all_day": {
+      "message": "Entries cannot last all day; set a time."
     }
   },
   "entity": {
@@ -425,6 +431,11 @@
       },
       "sleep_log": {
         "name": "Log sleep"
+      }
+    },
+    "calendar": {
+      "calendar": {
+        "name": "Calendar"
       }
     },
     "number": {

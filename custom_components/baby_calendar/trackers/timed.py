@@ -2,6 +2,7 @@
 
 from typing import Any, Final
 
+from ..calendar_strings import format_duration, words
 from ..store import Event, EventStore
 from .base import Columns, Day, Tracker, TrackerState
 
@@ -77,6 +78,23 @@ class TimedTracker(Tracker):
     ) -> dict[str, Any]:
         """Values specific to the tracker."""
         return {}
+
+    # Emoji and word key of the calendar title.
+    emoji: str = ""
+
+    def summary(self, event: Event, language: str, now: int) -> str:
+        """Return the emoji, the label, the details and the duration."""
+        text = words(language)
+        parts = [self.emoji, text[self.key], *self.title_details(event, text)]
+        if event.end_ts is None:
+            parts.append(text["in_progress"])
+        else:
+            parts.append(format_duration(event.end_ts - event.start_ts))
+        return " ".join(parts)
+
+    def title_details(self, event: Event, text: dict[str, str]) -> list[str]:
+        """Return the words between the label and the duration."""
+        return []
 
     def dashboard_fields(self, side: str | None) -> dict[str, Any]:
         """Return the fields the dashboard inputs give a new entry."""
