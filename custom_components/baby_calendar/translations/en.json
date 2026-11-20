@@ -1,0 +1,86 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add a baby",
+        "data": {
+          "name": "Name",
+          "birth_date": "Birth date"
+        },
+        "data_description": {
+          "birth_date": "Optional. You can add it later."
+        }
+      },
+      "history": {
+        "title": "History found",
+        "description": "A removed baby named {name} still has stored history.",
+        "menu_options": {
+          "restore": "Restore that history",
+          "start_empty": "Start empty and keep that history unattached"
+        }
+      },
+      "trackers": {
+        "title": "Trackers",
+        "description": "Choose what to log for this baby. You can change this later.",
+        "data": {
+          "trackers": "Trackers"
+        }
+      }
+    },
+    "error": {
+      "name_required": "Enter a name.",
+      "name_in_use": "A baby with this name already exists."
+    },
+    "abort": {
+      "already_configured": "This baby is already configured.",
+      "name_in_use": "A baby with this name already exists."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Edit baby",
+        "data": {
+          "name": "Name",
+          "birth_date": "Birth date",
+          "trackers": "Trackers"
+        }
+      }
+    },
+    "error": {
+      "name_required": "Enter a name.",
+      "name_in_use": "A baby with this name already exists."
+    }
+  },
+  "selector": {
+    "trackers": {
+      "options": {
+        "diaper": "Diapers",
+        "bottle": "Bottles"
+      }
+    }
+  },
+  "services": {
+    "purge_history": {
+      "name": "Delete stored history",
+      "description": "Permanently deletes the stored history of a removed baby. A baby that is still configured is never affected.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "Name of the removed baby."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "purge_configured_baby": {
+      "message": "{name} is still configured. Remove the baby before deleting its history."
+    },
+    "purge_no_history": {
+      "message": "No stored history found for a removed baby named {name}."
+    },
+    "history_missing": {
+      "message": "The stored history of {name} no longer exists. Remove this baby and add it again."
+    }
+  }
+}

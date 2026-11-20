@@ -1,0 +1,7 @@
+purge_history:
+  fields:
+    name:
+      required: true
+      example: Alice
+      selector:
+        text:

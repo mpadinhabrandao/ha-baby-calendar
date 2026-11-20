@@ -1,0 +1,86 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Adicionar um bebé",
+        "data": {
+          "name": "Nome",
+          "birth_date": "Data de nascimento"
+        },
+        "data_description": {
+          "birth_date": "Opcional. Pode ser adicionada mais tarde."
+        }
+      },
+      "history": {
+        "title": "Histórico encontrado",
+        "description": "Um bebé removido com o nome {name} ainda tem histórico guardado.",
+        "menu_options": {
+          "restore": "Restaurar esse histórico",
+          "start_empty": "Começar vazio e manter esse histórico à parte"
+        }
+      },
+      "trackers": {
+        "title": "Registos",
+        "description": "Escolhe o que registar para este bebé. Podes mudar isto mais tarde.",
+        "data": {
+          "trackers": "Registos"
+        }
+      }
+    },
+    "error": {
+      "name_required": "Indica um nome.",
+      "name_in_use": "Já existe um bebé com este nome."
+    },
+    "abort": {
+      "already_configured": "Este bebé já está configurado.",
+      "name_in_use": "Já existe um bebé com este nome."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Editar bebé",
+        "data": {
+          "name": "Nome",
+          "birth_date": "Data de nascimento",
+          "trackers": "Registos"
+        }
+      }
+    },
+    "error": {
+      "name_required": "Indica um nome.",
+      "name_in_use": "Já existe um bebé com este nome."
+    }
+  },
+  "selector": {
+    "trackers": {
+      "options": {
+        "diaper": "Fraldas",
+        "bottle": "Biberões"
+      }
+    }
+  },
+  "services": {
+    "purge_history": {
+      "name": "Apagar histórico guardado",
+      "description": "Apaga definitivamente o histórico guardado de um bebé removido. Um bebé que ainda esteja configurado nunca é afetado.",
+      "fields": {
+        "name": {
+          "name": "Nome",
+          "description": "Nome do bebé removido."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "purge_configured_baby": {
+      "message": "{name} ainda está configurado. Remove o bebé antes de apagar o histórico."
+    },
+    "purge_no_history": {
+      "message": "Não há histórico guardado de um bebé removido com o nome {name}."
+    },
+    "history_missing": {
+      "message": "O histórico guardado de {name} já não existe. Remove este bebé e adiciona-o de novo."
+    }
+  }
+}

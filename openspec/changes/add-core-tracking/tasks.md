@@ -17,10 +17,10 @@
 
 ## 3. Baby profile
 
-- [ ] 3.1 Implement the config flow (name required, birth date optional, case-insensitive duplicate check, restore-or-start-empty step, tracker multi-select) with `en` and `pt` strings per design D3; verify with tests for success, empty name, duplicate name, one tracker ticked, none ticked, restore and start empty
-- [ ] 3.2 Implement the options flow to edit name, birth date and enabled trackers; verify with tests that events survive an edit
-- [ ] 3.3 Implement `async_setup_entry`, `async_unload_entry`, device registration, entity creation for enabled trackers only and removal of registry entries of disabled trackers; verify with tests for enabling a tracker later and for disabling and re-enabling one with its events intact
-- [ ] 3.4 Implement `async_remove_entry` marking the baby removed, and `baby_calendar.purge_history`; verify with tests that removal keeps events, that purge deletes only removed babies' history and that purge refuses a configured baby
+- [x] 3.1 Implement the config flow (name required, birth date optional, case-insensitive duplicate check, restore-or-start-empty step, tracker multi-select) with `en` and `pt` strings per design D3; verify with tests for success, empty name, duplicate name, one tracker ticked, none ticked, restore and start empty
+- [x] 3.2 Implement the options flow to edit name, birth date and enabled trackers; verify with tests that events survive an edit
+- [x] 3.3 Implement `async_setup_entry`, `async_unload_entry`, device registration, entity creation for enabled trackers only and removal of registry entries of disabled trackers; verify with tests for enabling a tracker later and for disabling and re-enabling one with its events intact
+- [x] 3.4 Implement `async_remove_entry` marking the baby removed, and `baby_calendar.purge_history`; verify with tests that removal keeps events, that purge deletes only removed babies' history and that purge refuses a configured baby
 - [ ] 3.5 Document adding a baby, choosing trackers, removal, restoring and purging history in `README.md`; verify the steps match the UI on a real instance
 
 ## 4. Shared services, state and dashboard path
