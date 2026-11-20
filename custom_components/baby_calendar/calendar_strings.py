@@ -25,6 +25,10 @@ STRINGS: Final[dict[str, dict[str, str]]] = {
         "side_right": "right",
         "sleep": "Sleep",
         "solids": "Solids",
+        "pumping": "Pumping",
+        "pumping_left": "left",
+        "pumping_right": "right",
+        "pumping_both": "both sides",
         "in_progress": "in progress",
     },
     "pt": {
@@ -43,6 +47,10 @@ STRINGS: Final[dict[str, dict[str, str]]] = {
         "side_right": "direita",
         "sleep": "Sono",
         "solids": "Sólidos",
+        "pumping": "Extração",
+        "pumping_left": "esquerda",
+        "pumping_right": "direita",
+        "pumping_both": "ambos os lados",
         "in_progress": "a decorrer",
     },
 }

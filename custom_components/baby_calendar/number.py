@@ -7,7 +7,7 @@ from homeassistant.const import UnitOfTime, UnitOfVolume
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .const import TRACKER_BOTTLE
+from .const import TRACKER_BOTTLE, TRACKER_PUMPING
 from .entity import BabyEntity
 from .models import BabyConfigEntry
 from .trackers import TIMED_TRACKERS
@@ -27,6 +27,8 @@ async def async_setup_entry(
     entities: list[NumberEntity] = [MinutesAgoNumber(entry)]
     if TRACKER_BOTTLE in entry.runtime_data.trackers:
         entities.append(BottleAmountNumber(entry))
+    if TRACKER_PUMPING in entry.runtime_data.trackers:
+        entities.append(PumpingAmountNumber(entry))
     entities += [
         DurationNumber(entry, key)
         for key in TIMED_TRACKERS
@@ -164,4 +166,33 @@ class MeasurementNumber(BabyEntity, NumberEntity):
     @override
     async def async_set_native_value(self, value: float) -> None:
         self.entry.runtime_data.measurements[self._tracker] = value
+        self.async_write_ha_state()
+
+
+class PumpingAmountNumber(BabyEntity, NumberEntity):
+    """Amount of the next pumping session logged with the pumping button.
+
+    A one-shot input: not restored, and set back to 0 after a session, so a
+    second press without a new amount fails.
+    """
+
+    _attr_icon = "mdi:cup-water"
+    _attr_mode = NumberMode.BOX
+    _attr_native_min_value = 0
+    _attr_native_max_value = MAX_AMOUNT
+    _attr_native_step = 1
+    _attr_native_unit_of_measurement = UnitOfVolume.MILLILITERS
+
+    def __init__(self, entry: BabyConfigEntry) -> None:
+        """Create the pumping amount input of one baby."""
+        super().__init__(entry, "pumping_amount")
+
+    @property
+    @override
+    def native_value(self) -> float:
+        return self.entry.runtime_data.pumping_amount
+
+    @override
+    async def async_set_native_value(self, value: float) -> None:
+        self.entry.runtime_data.pumping_amount = value
         self.async_write_ha_state()

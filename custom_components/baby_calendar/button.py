@@ -1,14 +1,20 @@
 """Button entities: undo, and each tracker's one-tap logging buttons."""
 
 from datetime import datetime, timedelta
-from typing import override
+from typing import Any, override
 
 from homeassistant.components.button import ButtonEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .const import DOMAIN, TRACKER_BOTTLE, TRACKER_DIAPER, TRACKER_SOLIDS
+from .const import (
+    DOMAIN,
+    TRACKER_BOTTLE,
+    TRACKER_DIAPER,
+    TRACKER_PUMPING,
+    TRACKER_SOLIDS,
+)
 from .entity import BabyEntity, MedicationEntity
 from .models import BabyConfigEntry
 from .services import (
@@ -23,6 +29,7 @@ from .trackers import TIMED_TRACKERS, bottle
 from .trackers.diaper import BOTH, CONTENT, DIAPER, DIRTY, STOOLS, WET
 from .trackers.measurement import MEASUREMENTS, VALUE, MeasurementTracker
 from .trackers.medication import medications
+from .trackers.pumping import AMOUNT, PUMPING, SIDE
 from .trackers.solids import SOLIDS
 from .trackers.timed import TimedTracker
 
@@ -40,6 +47,8 @@ async def async_setup_entry(
         entities += [StoolButton(entry, stool) for stool in STOOLS]
     if TRACKER_BOTTLE in trackers:
         entities.append(BottleButton(entry))
+    if TRACKER_PUMPING in trackers:
+        entities.append(PumpingButton(entry))
     if TRACKER_SOLIDS in trackers:
         entities.append(SolidsButton(entry))
     entities += [
@@ -219,5 +228,34 @@ class SolidsButton(BabyEntity, ButtonEntity):
     async def async_press(self) -> None:
         async def log(when: datetime) -> None:
             await async_log(self.hass, self.entry, SOLIDS, {}, when=when)
+
+        await async_log_from_dashboard(self.hass, self.entry, self.key, log)
+
+
+class PumpingButton(BabyEntity, ButtonEntity):
+    """Log a pumping session with the amount and side set, then clear both."""
+
+    _attr_icon = "mdi:cup-water"
+
+    def __init__(self, entry: BabyConfigEntry) -> None:
+        """Create the pumping button of one baby."""
+        super().__init__(entry, "pumping_log")
+
+    @override
+    async def async_press(self) -> None:
+        data = self.entry.runtime_data
+
+        async def log(when: datetime) -> None:
+            if data.pumping_amount <= 0:
+                raise ServiceValidationError(
+                    translation_domain=DOMAIN, translation_key="pumping_amount_zero"
+                )
+            fields: dict[str, Any] = {AMOUNT: data.pumping_amount}
+            if data.pumping_side:
+                fields[SIDE] = data.pumping_side
+            await async_log(self.hass, self.entry, PUMPING, fields, when=when)
+            data.pumping_amount = 0
+            data.pumping_side = None
+            data.coordinator.async_update_listeners()
 
         await async_log_from_dashboard(self.hass, self.entry, self.key, log)

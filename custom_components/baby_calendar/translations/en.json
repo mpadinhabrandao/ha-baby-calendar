@@ -102,6 +102,7 @@
         "breastfeeding": "Breastfeeding",
         "sleep": "Sleep",
         "solids": "Solids",
+        "pumping": "Pumping",
         "medication": "Medication",
         "weight": "Weight",
         "length": "Length",
@@ -147,6 +148,13 @@
         "edit": "Edit",
         "toggle": "Deactivate or reactivate",
         "remove": "Remove"
+      }
+    },
+    "pumping_side": {
+      "options": {
+        "left": "Left",
+        "right": "Right",
+        "both": "Both"
       }
     }
   },
@@ -492,6 +500,32 @@
           "description": "When it happened. Now if left empty."
         }
       }
+    },
+    "log_pumping": {
+      "name": "Log pumping",
+      "description": "Records a milk pumping session.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "amount": {
+          "name": "Amount",
+          "description": "Millilitres, more than 0."
+        },
+        "side": {
+          "name": "Side",
+          "description": "Left, right or both."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional notes."
+        },
+        "time": {
+          "name": "Time",
+          "description": "When it happened. Now if left empty."
+        }
+      }
     }
   },
   "exceptions": {
@@ -563,6 +597,9 @@
     },
     "value_out_of_range": {
       "message": "Enter a value from {minimum} to {maximum} {unit}."
+    },
+    "pumping_amount_zero": {
+      "message": "Set the pumping amount before logging the session."
     }
   },
   "entity": {
@@ -633,6 +670,9 @@
       },
       "solids_log": {
         "name": "Log meal"
+      },
+      "pumping_log": {
+        "name": "Log pumping"
       }
     },
     "calendar": {
@@ -661,6 +701,9 @@
       },
       "temperature_value": {
         "name": "Temperature to log"
+      },
+      "pumping_amount": {
+        "name": "Pumping amount"
       }
     },
     "select": {
@@ -678,6 +721,15 @@
           "not_specified": "Not specified",
           "left": "Left",
           "right": "Right"
+        }
+      },
+      "pumping_side": {
+        "name": "Pumping side",
+        "state": {
+          "not_specified": "Not specified",
+          "left": "Left",
+          "right": "Right",
+          "both": "Both"
         }
       }
     },
@@ -815,6 +867,29 @@
       },
       "solids_count_today": {
         "name": "Meals today"
+      },
+      "pumping_last": {
+        "name": "Last pumping",
+        "state_attributes": {
+          "event_id": {
+            "name": "Event"
+          },
+          "amount": {
+            "name": "Amount"
+          },
+          "side": {
+            "name": "Side"
+          },
+          "notes": {
+            "name": "Notes"
+          }
+        }
+      },
+      "pumping_count_today": {
+        "name": "Pumping sessions today"
+      },
+      "pumping_ml_today": {
+        "name": "Millilitres pumped today"
       }
     },
     "switch": {

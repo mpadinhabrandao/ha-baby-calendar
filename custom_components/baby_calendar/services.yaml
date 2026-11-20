@@ -82,6 +82,40 @@ log_solids:
       selector:
         datetime:
 
+log_pumping:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          filter:
+            integration: baby_calendar
+    amount:
+      required: true
+      example: 80
+      selector:
+        number:
+          min: 1
+          max: 500
+          step: 1
+          unit_of_measurement: mL
+          mode: box
+    side:
+      selector:
+        select:
+          translation_key: pumping_side
+          options:
+            - left
+            - right
+            - both
+    notes:
+      selector:
+        text:
+          multiline: true
+    time:
+      selector:
+        datetime:
+
 log_weight:
   fields:
     device_id:
@@ -347,6 +381,7 @@ list_events:
             - breastfeeding
             - sleep
             - solids
+            - pumping
             - weight
             - length
             - temperature
