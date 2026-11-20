@@ -99,18 +99,25 @@ def claimed_slots(slots: list[datetime], doses: list[int]) -> set[int]:
 
 
 def evaluate(
-    schedule: dict[str, Any], doses: list[int], now: datetime, zone: tzinfo
+    schedule: dict[str, Any],
+    doses: list[int],
+    now: datetime,
+    zone: tzinfo,
+    since: int | None = None,
 ) -> DueState:
     """Return whether a dose is due now.
 
     ``doses`` are the medication's dose times, as UTC epoch seconds, at
-    least from two days before now; ``now`` is aware.
+    least from two days before now; ``now`` is aware. ``since`` is when the
+    schedule started applying, as UTC epoch seconds: a fixed time before it
+    is never due, so a medication added at 16:00 with a 09:00 time is not
+    due until the next 09:00.
     """
     kind = schedule.get("type", SCHEDULE_NONE)
     if kind == SCHEDULE_INTERVAL:
         return _evaluate_interval(float(schedule["hours"]), doses, now)
     if kind == SCHEDULE_TIMES and schedule.get("times"):
-        return _evaluate_times(list(schedule["times"]), doses, now, zone)
+        return _evaluate_times(list(schedule["times"]), doses, now, zone, since)
     return NOTHING_DUE
 
 
@@ -126,13 +133,21 @@ def _evaluate_interval(hours: float, doses: list[int], now: datetime) -> DueStat
 
 
 def _evaluate_times(
-    times: list[str], doses: list[int], now: datetime, zone: tzinfo
+    times: list[str],
+    doses: list[int],
+    now: datetime,
+    zone: tzinfo,
+    since: int | None,
 ) -> DueState:
     slots = slots_around(times, now, zone)
     claimed = claimed_slots(slots, [dose for dose in doses if dose <= now.timestamp()])
     current = max((i for i, slot in enumerate(slots) if slot <= now), default=None)
     upcoming = next(slot for slot in slots if slot > now)
-    due = current is not None and current not in claimed
+    due = (
+        current is not None
+        and current not in claimed
+        and (since is None or slots[current].timestamp() >= since)
+    )
     return DueState(
         due=due,
         next_dose=slots[current] if due else upcoming,

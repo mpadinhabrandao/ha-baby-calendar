@@ -74,7 +74,7 @@ Fixed times:
 
 1. Build the slots: every scheduled local time from two days before `now` to the day after, as timezone-aware datetimes. A local time that does not exist on a daylight saving day is moved forward to the first valid instant; a repeated local time uses its first occurrence.
 2. Match doses to slots, in dose order: a dose claims the slot nearest to it if that slot is unclaimed and the dose is nearer to it than to either neighbouring slot. Otherwise the dose claims nothing. With one time per day, each slot's reach is therefore 12 hours either side; with 09:00 and 21:00 it is 6 hours.
-3. Let `current` be the latest slot at or before `now`. `due` is true when `current` is unclaimed. Earlier unclaimed slots are missed and ignored: only the current slot can be due.
+3. Let `current` be the latest slot at or before `now`. `due` is true when `current` is unclaimed and not earlier than the medication's `since`, the time its schedule started applying (set when it is added, its schedule changes or it is reactivated). Earlier unclaimed slots are missed and ignored: only the current slot can be due.
 4. `next_dose` is `current` when due, else the first slot after `now`. `next_change` is the first slot after `now`.
 
 Interval: `next_dose = last_dose + hours`, `due = now >= next_dose`, `next_change = next_dose` when it is in the future. With no dose, `due` is false and `next_dose` is `None`.
