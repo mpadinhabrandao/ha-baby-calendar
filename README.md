@@ -59,6 +59,163 @@ It refuses to act on a baby that is still configured. If several removed
 babies share the name, it deletes all of them and its response says how
 many babies and events were deleted.
 
+## Logging from the dashboard
+
+Every baby has two entities that work with all trackers:
+
+- **Minutes ago** (`number`): set it before pressing a button to record
+  something that happened earlier. It goes back to 0 after every entry and
+  after a restart.
+- **Undo last entry** (`button`): deletes the entry recorded last, whatever
+  its time, if it was recorded in the last 15 minutes. Press it again to
+  delete the one before.
+
+A second press of the same logging button within 3 seconds is ignored, so a
+double tap records one entry.
+
+## Diapers
+
+### Entities
+
+| Entity | What it does |
+|---|---|
+| Wet diaper, Dirty diaper, Wet and dirty diaper (`button`) | Log a change with that content. |
+| Stool normal, soft, hard, diarrhea (`button`) | Set the stool type of the dirty diaper just logged. Works for 10 minutes after it was recorded. |
+| Stool type pending (`binary_sensor`) | On while the dirty diaper just logged has no stool type, for up to 10 minutes. |
+| Last diaper change, Last wet diaper, Last dirty diaper (`sensor`) | Time of the last matching change, with its `event_id`, `content`, `stool` and `notes` as attributes. |
+| Diaper changes today, Wet diapers today, Dirty diapers today (`sensor`) | Today's counts, from local midnight. |
+
+A wet and dirty change counts once as a change, once as wet and once as
+dirty.
+
+### Dashboard example
+
+The stool type buttons appear only after a dirty diaper, and disappear once a
+type is chosen or after 10 minutes. Replace `alice` with your baby's entity
+ids.
+
+```yaml
+type: vertical-stack
+cards:
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - type: button
+        entity: button.alice_wet_diaper
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.alice_wet_diaper
+      - type: button
+        entity: button.alice_dirty_diaper
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.alice_dirty_diaper
+      - type: button
+        entity: button.alice_wet_and_dirty_diaper
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.alice_wet_and_dirty_diaper
+  - type: conditional
+    conditions:
+      - condition: state
+        entity: binary_sensor.alice_stool_type_pending
+        state: "on"
+    card:
+      type: grid
+      columns: 4
+      square: false
+      cards:
+        - type: button
+          entity: button.alice_stool_normal
+          tap_action:
+            action: perform-action
+            perform_action: button.press
+            target:
+              entity_id: button.alice_stool_normal
+        - type: button
+          entity: button.alice_stool_soft
+          tap_action:
+            action: perform-action
+            perform_action: button.press
+            target:
+              entity_id: button.alice_stool_soft
+        - type: button
+          entity: button.alice_stool_hard
+          tap_action:
+            action: perform-action
+            perform_action: button.press
+            target:
+              entity_id: button.alice_stool_hard
+        - type: button
+          entity: button.alice_stool_diarrhea
+          tap_action:
+            action: perform-action
+            perform_action: button.press
+            target:
+              entity_id: button.alice_stool_diarrhea
+  - type: entities
+    entities:
+      - number.alice_minutes_ago
+      - button.alice_undo_last_entry
+      - sensor.alice_last_diaper_change
+      - sensor.alice_diaper_changes_today
+```
+
+### Action
+
+```yaml
+action: baby_calendar.log_diaper
+data:
+  device_id: <the baby's device>
+  content: dirty    # wet, dirty or both
+  stool: soft       # optional, only for dirty or both: normal, soft, hard, diarrhea
+  notes: Green      # optional
+  time: "2026-11-20 03:00:00"  # optional, now if left out
+response_variable: logged      # optional, holds event_id
+```
+
+## Correcting, deleting and listing entries
+
+```yaml
+action: baby_calendar.update_event
+data:
+  event_id: <id>
+  time: "2026-11-20 02:40:00"   # optional
+  notes: ""                     # optional, empty removes the notes
+  fields:                       # optional, only the fields to change
+    content: wet                # a wet diaper drops its stool type
+    stool: null                 # null clears a field
+```
+
+```yaml
+action: baby_calendar.delete_event
+data:
+  event_id: <id>
+```
+
+```yaml
+action: baby_calendar.list_events
+data:
+  device_id: <the baby's device>
+  start: "2026-11-20 00:00:00"
+  end: "2026-11-21 00:00:00"
+  tracker: diaper               # optional
+response_variable: entries
+```
+
+Every entry has an `event_id`; the action that logs it returns it, listings
+include it, and the "last" sensors expose it.
+
+Charts of the daily sensors show each day as it stood that day. Correcting a
+past day changes the entries, not the statistics already recorded.
+
 ### Where the data lives
 
 Events are stored in `baby_calendar.db` in the Home Assistant configuration

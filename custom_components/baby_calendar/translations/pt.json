@@ -229,17 +229,69 @@
     },
     "nothing_to_undo": {
       "message": "Nada foi registado nos últimos 15 minutos."
+    },
+    "stool_not_dirty": {
+      "message": "A última muda de fralda não tem cocó. Corrige-a com a ação Corrigir registo, se for preciso."
+    },
+    "stool_too_late": {
+      "message": "O último cocó foi registado há mais de 10 minutos. Corrige-o com a ação Corrigir registo."
     }
   },
   "entity": {
-    "number": {
-      "minutes_ago": {
-        "name": "Há minutos"
+    "binary_sensor": {
+      "stool_prompt": {
+        "name": "Tipo de cocó por indicar"
       }
     },
     "button": {
       "undo": {
         "name": "Anular último registo"
+      },
+      "diaper_wet": {
+        "name": "Fralda com xixi"
+      },
+      "diaper_dirty": {
+        "name": "Fralda com cocó"
+      },
+      "diaper_both": {
+        "name": "Fralda com xixi e cocó"
+      },
+      "stool_normal": {
+        "name": "Cocó normal"
+      },
+      "stool_soft": {
+        "name": "Cocó mole"
+      },
+      "stool_hard": {
+        "name": "Cocó duro"
+      },
+      "stool_diarrhea": {
+        "name": "Cocó diarreia"
+      }
+    },
+    "number": {
+      "minutes_ago": {
+        "name": "Há minutos"
+      }
+    },
+    "sensor": {
+      "diaper_last": {
+        "name": "Última muda de fralda"
+      },
+      "diaper_last_wet": {
+        "name": "Último xixi"
+      },
+      "diaper_last_dirty": {
+        "name": "Último cocó"
+      },
+      "diaper_changes_today": {
+        "name": "Mudas de fralda hoje"
+      },
+      "diaper_wet_today": {
+        "name": "Xixis hoje"
+      },
+      "diaper_dirty_today": {
+        "name": "Cocós hoje"
       }
     }
   }

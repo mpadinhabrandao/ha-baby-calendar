@@ -25,6 +25,9 @@ _LOGGER = logging.getLogger(__name__)
 
 type BabyState = dict[str, Any]
 
+# Key of the BabyState entry holding the day the daily values cover.
+DAY = "day"
+
 
 def local_day(now: datetime) -> Day:
     """Return the local day containing ``now``, which is 23 to 25 hours long."""
@@ -93,7 +96,8 @@ class BabyCoordinator(DataUpdateCoordinator[BabyState]):
         return state
 
     def _compute(self, now: int, day: Day) -> tuple[BabyState, int | None]:
-        state: BabyState = {}
+        # The day the daily values cover, for their last_reset.
+        state: BabyState = {DAY: day}
         refresh_at: int | None = None
         for key in self.trackers:
             tracker_state = TRACKERS[key].compute(self.store, self.baby_id, day, now)

@@ -24,6 +24,7 @@ from .models import BabyConfigEntry
 from .store import Event, UnknownEventError
 from .trackers import TRACKERS
 from .trackers.base import Tracker
+from .trackers.diaper import DIAPER, DIRTY_KINDS, STOOL, STOOL_WINDOW
 
 ATTR_DEVICE_ID: Final = "device_id"
 ATTR_EVENT_ID: Final = "event_id"
@@ -192,6 +193,36 @@ async def async_undo(hass: HomeAssistant, entry: BabyConfigEntry) -> Event:
     await async_run(hass, store.delete_event, latest.id)
     await data.coordinator.async_refresh()
     return latest
+
+
+async def async_set_stool(
+    hass: HomeAssistant, entry: BabyConfigEntry, stool: str
+) -> Event:
+    """Set the stool type of the baby's most recently recorded diaper change.
+
+    Only a dirty diaper recorded in the last 10 minutes takes a stool type
+    this way; anything else is corrected with update_event.
+    """
+    data = entry.runtime_data
+    store = await async_get_store(hass)
+    latest = await async_run(hass, store.latest_recorded, data.baby_id, DIAPER.key)
+    if latest is None or latest.kind not in DIRTY_KINDS:
+        raise HomeAssistantError(
+            translation_domain=DOMAIN, translation_key="stool_not_dirty"
+        )
+    if latest.created_ts <= now_ts() - STOOL_WINDOW:
+        raise HomeAssistantError(
+            translation_domain=DOMAIN, translation_key="stool_too_late"
+        )
+    event = await async_run(
+        hass,
+        store.update_event,
+        latest.id,
+        {"data": {**latest.data, STOOL: stool}},
+        now=now_ts(),
+    )
+    await data.coordinator.async_refresh()
+    return event
 
 
 async def async_update_fields(

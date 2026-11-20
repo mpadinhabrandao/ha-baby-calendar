@@ -229,17 +229,69 @@
     },
     "nothing_to_undo": {
       "message": "Nothing was recorded in the last 15 minutes."
+    },
+    "stool_not_dirty": {
+      "message": "The last diaper change has no stool. Correct it with the Correct entry action if needed."
+    },
+    "stool_too_late": {
+      "message": "The last dirty diaper was recorded more than 10 minutes ago. Correct it with the Correct entry action."
     }
   },
   "entity": {
-    "number": {
-      "minutes_ago": {
-        "name": "Minutes ago"
+    "binary_sensor": {
+      "stool_prompt": {
+        "name": "Stool type pending"
       }
     },
     "button": {
       "undo": {
         "name": "Undo last entry"
+      },
+      "diaper_wet": {
+        "name": "Wet diaper"
+      },
+      "diaper_dirty": {
+        "name": "Dirty diaper"
+      },
+      "diaper_both": {
+        "name": "Wet and dirty diaper"
+      },
+      "stool_normal": {
+        "name": "Stool normal"
+      },
+      "stool_soft": {
+        "name": "Stool soft"
+      },
+      "stool_hard": {
+        "name": "Stool hard"
+      },
+      "stool_diarrhea": {
+        "name": "Stool diarrhea"
+      }
+    },
+    "number": {
+      "minutes_ago": {
+        "name": "Minutes ago"
+      }
+    },
+    "sensor": {
+      "diaper_last": {
+        "name": "Last diaper change"
+      },
+      "diaper_last_wet": {
+        "name": "Last wet diaper"
+      },
+      "diaper_last_dirty": {
+        "name": "Last dirty diaper"
+      },
+      "diaper_changes_today": {
+        "name": "Diaper changes today"
+      },
+      "diaper_wet_today": {
+        "name": "Wet diapers today"
+      },
+      "diaper_dirty_today": {
+        "name": "Dirty diapers today"
       }
     }
   }

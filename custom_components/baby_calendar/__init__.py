@@ -36,7 +36,12 @@ from .trackers import tracker_of_key
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
-PLATFORMS: list[Platform] = [Platform.BUTTON, Platform.NUMBER]
+PLATFORMS: list[Platform] = [
+    Platform.BINARY_SENSOR,
+    Platform.BUTTON,
+    Platform.NUMBER,
+    Platform.SENSOR,
+]
 
 PURGE_HISTORY_SCHEMA = probatio.Schema(
     {probatio.Required(CONF_NAME): probatio.All(cv.string, probatio.Length(min=1))}
