@@ -41,6 +41,8 @@ class MedicationEntity(BabyEntity):
         self.medication = medication
         self._attr_translation_key = f"medication_{key}"
         self._attr_translation_placeholders = {"medication": medication["name"]}
+        # Lets a dashboard select a medication's entities in any language.
+        self._attr_extra_state_attributes = {"medication": medication["name"]}
 
     @property
     def medication_state(self) -> dict:

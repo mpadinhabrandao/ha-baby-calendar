@@ -8,7 +8,7 @@
 
   - 1.1 outcome (2026-11-20): the harness test was not repeated. The options-flow menu was chosen: it needs no subentry, so the one-subentry-per-device rule from 2026.8 does not apply, and the entity cleanup it needs is the same as for disabled trackers. Fixed times, the doses and the specs are unchanged by the choice.
   - 1.3 and 2.4: the README sections are written; checking them against the UI and running the examples on a real instance is still to do.
-  - 4.2: the event-triggered blueprint is written and runs in the tests as a real automation (two medications and one added later, repeat until recorded, baby filter, "Given" recording the dose); the phone check on a real instance is still to do.
+  - 4.2: the event-triggered blueprint is written and runs in the tests as a real automation (two medications and one added later, repeat until recorded, baby filter, "Given" recording the dose); checked on a real instance on 2026-11-20: one automation reminded two phones (Márcio's and Mariana's) for Paracetamol, the repeats replaced the previous notification, and "Given" on the phone recorded the dose and stopped the repeats.
   - 4.3: the import link was checked on a real instance on 2026-11-20 (the blueprint imported from its GitHub URL).
 
 ## 2. Doses
@@ -26,7 +26,7 @@
 ## 4. Reminders
 
 - [x] 4.1 Verify with tests that the due state is recomputed at startup: Home Assistant down at dose time, and a restart while a dose is due
-- [ ] 4.2 Write the reminder blueprint per design R6, triggered by the due event; verify with tests that one automation reminds for two medications, a medication added later, a repeat until the dose is recorded, a baby filter and the "Given" action recording the dose; then verify on a real instance that a phone receives the reminder with the baby name, medication name and dose text, and that "Given" records the dose
+- [x] 4.2 Write the reminder blueprint per design R6, triggered by the due event; verify with tests that one automation reminds for two medications, a medication added later, a repeat until the dose is recorded, a baby filter and the "Given" action recording the dose; then verify on a real instance that a phone receives the reminder with the baby name, medication name and dose text, and that "Given" records the dose
 - [x] 4.3 Document reminders in `README.md`, leading with the blueprint import link, stating that the integration sends no notifications itself, and describing the due event and the "Given" action; verify the import link works on a real instance
 - [x] 4.4 Fire the due event per design R5; verify with tests for a dose becoming due, a start while due, a reload while due, a dose recorded and due again later, and a medication with no schedule
 
