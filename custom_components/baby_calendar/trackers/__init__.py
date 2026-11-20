@@ -1,6 +1,11 @@
 """The trackers the integration offers, and the entities each one owns."""
 
 from ..const import TRACKER_BOTTLE, TRACKER_DIAPER
+from .base import Tracker
+from .bottle import BOTTLE
+from .diaper import DIAPER
+
+TRACKERS: dict[str, Tracker] = {tracker.key: tracker for tracker in (DIAPER, BOTTLE)}
 
 # Entity keys owned by each tracker. An entity's unique id is
 # "<baby_id>_<key>", so these keys tell which registry entries belong to a

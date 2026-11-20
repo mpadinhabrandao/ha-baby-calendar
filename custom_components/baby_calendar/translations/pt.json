@@ -58,9 +58,136 @@
         "diaper": "Fraldas",
         "bottle": "Biberões"
       }
+    },
+    "diaper_content": {
+      "options": {
+        "wet": "Xixi",
+        "dirty": "Cocó",
+        "both": "Xixi e cocó"
+      }
+    },
+    "stool": {
+      "options": {
+        "normal": "Normal",
+        "soft": "Mole",
+        "hard": "Duro",
+        "diarrhea": "Diarreia"
+      }
+    },
+    "bottle_content": {
+      "options": {
+        "formula": "Leite de fórmula",
+        "breast_milk": "Leite materno"
+      }
     }
   },
   "services": {
+    "log_diaper": {
+      "name": "Registar fralda",
+      "description": "Regista uma muda de fralda de um bebé.",
+      "fields": {
+        "device_id": {
+          "name": "Bebé",
+          "description": "O bebé."
+        },
+        "content": {
+          "name": "Conteúdo",
+          "description": "Xixi, cocó ou ambos."
+        },
+        "stool": {
+          "name": "Tipo de cocó",
+          "description": "Só para uma fralda com cocó."
+        },
+        "notes": {
+          "name": "Notas",
+          "description": "Notas opcionais."
+        },
+        "time": {
+          "name": "Hora",
+          "description": "Quando aconteceu. Agora, se ficar vazio."
+        }
+      }
+    },
+    "log_bottle": {
+      "name": "Registar biberão",
+      "description": "Regista um biberão de um bebé.",
+      "fields": {
+        "device_id": {
+          "name": "Bebé",
+          "description": "O bebé."
+        },
+        "amount": {
+          "name": "Quantidade",
+          "description": "Mililitros, mais de 0."
+        },
+        "content": {
+          "name": "Conteúdo",
+          "description": "Leite de fórmula ou leite materno."
+        },
+        "notes": {
+          "name": "Notas",
+          "description": "Notas opcionais."
+        },
+        "time": {
+          "name": "Hora",
+          "description": "Quando aconteceu. Agora, se ficar vazio."
+        }
+      }
+    },
+    "update_event": {
+      "name": "Corrigir registo",
+      "description": "Muda a hora, as notas ou os campos de um registo. Os campos omitidos mantêm o valor.",
+      "fields": {
+        "event_id": {
+          "name": "ID do registo",
+          "description": "Identificador do registo."
+        },
+        "time": {
+          "name": "Hora",
+          "description": "Nova hora do registo."
+        },
+        "notes": {
+          "name": "Notas",
+          "description": "Novas notas. Vazio remove-as."
+        },
+        "fields": {
+          "name": "Campos",
+          "description": "Campos a mudar, como content, stool ou amount. Um campo a null é apagado."
+        }
+      }
+    },
+    "delete_event": {
+      "name": "Apagar registo",
+      "description": "Apaga definitivamente um registo.",
+      "fields": {
+        "event_id": {
+          "name": "ID do registo",
+          "description": "Identificador do registo."
+        }
+      }
+    },
+    "list_events": {
+      "name": "Listar registos",
+      "description": "Devolve os registos de um bebé entre duas horas, do mais antigo para o mais recente.",
+      "fields": {
+        "device_id": {
+          "name": "Bebé",
+          "description": "O bebé."
+        },
+        "start": {
+          "name": "Início",
+          "description": "Início do período, incluído."
+        },
+        "end": {
+          "name": "Fim",
+          "description": "Fim do período, excluído."
+        },
+        "tracker": {
+          "name": "Registo",
+          "description": "Só os registos deste tipo."
+        }
+      }
+    },
     "purge_history": {
       "name": "Apagar histórico guardado",
       "description": "Apaga definitivamente o histórico guardado de um bebé removido. Um bebé que ainda esteja configurado nunca é afetado.",
@@ -81,6 +208,39 @@
     },
     "history_missing": {
       "message": "O histórico guardado de {name} já não existe. Remove este bebé e adiciona-o de novo."
+    },
+    "unknown_baby": {
+      "message": "Escolhe um bebé configurado no Baby Calendar."
+    },
+    "tracker_disabled": {
+      "message": "O registo {tracker} não está ativo para {name}."
+    },
+    "future_time": {
+      "message": "A hora não pode estar no futuro."
+    },
+    "unknown_event": {
+      "message": "Não existe nenhum registo com o ID {event_id} de um bebé configurado."
+    },
+    "invalid_fields": {
+      "message": "Campos inválidos para o registo {tracker}: {error}"
+    },
+    "stool_on_wet": {
+      "message": "Uma fralda só com xixi não tem tipo de cocó."
+    },
+    "nothing_to_undo": {
+      "message": "Nada foi registado nos últimos 15 minutos."
+    }
+  },
+  "entity": {
+    "number": {
+      "minutes_ago": {
+        "name": "Há minutos"
+      }
+    },
+    "button": {
+      "undo": {
+        "name": "Anular último registo"
+      }
     }
   }
 }

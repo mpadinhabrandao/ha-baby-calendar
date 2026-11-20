@@ -1,7 +1,5 @@
 """Baby Calendar: log a baby's day in Home Assistant."""
 
-from dataclasses import dataclass
-
 import probatio
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
@@ -30,28 +28,19 @@ from .const import (
     DOMAIN,
     SERVICE_PURGE_HISTORY,
 )
+from .coordinator import BabyCoordinator
 from .data import async_get_store, async_run
+from .models import BabyConfigEntry, BabyData
+from .services import async_register_services
 from .trackers import tracker_of_key
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
-PLATFORMS: list[Platform] = []
+PLATFORMS: list[Platform] = [Platform.BUTTON, Platform.NUMBER]
 
 PURGE_HISTORY_SCHEMA = probatio.Schema(
     {probatio.Required(CONF_NAME): probatio.All(cv.string, probatio.Length(min=1))}
 )
-
-
-@dataclass(slots=True)
-class BabyData:
-    """What a set-up config entry knows about its baby."""
-
-    baby_id: str
-    name: str
-    trackers: frozenset[str]
-
-
-type BabyConfigEntry = ConfigEntry[BabyData]
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
@@ -86,6 +75,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         schema=PURGE_HISTORY_SCHEMA,
         supports_response=SupportsResponse.OPTIONAL,
     )
+    async_register_services(hass)
     return True
 
 
@@ -120,7 +110,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: BabyConfigEntry) -> bool
     trackers = frozenset(entry.options.get(CONF_TRACKERS, []))
     _remove_disabled_tracker_entities(hass, entry, baby_id, trackers)
 
-    entry.runtime_data = BabyData(baby_id=baby_id, name=name, trackers=trackers)
+    coordinator = BabyCoordinator(hass, entry, store, baby_id, trackers)
+    entry.runtime_data = BabyData(
+        baby_id=baby_id, name=name, trackers=trackers, coordinator=coordinator
+    )
+    await coordinator.async_config_entry_first_refresh()
+    entry.async_on_unload(coordinator.async_start())
     entry.async_on_unload(entry.add_update_listener(_async_reload))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True

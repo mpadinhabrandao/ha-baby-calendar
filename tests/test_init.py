@@ -111,7 +111,11 @@ async def test_disabled_tracker_entities_removed(hass: HomeAssistant) -> None:
             registry, entry.entry_id
         )
     }
-    assert unique_ids == {f"{baby_id}_diaper_last", f"{baby_id}_undo"}
+    assert unique_ids == {
+        f"{baby_id}_diaper_last",
+        f"{baby_id}_undo",
+        f"{baby_id}_minutes_ago",
+    }
     assert entry.state is ConfigEntryState.LOADED
 
 

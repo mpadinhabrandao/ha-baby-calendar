@@ -58,9 +58,136 @@
         "diaper": "Diapers",
         "bottle": "Bottles"
       }
+    },
+    "diaper_content": {
+      "options": {
+        "wet": "Wet",
+        "dirty": "Dirty",
+        "both": "Wet and dirty"
+      }
+    },
+    "stool": {
+      "options": {
+        "normal": "Normal",
+        "soft": "Soft",
+        "hard": "Hard",
+        "diarrhea": "Diarrhea"
+      }
+    },
+    "bottle_content": {
+      "options": {
+        "formula": "Formula",
+        "breast_milk": "Breast milk"
+      }
     }
   },
   "services": {
+    "log_diaper": {
+      "name": "Log diaper change",
+      "description": "Records a diaper change for a baby.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "content": {
+          "name": "Content",
+          "description": "Wet, dirty, or both."
+        },
+        "stool": {
+          "name": "Stool type",
+          "description": "Only for a dirty diaper."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional notes."
+        },
+        "time": {
+          "name": "Time",
+          "description": "When it happened. Now if left empty."
+        }
+      }
+    },
+    "log_bottle": {
+      "name": "Log bottle",
+      "description": "Records a bottle for a baby.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "amount": {
+          "name": "Amount",
+          "description": "Millilitres, more than 0."
+        },
+        "content": {
+          "name": "Content",
+          "description": "Formula or breast milk."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional notes."
+        },
+        "time": {
+          "name": "Time",
+          "description": "When it happened. Now if left empty."
+        }
+      }
+    },
+    "update_event": {
+      "name": "Correct entry",
+      "description": "Changes the time, the notes or the tracker fields of an entry. Fields left out keep their value.",
+      "fields": {
+        "event_id": {
+          "name": "Entry ID",
+          "description": "Identifier of the entry."
+        },
+        "time": {
+          "name": "Time",
+          "description": "New time of the entry."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "New notes. Empty removes them."
+        },
+        "fields": {
+          "name": "Fields",
+          "description": "Tracker fields to change, such as content, stool or amount. A field set to null is cleared."
+        }
+      }
+    },
+    "delete_event": {
+      "name": "Delete entry",
+      "description": "Permanently deletes an entry.",
+      "fields": {
+        "event_id": {
+          "name": "Entry ID",
+          "description": "Identifier of the entry."
+        }
+      }
+    },
+    "list_events": {
+      "name": "List entries",
+      "description": "Returns a baby's entries between two times, oldest first.",
+      "fields": {
+        "device_id": {
+          "name": "Baby",
+          "description": "The baby."
+        },
+        "start": {
+          "name": "Start",
+          "description": "Start of the period, included."
+        },
+        "end": {
+          "name": "End",
+          "description": "End of the period, excluded."
+        },
+        "tracker": {
+          "name": "Tracker",
+          "description": "Only entries of this tracker."
+        }
+      }
+    },
     "purge_history": {
       "name": "Delete stored history",
       "description": "Permanently deletes the stored history of a removed baby. A baby that is still configured is never affected.",
@@ -81,6 +208,39 @@
     },
     "history_missing": {
       "message": "The stored history of {name} no longer exists. Remove this baby and add it again."
+    },
+    "unknown_baby": {
+      "message": "Choose a baby set up in Baby Calendar."
+    },
+    "tracker_disabled": {
+      "message": "The {tracker} tracker is not enabled for {name}."
+    },
+    "future_time": {
+      "message": "The time cannot be in the future."
+    },
+    "unknown_event": {
+      "message": "No entry with the ID {event_id} exists for a configured baby."
+    },
+    "invalid_fields": {
+      "message": "Invalid fields for the {tracker} tracker: {error}"
+    },
+    "stool_on_wet": {
+      "message": "A wet diaper has no stool type."
+    },
+    "nothing_to_undo": {
+      "message": "Nothing was recorded in the last 15 minutes."
+    }
+  },
+  "entity": {
+    "number": {
+      "minutes_ago": {
+        "name": "Minutes ago"
+      }
+    },
+    "button": {
+      "undo": {
+        "name": "Undo last entry"
+      }
     }
   }
 }

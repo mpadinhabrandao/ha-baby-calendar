@@ -25,10 +25,10 @@
 
 ## 4. Shared services, state and dashboard path
 
-- [ ] 4.1 Implement the tracker registry and time parsing and validation per design D4 and D6; verify with tests for a tracker not enabled, a missing `device_id`, and omitted, past and future time
-- [ ] 4.2 Implement `baby_calendar.update_event` with `fields`, clearing by null and the tracker normaliser, `delete_event` and `list_events` per design D5; verify with tests for a corrected time, untouched fields, a cleared note, unknown identifiers, events of a disabled tracker, a day range, the tracker filter and an empty period
-- [ ] 4.3 Implement the per-entry state object with recompute on write and at local midnight per design D9; verify with tests using a frozen clock for midnight, a late entry for yesterday and a 23-hour day
-- [ ] 4.4 Implement the shared dashboard logging path, the `minutes_ago` number and the `undo` button per design D7 and D8; verify with tests for an entry back-dated by twenty minutes, the input returning to zero, the next entry not back-dated, a double tap, the wrong button undone, a back-dated entry undone, a second undo, and nothing recent
+- [x] 4.1 Implement the tracker registry and time parsing and validation per design D4 and D6; verify with tests for a tracker not enabled, a missing `device_id`, and omitted, past and future time
+- [x] 4.2 Implement `baby_calendar.update_event` with `fields`, clearing by null and the tracker normaliser, `delete_event` and `list_events` per design D5; verify with tests for a corrected time, untouched fields, a cleared note, unknown identifiers, events of a disabled tracker, a day range, the tracker filter and an empty period
+- [x] 4.3 Implement the per-entry state object with recompute on write and at local midnight per design D9; verify with tests using a frozen clock for midnight, a late entry for yesterday and a 23-hour day
+- [x] 4.4 Implement the shared dashboard logging path, the `minutes_ago` number and the `undo` button per design D7 and D8; verify with tests for an entry back-dated by twenty minutes, the input returning to zero, the next entry not back-dated, a double tap, the wrong button undone, a back-dated entry undone, a second undo, and nothing recent
 
 ## 5. Diaper tracker
 
