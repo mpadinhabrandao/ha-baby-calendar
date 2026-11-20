@@ -672,3 +672,104 @@ async def test_timed_entities_only_when_enabled(hass: HomeAssistant) -> None:
         ("sensor", "awake_since"),
     ):
         assert eid(hass, entry, platform, key) is None
+
+
+# ---------------------------------------------------------------- last feed
+
+
+def utc(when: datetime) -> str:
+    """Return a time as the feed attribute gives it."""
+    return when.astimezone(dt_util.UTC).isoformat()
+
+
+async def feed_entry(
+    hass: HomeAssistant, entry: ConfigEntry, start: datetime, minutes: int, side: str
+) -> None:
+    """Log a finished breastfeeding entry."""
+    await act(
+        hass,
+        entry,
+        "log_breastfeeding",
+        time=start.isoformat(),
+        duration={"minutes": minutes},
+        side=side,
+    )
+
+
+def feed(hass: HomeAssistant, entry: ConfigEntry) -> list[dict]:
+    """Return the feed attribute of the last breastfeeding sensor."""
+    return attrs(hass, entry, "breastfeeding_last")["feed"]
+
+
+async def test_last_feed_one_side(hass: HomeAssistant) -> None:
+    """One side alone is a feed of one entry."""
+    entry = await add_baby(hass)
+    start = NOW - timedelta(hours=1)
+    await feed_entry(hass, entry, start, 15, "right")
+
+    assert feed(hass, entry) == [
+        {
+            "side": "right",
+            "start": utc(start),
+            "end": utc(start + timedelta(minutes=15)),
+        }
+    ]
+
+
+async def test_last_feed_two_sides_with_a_pause(hass: HomeAssistant) -> None:
+    """Left, a five-minute pause, right: one feed of two entries."""
+    entry = await add_baby(hass)
+    start = NOW - timedelta(hours=1)
+    await feed_entry(hass, entry, start, 12, "left")
+    await feed_entry(hass, entry, start + timedelta(minutes=17), 8, "right")
+
+    assert [(e["side"], e["start"]) for e in feed(hass, entry)] == [
+        ("left", utc(start)),
+        ("right", utc(start + timedelta(minutes=17))),
+    ]
+
+
+async def test_last_feed_same_side_twice(hass: HomeAssistant) -> None:
+    """The same side twice with a pause stays one feed."""
+    entry = await add_baby(hass)
+    start = NOW - timedelta(hours=1)
+    await feed_entry(hass, entry, start, 10, "left")
+    await feed_entry(hass, entry, start + timedelta(minutes=16), 5, "left")
+
+    assert [e["side"] for e in feed(hass, entry)] == ["left", "left"]
+
+
+async def test_last_feed_after_a_long_pause(hass: HomeAssistant) -> None:
+    """A pause over 30 minutes starts a new feed."""
+    entry = await add_baby(hass)
+    start = NOW - timedelta(hours=2)
+    await feed_entry(hass, entry, start, 10, "left")
+    await feed_entry(hass, entry, start + timedelta(minutes=45), 10, "right")
+
+    assert [e["side"] for e in feed(hass, entry)] == ["right"]
+
+
+async def test_last_feed_across_midnight(
+    hass: HomeAssistant, frozen: FrozenDateTimeFactory
+) -> None:
+    """A feed from 23:50 to 00:20 keeps both entries after midnight."""
+    entry = await add_baby(hass)
+    frozen.move_to(NOW.replace(hour=0, minute=30))
+    before = NOW.replace(hour=0, minute=0) - timedelta(minutes=10)
+    await feed_entry(hass, entry, before, 10, "left")
+    await feed_entry(hass, entry, before + timedelta(minutes=15), 10, "right")
+
+    assert [e["side"] for e in feed(hass, entry)] == ["left", "right"]
+
+
+async def test_last_feed_running(
+    hass: HomeAssistant, frozen: FrozenDateTimeFactory
+) -> None:
+    """A running side is in the feed with no end."""
+    entry = await add_baby(hass)
+    await feed_entry(hass, entry, NOW - timedelta(minutes=20), 12, "left")
+    await act(hass, entry, "start_breastfeeding", side="right")
+
+    entries = feed(hass, entry)
+    assert [e["side"] for e in entries] == ["left", "right"]
+    assert entries[1]["end"] is None

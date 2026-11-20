@@ -56,6 +56,8 @@ class BabySensorDescription(SensorEntityDescription):
     requires: frozenset[str] | None = None
     daily: bool = False
     at_end: bool = False
+    # Another value of the tracker's state, added as an attribute.
+    extra_attribute: tuple[str, str] | None = None
 
 
 def _last(key: str, tracker: str, icon: str, **kwargs: Any) -> BabySensorDescription:
@@ -99,7 +101,12 @@ SENSORS: tuple[BabySensorDescription, ...] = (
         "mdi:baby-bottle",
         UnitOfVolume.MILLILITERS,
     ),
-    _last("breastfeeding_last", TRACKER_BREASTFEEDING, "mdi:mother-nurse"),
+    _last(
+        "breastfeeding_last",
+        TRACKER_BREASTFEEDING,
+        "mdi:mother-nurse",
+        extra_attribute=("feed", "breastfeeding_feed"),
+    ),
     _today("breastfeeding_feeds_today", TRACKER_BREASTFEEDING, "mdi:mother-nurse"),
     _today(
         "breastfeeding_duration_today",
@@ -220,6 +227,11 @@ class BabySensor(BabyEntity, SensorEntity):
         del attributes[ATTR_TIME], attributes[ATTR_TRACKER]
         if ATTR_END in attributes:
             attributes[ATTR_ENDED_AT] = attributes.pop(ATTR_END)
+        if extra := self.entity_description.extra_attribute:
+            name, key = extra
+            attributes[name] = self.coordinator.data[self.entity_description.tracker][
+                key
+            ]
         return attributes
 
 
