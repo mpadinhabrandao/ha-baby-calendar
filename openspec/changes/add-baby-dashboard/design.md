@@ -39,15 +39,17 @@ Filters use domains, device classes, state classes and two new attributes, never
 | Last times | `sensor` with `device_class: timestamp`, without `medication` |
 | Measurements | `sensor` with `state_class: measurement` |
 | Inputs | `number`, `select` |
-| Calendar | the baby's `calendar` entity, through a stock calendar card in the same way |
+| Calendar | a stock calendar card on the baby's calendar entity, named directly |
 
-A stock conditional card needs the stool prompt sensor's entity id, so the view carries it as a second placeholder next to the baby's name. The README says where to find it.
+A stock conditional card needs the stool prompt sensor's entity id, and the calendar card does not render inside auto-entities (checked on a real instance: it showed an empty strip), so the view names both entities directly, as two placeholders next to the baby's name. The README says where to find them.
+
+On tiles and rows, the entity's own name is shown without the baby's (`name: {type: entity}`), which keeps tiles readable on a phone.
 
 `medication` and `stool_type` are added to `extra_state_attributes`. They are static strings, so they add a few bytes per state in the recorder.
 
 ### D4. Shipping the view
 
-`dashboards/baby.yaml` holds one view in the sections layout, with `BABY_NAME` and `STOOL_PROMPT_ENTITY` placeholders. The README tells the user to install auto-entities, create a dashboard, open its raw configuration editor and paste the view with the two values filled. HACS does not install dashboards, so nothing is automatic.
+`dashboards/baby.yaml` holds one view in the sections layout, with `BABY_NAME`, `STOOL_PROMPT_ENTITY` and `CALENDAR_ENTITY` placeholders. The README tells the user to install auto-entities, create a dashboard, open its raw configuration editor and paste the view with the three values filled. HACS does not install dashboards, so nothing is automatic.
 
 ## Risks / Trade-offs
 
