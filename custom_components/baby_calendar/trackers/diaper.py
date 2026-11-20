@@ -5,6 +5,7 @@ from typing import Any, Final
 import probatio
 from homeassistant.exceptions import ServiceValidationError
 
+from ..calendar_strings import words
 from ..const import DOMAIN, TRACKER_DIAPER
 from ..store import Event, EventStore
 from .base import Columns, Day, Tracker, TrackerState
@@ -20,6 +21,8 @@ WET_KINDS: Final = (WET, BOTH)
 DIRTY_KINDS: Final = (DIRTY, BOTH)
 
 STOOLS: Final = ("normal", "soft", "hard", "diarrhea")
+
+EMOJI: Final = {WET: "💧", DIRTY: "💩", BOTH: "💧💩"}
 
 # How long after a dirty diaper the stool type can still be added by button,
 # and how long the stool prompt stays on.
@@ -61,6 +64,14 @@ class DiaperTracker(Tracker):
         if CONTENT in supplied and STOOL not in supplied and fields[CONTENT] == WET:
             return {**fields, STOOL: None}
         return fields
+
+    def summary(self, event: Event, language: str, now: int) -> str:
+        """Return "💩 Dirty diaper (soft)" and the like."""
+        text = words(language)
+        title = f"{EMOJI[event.kind]} {text[f'diaper_{event.kind}']}"
+        if stool := event.data.get(STOOL):
+            title += f" ({text[f'stool_{stool}']})"
+        return title
 
     def compute(
         self, store: EventStore, baby_id: str, day: Day, now: int

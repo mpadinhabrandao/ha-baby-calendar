@@ -384,6 +384,12 @@
     },
     "end_time_not_timed": {
       "message": "Os registos de {tracker} não têm hora de fim."
+    },
+    "calendar_no_recurrence": {
+      "message": "Os registos não se podem repetir."
+    },
+    "calendar_no_all_day": {
+      "message": "Os registos não podem durar o dia todo; indica uma hora."
     }
   },
   "entity": {
@@ -425,6 +431,11 @@
       },
       "sleep_log": {
         "name": "Registar sono"
+      }
+    },
+    "calendar": {
+      "calendar": {
+        "name": "Calendário"
       }
     },
     "number": {

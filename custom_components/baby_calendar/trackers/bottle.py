@@ -4,6 +4,7 @@ from typing import Any, Final
 
 import probatio
 
+from ..calendar_strings import format_amount, words
 from ..const import TRACKER_BOTTLE
 from ..store import Event, EventStore
 from .base import Columns, Day, Tracker, TrackerState
@@ -44,6 +45,14 @@ class BottleTracker(Tracker):
     def to_fields(self, event: Event) -> dict[str, Any]:
         """Return the amount and the content."""
         return {AMOUNT: event.amount, CONTENT: event.kind}
+
+    def summary(self, event: Event, language: str, now: int) -> str:
+        """Return "🍼 Bottle 90 ml formula" and the like."""
+        text = words(language)
+        title = f"🍼 {text['bottle']} {format_amount(event.amount or 0, language)} ml"
+        if event.kind:
+            title += f" {text[f'bottle_{event.kind}']}"
+        return title
 
     def compute(
         self, store: EventStore, baby_id: str, day: Day, now: int

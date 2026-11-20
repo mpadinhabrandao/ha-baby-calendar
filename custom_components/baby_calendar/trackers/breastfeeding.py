@@ -47,6 +47,7 @@ class BreastfeedingTracker(TimedTracker):
     log_service = "log_breastfeeding"
     log_fields = {probatio.Optional(SIDE): probatio.In(SIDES)}
     update_fields = {probatio.Optional(SIDE): probatio.Maybe(probatio.In(SIDES))}
+    emoji = "🤱"
 
     def to_columns(self, fields: dict[str, Any]) -> Columns:
         """Store the side as the kind."""
@@ -68,6 +69,10 @@ class BreastfeedingTracker(TimedTracker):
         today = store.list_events(baby_id, day.start, day.end, self.key)
         previous = store.last_before(baby_id, self.key, day.start)
         return {"breastfeeding_feeds_today": count_feeds(previous, today, now)}
+
+    def title_details(self, event: Event, text: dict[str, str]) -> list[str]:
+        """Add the side, when there is one."""
+        return [text[f"side_{event.kind}"]] if event.kind else []
 
     def dashboard_fields(self, side: str | None) -> dict[str, Any]:
         """Use the side selection, unless it is "not specified"."""

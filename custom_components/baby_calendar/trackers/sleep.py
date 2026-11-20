@@ -16,6 +16,7 @@ class SleepTracker(TimedTracker):
     stop_service = "stop_sleep"
     log_service = "log_sleep"
     update_fields: dict[Any, Any] = {}
+    emoji = "😴"
 
     def extra_values(
         self,

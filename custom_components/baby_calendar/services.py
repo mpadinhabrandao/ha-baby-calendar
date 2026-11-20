@@ -414,6 +414,18 @@ async def async_log_duration(
     return event
 
 
+async def async_delete(
+    hass: HomeAssistant, entry: BabyConfigEntry, event: Event
+) -> None:
+    """Permanently delete an event and refresh the baby's state."""
+    store = await async_get_store(hass)
+    try:
+        await async_run(hass, store.delete_event, event.id)
+    except UnknownEventError as err:
+        raise _error("unknown_event", event_id=event.id) from err
+    await entry.runtime_data.coordinator.async_refresh()
+
+
 # ---------------------------------------------------------------- actions
 
 
@@ -532,7 +544,7 @@ LIST_EVENTS_SCHEMA = probatio.Schema(
 )
 
 
-async def _event_and_entry(
+async def event_and_entry(
     hass: HomeAssistant, event_id: str
 ) -> tuple[Event, BabyConfigEntry]:
     """Return a stored event of a configured baby, with that baby's entry."""
@@ -574,7 +586,7 @@ def async_register_services(hass: HomeAssistant) -> None:
         )
 
     async def update_event(call: ServiceCall) -> ServiceResponse:
-        event, entry = await _event_and_entry(hass, call.data[ATTR_EVENT_ID])
+        event, entry = await event_and_entry(hass, call.data[ATTR_EVENT_ID])
         notes = call.data.get(ATTR_NOTES, ...)
         event = await async_update_fields(
             hass,
@@ -589,13 +601,8 @@ def async_register_services(hass: HomeAssistant) -> None:
         return event_response(hass, event)
 
     async def delete_event(call: ServiceCall) -> None:
-        event, entry = await _event_and_entry(hass, call.data[ATTR_EVENT_ID])
-        store = await async_get_store(hass)
-        try:
-            await async_run(hass, store.delete_event, event.id)
-        except UnknownEventError as err:
-            raise _error("unknown_event", event_id=event.id) from err
-        await entry.runtime_data.coordinator.async_refresh()
+        event, entry = await event_and_entry(hass, call.data[ATTR_EVENT_ID])
+        await async_delete(hass, entry, event)
 
     async def list_events(call: ServiceCall) -> ServiceResponse:
         entry = entry_for_device(hass, call.data[ATTR_DEVICE_ID])

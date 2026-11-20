@@ -73,6 +73,10 @@ class Tracker(ABC):
         """
         return fields
 
+    def summary(self, event: Event, language: str, now: int) -> str:
+        """Return the event's calendar title: an emoji, then its details."""
+        return event.tracker
+
     @abstractmethod
     def compute(
         self, store: EventStore, baby_id: str, day: Day, now: int
