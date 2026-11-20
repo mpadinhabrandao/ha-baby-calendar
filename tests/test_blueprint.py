@@ -87,20 +87,30 @@ async def setup_reminder(hass: HomeAssistant, repeat: int) -> tuple[str, list]:
     return entry, calls
 
 
-async def move_to(
-    hass: HomeAssistant, freezer: FrozenDateTimeFactory, when: datetime
-) -> None:
-    """Move the clock and fire the time listeners and timers.
+async def settle(hass: HomeAssistant, until=lambda: False) -> None:
+    """Let the loop and the store's executor jobs run.
 
     The automation keeps running while it waits to repeat, so waiting for
-    every task to finish would never return. The clock is frozen, so let the
-    store's executor jobs and the loop run instead of sleeping.
+    every task to finish would never return, and the clock is frozen, so
+    sleeping would never return either. Run until ``until`` holds, then a
+    little more so the automation reaches its next wait.
     """
-    freezer.move_to(when)
-    async_fire_time_changed(hass, when)
-    for _ in range(10):
+    for _ in range(200):
+        if until():
+            break
         await hass.async_add_executor_job(lambda: None)
         await asyncio.sleep(0)
+    for _ in range(20):
+        await asyncio.sleep(0)
+
+
+async def move_to(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory, when: datetime, until=None
+) -> None:
+    """Move the clock, fire the time listeners and timers, and settle."""
+    freezer.move_to(when)
+    async_fire_time_changed(hass, when)
+    await settle(hass, until or (lambda: False))
 
 
 async def test_reminder_on_a_phone(
@@ -110,7 +120,7 @@ async def test_reminder_on_a_phone(
     _, calls = await setup_reminder(hass, repeat=0)
     assert calls == []
 
-    await move_to(hass, freezer, NOW + timedelta(hours=1))
+    await move_to(hass, freezer, NOW + timedelta(hours=1), lambda: calls)
 
     assert [call.data["message"] for call in calls] == ["Alice: Vitamin D (1 drop)"]
 
@@ -121,8 +131,13 @@ async def test_repeat_until_recorded(
     """With a repeat, it notifies again until the dose is recorded."""
     entry, calls = await setup_reminder(hass, repeat=15)
 
-    await move_to(hass, freezer, NOW + timedelta(hours=1))
-    await move_to(hass, freezer, NOW + timedelta(hours=1, minutes=15))
+    await move_to(hass, freezer, NOW + timedelta(hours=1), lambda: len(calls) == 1)
+    await move_to(
+        hass,
+        freezer,
+        NOW + timedelta(hours=1, minutes=15),
+        lambda: len(calls) == 2,
+    )
     assert len(calls) == 2
 
     await log_dose(hass, entry, "Vitamin D")
