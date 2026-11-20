@@ -54,4 +54,7 @@ MED_NAME: Final = "name"
 MED_DOSE: Final = "dose"
 MED_ACTIVE: Final = "active"
 MED_SINCE: Final = "since"
+
+# Fired when a dose of a medication becomes due; see coordinator.py.
+EVENT_MEDICATION_DUE: Final = "baby_calendar_medication_due"
 MED_SCHEDULE: Final = "schedule"

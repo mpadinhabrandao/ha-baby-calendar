@@ -5,7 +5,11 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
+from homeassistant.core import CoreState, HomeAssistant, callback
+from homeassistant.core import Event as HassEvent
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.event import (
     async_track_point_in_utc_time,
     async_track_time_change,
@@ -15,8 +19,11 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     DOMAIN,
+    EVENT_MEDICATION_DUE,
     FEEDING,
+    MED_DOSE,
     MED_ID,
+    MED_NAME,
     MED_SCHEDULE,
     MED_SINCE,
     TRACKER_BOTTLE,
@@ -83,6 +90,10 @@ class BabyCoordinator(DataUpdateCoordinator[BabyState]):
         # The baby's active medications.
         self.medications = medications or []
         self._cancel_expiry: Callable[[], None] | None = None
+        # Medications whose dose is due, as of the last computation.
+        self._due: set[str] = set()
+        # Whether due events are fired; see async_announce_due.
+        self._announcing = False
 
     @callback
     def async_start(self) -> Callable[[], None]:
@@ -109,7 +120,63 @@ class BabyCoordinator(DataUpdateCoordinator[BabyState]):
             self._compute, int(now.timestamp()), local_day(now)
         )
         self._schedule_expiry(refresh_at)
+        due = {
+            med_id
+            for med_id, values in state.get(TRACKER_MEDICATION, {}).items()
+            if values["due"]
+        }
+        if self._announcing:
+            for med_id in due - self._due:
+                self._fire_due(med_id)
+        self._due = due
         return state
+
+    @callback
+    def async_announce_due(self) -> Callable[[], None]:
+        """Start firing due events, once the entities and automations exist.
+
+        Fires one for every dose already due, so a reminder starts again
+        after a start or a reload, then one each time a dose becomes due.
+        At startup it waits for Home Assistant to have started, so the
+        automations listening for the event are running.
+        """
+
+        @callback
+        def announce(_: HassEvent | None = None) -> None:
+            self._announcing = True
+            for med_id in sorted(self._due):
+                self._fire_due(med_id)
+
+        if self.hass.state is CoreState.running:
+            announce()
+            return lambda: None
+        return self.hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, announce)
+
+    @callback
+    def _fire_due(self, med_id: str) -> None:
+        med = next((m for m in self.medications if m[MED_ID] == med_id), None)
+        if med is None:
+            return
+        entities = er.async_get(self.hass)
+        prefix = f"{self.baby_id}_med_{med_id}_"
+        device = dr.async_get(self.hass).async_get_device_by_identifier(
+            (DOMAIN, self.baby_id), self.config_entry.entry_id
+        )
+        self.hass.bus.async_fire(
+            EVENT_MEDICATION_DUE,
+            {
+                "baby": self.config_entry.runtime_data.name,
+                "device_id": device.id if device else None,
+                "medication": med[MED_NAME],
+                "dose": med.get(MED_DOSE),
+                "due_entity": entities.async_get_entity_id(
+                    "binary_sensor", DOMAIN, f"{prefix}due"
+                ),
+                "button_entity": entities.async_get_entity_id(
+                    "button", DOMAIN, f"{prefix}take"
+                ),
+            },
+        )
 
     def _compute(self, now: int, day: Day) -> tuple[BabyState, int | None]:
         # The day the daily values cover, for their last_reset.

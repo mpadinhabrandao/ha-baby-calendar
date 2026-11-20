@@ -1,27 +1,27 @@
 blueprint:
   name: Baby Calendar medication reminder
   description: >-
-    Runs your actions when a dose of a baby's medication becomes due, and
-    optionally repeats them until the dose is recorded. Baby Calendar sends
-    no notifications itself: it only turns the medication's "due" sensor on.
-    The variables `baby`, `medication` and `dose` hold the baby's name, the
-    medication's name and its dose text.
+    Runs your actions whenever a dose of any baby's medication becomes due,
+    and optionally repeats them until the dose is recorded. One automation
+    covers every medication, including medications added later. Baby
+    Calendar sends no notifications itself: it fires the event
+    baby_calendar_medication_due, which this automation acts on.
+
+
+    In your actions, `baby`, `medication` and `dose` hold the names and the
+    dose text, and `button` the medication's dose button. A notification
+    action whose id is `BABY_CALENDAR_DOSE:{{ button }}` records the dose
+    when chosen.
   domain: automation
   source_url: https://github.com/mpadinhabrandao/ha-baby-calendar/blob/main/blueprints/automation/baby_calendar/medication_reminder.yaml
   input:
-    due_sensor:
-      name: Medication due sensor
-      description: The "due" sensor of the medication, on the baby's device.
-      selector:
-        entity:
-          filter:
-            - integration: baby_calendar
-              domain: binary_sensor
     reminder:
       name: Actions
       description: >-
-        What to do, such as notifying a phone. You can use {{ baby }},
-        {{ medication }} and {{ dose }} in messages.
+        What to do, such as notifying phones. Use {{ baby }}, {{ medication }}
+        and {{ dose }} in messages; add a notification action with the id
+        BABY_CALENDAR_DOSE:{{ button }} to record the dose from the
+        notification.
       selector:
         action: {}
     repeat_minutes:
@@ -35,51 +35,84 @@ blueprint:
           step: 5
           unit_of_measurement: min
           mode: box
+    babies:
+      name: Babies
+      description: Only these babies. Leave empty for every baby.
+      default: []
+      selector:
+        device:
+          multiple: true
+          filter:
+            - integration: baby_calendar
+    handle_given:
+      name: Record the dose from the notification
+      description: >-
+        Press the medication's dose button when the notification action
+        BABY_CALENDAR_DOSE:<button> is chosen.
+      default: true
+      selector:
+        boolean: {}
 
-mode: single
+mode: parallel
+max: 50
 max_exceeded: silent
 
 triggers:
-  - trigger: state
-    entity_id: !input due_sensor
-    to: "on"
-  - trigger: homeassistant
-    event: start
-
-conditions:
-  - condition: state
-    entity_id: !input due_sensor
-    state: "on"
+  - trigger: event
+    event_type: baby_calendar_medication_due
+    id: due
+  - trigger: event
+    event_type: mobile_app_notification_action
+    id: given
 
 variables:
-  due_sensor: !input due_sensor
   repeat_minutes: !input repeat_minutes
-  baby: "{{ state_attr(due_sensor, 'baby') }}"
-  medication: "{{ state_attr(due_sensor, 'medication') }}"
-  dose: "{{ state_attr(due_sensor, 'dose') or '' }}"
+  babies: !input babies
+  handle_given: !input handle_given
 
 actions:
-  - sequence: !input reminder
-  - if:
-      - condition: template
-        value_template: "{{ repeat_minutes | int(0) > 0 }}"
-    then:
-      - repeat:
-          while:
-            - condition: state
-              entity_id: !input due_sensor
-              state: "on"
-          sequence:
-            - wait_for_trigger:
-                - trigger: state
-                  entity_id: !input due_sensor
-                  to: "off"
-              timeout:
-                minutes: "{{ repeat_minutes | int }}"
-              continue_on_timeout: true
-            - if:
-                - condition: state
-                  entity_id: !input due_sensor
-                  state: "on"
-              then:
-                - sequence: !input reminder
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: due
+          - condition: template
+            value_template: >-
+              {{ not babies or trigger.event.data.device_id in babies }}
+        sequence:
+          - variables:
+              baby: "{{ trigger.event.data.baby }}"
+              medication: "{{ trigger.event.data.medication }}"
+              dose: "{{ trigger.event.data.dose or '' }}"
+              button: "{{ trigger.event.data.button_entity }}"
+              due_entity: "{{ trigger.event.data.due_entity }}"
+          - sequence: !input reminder
+          - if:
+              - condition: template
+                value_template: "{{ repeat_minutes | int(0) > 0 }}"
+            then:
+              - repeat:
+                  while:
+                    - condition: template
+                      value_template: "{{ is_state(due_entity, 'on') }}"
+                  sequence:
+                    - wait_template: "{{ not is_state(due_entity, 'on') }}"
+                      timeout:
+                        minutes: "{{ repeat_minutes | int }}"
+                      continue_on_timeout: true
+                    - if:
+                        - condition: template
+                          value_template: "{{ is_state(due_entity, 'on') }}"
+                      then:
+                        - sequence: !input reminder
+      - conditions:
+          - condition: trigger
+            id: given
+          - condition: template
+            value_template: >-
+              {{ handle_given
+                 and (trigger.event.data.action | default('')) is string
+                 and trigger.event.data.action.startswith('BABY_CALENDAR_DOSE:button.') }}
+        sequence:
+          - action: button.press
+            target:
+              entity_id: "{{ trigger.event.data.action.split(':', 1)[1] }}"
