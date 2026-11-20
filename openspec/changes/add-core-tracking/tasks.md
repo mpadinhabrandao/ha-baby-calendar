@@ -3,9 +3,9 @@
 ## 1. Scaffolding and statistics spike
 
 - [x] 1.1 Create `custom_components/baby_calendar/` with `manifest.json` (domain, name, version, `config_flow`, `integration_type: device`, `iot_class: local_push`, empty `requirements`) and `const.py`; verify the hassfest GitHub Action passes
-- [ ] 1.2 Add `hacs.json` with the minimum Home Assistant version set to the release used for development, `LICENSE` (MIT), `.gitignore` and a `README.md` stub; verify the HACS validation action passes
+- [x] 1.2 Add `hacs.json` with the minimum Home Assistant version set to the release used for development, `LICENSE` (MIT), `.gitignore` and a `README.md` stub; verify the HACS validation action passes
 - [x] 1.3 Add `pyproject.toml` with ruff and pytest configuration and `pytest-homeassistant-custom-component` as a dev dependency; verify `pytest` runs and collects zero tests without error
-- [ ] 1.4 Add GitHub Actions workflows for hassfest, HACS validation, ruff and pytest; verify all four are green on a push
+- [x] 1.4 Add GitHub Actions workflows for hassfest, HACS validation, ruff and pytest; verify all four are green on a push
 - [ ] 1.5 On a real instance, add a throwaway sensor with `state_class: total` and a daily `last_reset`, leave it over two midnights and open a statistics graph card with `chart_type: bar`, `period: day`, `stat_types: [change]`; verify it shows one bar per day with that day's total, as the harness test in design.md D9 predicts
 
 ## 2. Event store
