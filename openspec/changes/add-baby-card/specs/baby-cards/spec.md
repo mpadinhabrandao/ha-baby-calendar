@@ -85,14 +85,18 @@ The Bottle card SHALL show the amount it will record as a value, not a button, b
 - **THEN** no bottle is recorded
 
 ### Requirement: Breastfeeding sides
-The Breastfeeding card SHALL offer left and right, each started and stopped on its own. The running side SHALL show "Stop" and its live time. Tapping the other side while one runs SHALL stop it and start the other. The card SHALL suggest no side.
+The Breastfeeding card SHALL offer "Start left" and "Start right", each started and stopped on its own. The running side SHALL show "Stop" and its live time. Tapping the other side while one runs SHALL stop it and start the other. The card SHALL suggest no side.
+
+#### Scenario: Nothing running
+- **WHEN** no side is running
+- **THEN** the buttons read "Start left" and "Start right"
 
 #### Scenario: Stop
 - **WHEN** the left side has run for 12 minutes 40 seconds
 - **THEN** the left button shows "Stop" and 12:40, and tapping it finishes the entry
 
 #### Scenario: Side change without a pause
-- **WHEN** the left side runs and the parent taps "Right"
+- **WHEN** the left side runs and the parent taps "Start right"
 - **THEN** the left entry is finished and a right entry starts
 
 ### Requirement: Last feed as it happened

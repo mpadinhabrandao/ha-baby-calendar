@@ -65,7 +65,7 @@ export class BreastfeedingCard extends BabyCard {
                     >${clock((now.getTime() - running!.start.getTime()) / 1000)}</span
                   >
                 </span>`
-              : this.text(side)}
+              : this.text(`start_${side}`)}
           </button>`;
         })}
       </div>

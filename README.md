@@ -92,7 +92,7 @@ you like, next to your other cards.
 |---|---|
 | **Diapers** | Wet, dirty, both. After a dirty one, the stool type question appears in the card; it is optional. |
 | **Bottle** | The amount between − and + (10 ml steps), the content, and **Log bottle** to record it. Amount and content are kept for the next bottle. |
-| **Breastfeeding** | Left and right, each started and stopped on its own; the running side shows its time. Tapping the other side switches. Shows the last feed as it happened, such as "Left 12 min · pause 5 min · Right 8 min · 20 min in total". |
+| **Breastfeeding** | **Start left** and **Start right**, each started and stopped on its own; the running side shows its time. Tapping the other side switches. Shows the last feed as it happened, such as "Left 12 min · pause 5 min · Right 8 min · 20 min in total". |
 | **Sleep** | Fell asleep / woke up, with the time asleep. |
 | **Medications** | The doses due, each with **Given**. Optionally every active medication. |
 | **Summary** | How long ago the baby ate and had a diaper change, and how long awake or asleep. |

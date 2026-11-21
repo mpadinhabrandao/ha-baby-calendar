@@ -297,7 +297,8 @@ try {
   shown = await text(page, "baby-calendar-breastfeeding-card");
   check("last feed line", shown.includes("Esquerda 12 min · pausa 5 min · Direita 8 min · 20 min no total"), shown);
   check("no side suggested", !shown.includes("sugest"), shown);
-  await tap(page, "baby-calendar-breastfeeding-card", "Esquerda");
+  check("idle buttons say start", shown.includes("Começar esquerda") && shown.includes("Começar direita"), shown);
+  await tap(page, "baby-calendar-breastfeeding-card", "Começar esquerda");
   await settle(page);
   made = await calls(page);
   check("start left", made[0]?.service === "start_breastfeeding" && made[0].service_data.side === "left");
@@ -315,7 +316,7 @@ try {
   check("running feed heading", shown.includes("Mamada desde as") && shown.includes("Esquerda a decorrer"), shown);
   await page.screenshot({ path: `${SHOTS}breastfeeding-running.png` });
   await new Promise((resolve) => setTimeout(resolve, 3100));
-  await tap(page, "baby-calendar-breastfeeding-card", "Direita");
+  await tap(page, "baby-calendar-breastfeeding-card", "Começar direita");
   await page.waitForTimeout(150);
   made = await calls(page);
   check("side change stops then starts right", made[1]?.service === "stop_breastfeeding" && made[2]?.service === "start_breastfeeding" && made[2].service_data.side === "right", JSON.stringify(made));
