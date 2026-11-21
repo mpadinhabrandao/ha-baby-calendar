@@ -28,7 +28,7 @@
 - [x] 4.8 Recent entries card; verify with Playwright that it lists `list_events` results newest first and refreshes after an entry
 
 - [x] 4.9 Bottle card revised after use on a phone: the amount as a value between − and +, and a separate "Log bottle" button; verify with Playwright that − / + and the content record nothing and "Log bottle" records the amount and content
-- [ ] 4.10 Breastfeeding buttons named by what they do: "Start left" / "Start right" ("Começar esquerda" / "Começar direita") while no side runs; verify with Playwright the idle labels, and that start, stop and side change still call the same services
+- [x] 4.10 Breastfeeding buttons named by what they do: "Start left" / "Start right" ("Começar esquerda" / "Começar direita") while no side runs; verify with Playwright the idle labels, and that start, stop and side change still call the same services
 
 ## 5. Documentation and project
 
