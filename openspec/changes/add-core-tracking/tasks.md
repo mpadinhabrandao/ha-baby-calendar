@@ -35,13 +35,13 @@
 - [x] 5.1 Implement `baby_calendar.log_diaper` with `services.yaml` selectors and translations; verify with tests for wet, dirty with a stool type, both as a single event, invalid content, a stool type on a wet diaper and a correction to wet dropping the stool type
 - [x] 5.2 Implement the three content buttons, the four stool type buttons and the `stool_prompt` binary sensor per design D8; verify with tests for a type added as a second tap, a type changed, last diaper wet, too late, the prompt appearing, answered, ignored for ten minutes and staying off after a wet diaper
 - [x] 5.3 Implement the three timestamp sensors and three daily sensors with `en` and `pt` names, using the outcome of task 1.5; verify with tests for the mixed-day, no-events and latest-deleted scenarios and the stool type attribute
-- [ ] 5.4 Document the diaper service and entities in `README.md`, with the conditional card that shows the stool buttons; verify the example loads and behaves as described on a real instance
+- [x] 5.4 Document the diaper service and entities in `README.md`, with the conditional card that shows the stool buttons; verify the example loads and behaves as described on a real instance
 
 ## 6. Bottle tracker
 
 - [x] 6.1 Implement `baby_calendar.log_bottle` and the bottle number, select and button; verify with tests for a bottle with content, a 7 ml bottle, missing and zero amount, invalid content, the usual bottle from the dashboard, a press with the amount at zero, and inputs restored after a restart
 - [x] 6.2 Implement the bottle sensors; verify with tests for two bottles, a corrected amount and no bottles yet
-- [ ] 6.3 Document the bottle service and entities with examples in `README.md`; verify each example runs as written on a real instance
+- [x] 6.3 Document the bottle service and entities with examples in `README.md`; verify each example runs as written on a real instance
 
 ## 7. Integration checks
 
