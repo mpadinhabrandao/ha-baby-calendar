@@ -9,7 +9,7 @@
 ## 2. Frontend tooling
 
 - [x] 2.1 Set up `frontend/` (package.json with pinned versions, TypeScript, Lit, esbuild, Vitest, Playwright) and a build script writing the bundle with Lit's licence notice; verify the build produces `custom_components/baby_calendar/frontend/baby-calendar-cards.js`
-- [ ] 2.2 Add a CI job that installs, runs the frontend tests, rebuilds the bundle and fails if it differs from the committed one; verify on the pull request
+- [x] 2.2 Add a CI job that installs, runs the frontend tests, rebuilds the bundle and fails if it differs from the committed one; verify on the pull request
 
 ## 3. Shared card base
 

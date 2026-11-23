@@ -12,7 +12,7 @@
 - [x] 2.2 Implement the latest reading and timestamp sensors per design M3 and M4; verify with tests for a new reading, an older reading added later, the latest reading deleted, no readings yet, the temperature sensor expiring after 24 hours with a frozen clock, and the weight sensor not expiring
 - [ ] 2.3 Confirm on a real instance that the weight sensor appears in a statistics graph and charts readings logged over several days
 - [x] 2.4 Add the calendar `summary` for the three measurements (emoji, value and unit) per design M6; verify with unit tests for a weight, a length and a temperature title in English and Portuguese
-- [ ] 2.5 Document the measurement services and entities with examples in `README.md`, including the metric-only input note and what the long-term chart does and does not show; verify each example runs as written on a real instance
+- [x] 2.5 Document the measurement services and entities with examples in `README.md`, including the metric-only input note and what the long-term chart does and does not show; verify each example runs as written on a real instance
 
   - 2.5: the README section is written; running its examples on a real instance is still to do.
 
