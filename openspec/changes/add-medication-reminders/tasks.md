@@ -30,6 +30,7 @@
 - [x] 4.2 Write the reminder blueprint per design R6, triggered by the due event; verify with tests that one automation reminds for two medications, a medication added later, a repeat until the dose is recorded, a baby filter and the "Given" action recording the dose; then verify on a real instance that a phone receives the reminder with the baby name, medication name and dose text, and that "Given" records the dose
 - [x] 4.3 Document reminders in `README.md`, leading with the blueprint import link, stating that the integration sends no notifications itself, and describing the due event and the "Given" action; verify the import link works on a real instance
 - [x] 4.4 Fire the due event per design R5; verify with tests for a dose becoming due, a start while due, a reload while due, a dose recorded and due again later, and a medication with no schedule
+- [x] 4.5 Reloading a baby after Home Assistant has started logs no error (found on a real instance on 2026-11-24: "Unable to remove unknown job listener" for the start listener of the due event, which had already fired); verify with a test that sets the baby up while starting, starts, reloads and finds no error in the log
 
 ## 5. Integration checks
 
