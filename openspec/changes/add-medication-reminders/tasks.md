@@ -22,6 +22,7 @@
 
 - [x] 3.1 Implement the pure due computation per design R4; verify with unit tests for every scenario of the dose matching, fixed times and interval requirements, including given early, logged twice, given after midnight, still due after midnight, superseded by the next time, never given, and a scheduled time inside a daylight saving gap and inside a repeated hour
 - [x] 3.2 Implement the scheduler per design R5 and the `due` binary sensor and `next_dose` sensor; verify with tests using a frozen clock for time reached, dose recorded while due, dose deleted, overdue, the due sensor's attributes, and a medication with no schedule having neither entity
+- [x] 3.3 Next dose skips a scheduled time already satisfied by an early dose (found on a real instance on 2026-11-24: a dose at 09:28 left the next dose at 09:30 until 09:30); verify with a unit test for the scenario "Next dose after an early dose"
 
 ## 4. Reminders
 

@@ -90,10 +90,14 @@ Recording a dose that satisfies the schedule SHALL end the due state immediately
 - **THEN** the dose is due again
 
 ### Requirement: Due and next dose entities
-Each active medication with a schedule SHALL have a binary sensor that is on while a dose is due, with the baby's name, the medication name and the dose text as attributes, and a timestamp sensor with the time of the next dose. While a dose is due the next dose sensor SHALL show the scheduled time that is due. It SHALL report an unknown state when it cannot be determined. A medication with no schedule SHALL have neither entity.
+Each active medication with a schedule SHALL have a binary sensor that is on while a dose is due, with the baby's name, the medication name and the dose text as attributes, and a timestamp sensor with the time of the next dose, the next scheduled time not already satisfied by a dose. While a dose is due the next dose sensor SHALL show the scheduled time that is due. It SHALL report an unknown state when it cannot be determined. A medication with no schedule SHALL have neither entity.
 
 #### Scenario: Next dose with fixed times
 - **WHEN** the schedule is 09:00 and 21:00 and the morning dose has been recorded
+- **THEN** the next dose sensor shows today at 21:00
+
+#### Scenario: Next dose after an early dose
+- **WHEN** the schedule is 09:00 and 21:00 and a dose is recorded at 08:40
 - **THEN** the next dose sensor shows today at 21:00
 
 #### Scenario: Next dose with an interval
