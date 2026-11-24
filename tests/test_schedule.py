@@ -105,6 +105,15 @@ def test_next_dose_after_the_morning() -> None:
     assert (state.due, state.next_dose) == (False, at(20, 21))
 
 
+def test_next_dose_after_an_early_dose() -> None:
+    """With 09:00 given at 08:40, the next dose is 21:00, also before 09:00."""
+    schedule = times("09:00", "21:00")
+    doses = [ts(at(19, 21)), ts(at(20, 8, 40))]
+    state = evaluate(schedule, doses, at(20, 8, 45), TZ)
+    assert (state.due, state.next_dose) == (False, at(20, 21))
+    assert state.next_change == at(20, 9)
+
+
 def test_dose_at_the_midpoint_claims_nothing() -> None:
     """A dose exactly between two times satisfies neither."""
     slots = [at(20, 9), at(20, 21)]

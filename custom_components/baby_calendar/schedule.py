@@ -143,6 +143,11 @@ def _evaluate_times(
     claimed = claimed_slots(slots, [dose for dose in doses if dose <= now.timestamp()])
     current = max((i for i, slot in enumerate(slots) if slot <= now), default=None)
     upcoming = next(slot for slot in slots if slot > now)
+    # A time already satisfied by an early dose is not the next dose.
+    next_free = next(
+        (slot for i, slot in enumerate(slots) if slot > now and i not in claimed),
+        upcoming,
+    )
     due = (
         current is not None
         and current not in claimed
@@ -150,6 +155,6 @@ def _evaluate_times(
     )
     return DueState(
         due=due,
-        next_dose=slots[current] if due else upcoming,
+        next_dose=slots[current] if due else next_free,
         next_change=upcoming,
     )
