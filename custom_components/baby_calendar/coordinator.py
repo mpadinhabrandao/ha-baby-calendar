@@ -140,17 +140,30 @@ class BabyCoordinator(DataUpdateCoordinator[BabyState]):
         At startup it waits for Home Assistant to have started, so the
         automations listening for the event are running.
         """
+        unsubscribe: Callable[[], None] | None = None
 
         @callback
         def announce(_: HassEvent | None = None) -> None:
+            nonlocal unsubscribe
+            # A one-time listener is gone once it has fired; removing it
+            # again on unload would log an error.
+            unsubscribe = None
             self._announcing = True
             for med_id in sorted(self._due):
                 self._fire_due(med_id)
 
+        @callback
+        def stop() -> None:
+            if unsubscribe is not None:
+                unsubscribe()
+
         if self.hass.state is CoreState.running:
             announce()
-            return lambda: None
-        return self.hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, announce)
+            return stop
+        unsubscribe = self.hass.bus.async_listen_once(
+            EVENT_HOMEASSISTANT_STARTED, announce
+        )
+        return stop
 
     @callback
     def _fire_due(self, med_id: str) -> None:

@@ -696,6 +696,26 @@ async def test_due_event_waits_for_the_start(
     assert [event.data["medication"] for event in events] == ["Vitamin D"]
 
 
+async def test_reload_after_the_start_logs_no_error(
+    hass: HomeAssistant, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Set up while starting, started, then reloaded: nothing is logged."""
+    entry = await baby_with_vitamin_d(hass, schedule_type="times", times="09:00")
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    hass.set_state(CoreState.starting)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    hass.set_state(CoreState.running)
+    hass.bus.async_fire(EVENT_HOMEASSISTANT_STARTED)
+    await hass.async_block_till_done()
+    caplog.clear()
+
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert "Unable to remove unknown job listener" not in caplog.text
+
+
 async def test_no_due_event_without_a_schedule(
     hass: HomeAssistant, freezer: FrozenDateTimeFactory
 ) -> None:
