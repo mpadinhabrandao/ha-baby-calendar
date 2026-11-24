@@ -15,19 +15,19 @@
 - [x] 2.3 Implement the switch, side select, duration number and button through the shared dashboard path per design T4; verify with tests for the selection used by the switch and by the button, started ten minutes ago, forgot to stop, the duration input returning to zero, a press with the duration at zero, and a press while the timer is running
 - [x] 2.4 Implement the selector flip and the feed grouping per design T6 and T7; verify with tests for after a left feed, an entry with no side, both sides in one sitting counting one feed, two separate feeds, and a feed whose first entry started before midnight
 - [x] 2.5 Implement the breastfeeding sensors; verify with tests for the in-progress and finished attributes, the last side and the daily duration for left then right
-- [ ] 2.6 Document the breastfeeding services and entities with examples in `README.md`, including how a side change is logged and how feeds are counted; verify each example runs as written on a real instance
+- [x] 2.6 Document the breastfeeding services and entities with examples in `README.md`, including how a side change is logged and how feeds are counted; verify each example runs as written on a real instance
 
 ## 3. Sleep tracker and feeding summary
 
 - [x] 3.1 Register the sleep tracker, add it to the tracker list, and implement `start_sleep`, `stop_sleep` and `log_sleep`; verify with tests for a nap timed with the services, logged afterwards and two trackers running at once
 - [x] 3.2 Implement the sleep switch, duration number, button and sensors including `awake_since`; verify with tests for a nap timed with the switch, the switch following a start by service, the switch staying off when a sleep is logged afterwards, awake since after a nap and while asleep
 - [x] 3.3 Implement the `last_feed` sensor per design T4; verify with tests for a bottle after a breastfeed, only bottles enabled, only breastfeeding enabled and no feeds
-- [ ] 3.4 Document the sleep services and entities and the last feed sensor in `README.md`, with an example automation using the sleep switch and the note that daily sleep is split at midnight; verify each example runs as written on a real instance
+- [x] 3.4 Document the sleep services and entities and the last feed sensor in `README.md`, with an example automation using the sleep switch and the note that daily sleep is split at midnight; verify each example runs as written on a real instance
 
 ## 4. Integration checks
 
 - [ ] 4.1 On a real instance, enable breastfeeding and sleep on an existing baby, run a left then right feed with the switch, log a third feed with the duration input and button, and verify three entries, two feeds, the daily duration and the side selector
-- [ ] 4.2 Start a sleep timer in the evening, leave it over midnight, stop it in the morning and verify both days' durations in the sensors and in the statistics graph
+- [x] 4.2 Start a sleep timer in the evening, leave it over midnight, stop it in the morning and verify both days' durations in the sensors and in the statistics graph
 - [x] 4.3 Start a timer, restart Home Assistant and verify the switch is still on with the original start time; check the recorder for the number of state rows written per hour by a running timer
 - [ ] 4.4 Verify that the diaper and bottle trackers and their existing events behave exactly as before
 - [x] 4.5 Run `openspec validate add-timed-tracking --strict` and verify it passes

@@ -16,7 +16,7 @@
 - [x] 2.1 Register the medication tracker and implement `baby_calendar.log_medication` with `services.yaml` selectors and translations per design R2 and R3; verify with tests for a dose given earlier with a note, an unknown medication, a deactivated medication and a rename that keeps doses listed under the new name
 - [x] 2.2 Implement the per-medication button and the `last_dose` and `doses_today` sensors, created and removed with the medication without reloading Home Assistant; verify with tests for a dose by button, a back-dated dose with `minutes_ago`, a dose undone, the doses today count, a deleted dose and two doses close together raising no warning
 - [x] 2.3 Add the calendar `summary` for doses ("💊" and the medication name, current or stored) per design R2; verify with unit tests for an active, a renamed and a removed medication
-- [ ] 2.4 Document the service and entities with examples in `README.md`; verify each example runs as written on a real instance
+- [x] 2.4 Document the service and entities with examples in `README.md`; verify each example runs as written on a real instance
 
 ## 3. Schedules and due state
 
