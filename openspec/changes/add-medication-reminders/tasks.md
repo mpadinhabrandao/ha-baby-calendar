@@ -33,9 +33,9 @@
 
 ## 5. Integration checks
 
-- [ ] 5.1 On a real instance, add a fixed-times medication and an interval medication and one automation from the blueprint; verify both reminders arrive and stop once a dose is recorded
-- [ ] 5.2 Restart Home Assistant while a dose is due and verify the due sensor is on after start
-- [ ] 5.3 Verify that the other trackers and their existing events behave exactly as before
+- [x] 5.1 On a real instance, add a fixed-times medication and an interval medication and one automation from the blueprint; verify both reminders arrive and stop once a dose is recorded
+- [x] 5.2 Restart Home Assistant while a dose is due and verify the due sensor is on after start
+- [x] 5.3 Verify that the other trackers and their existing events behave exactly as before
 - [x] 5.4 Run `openspec validate add-medication-reminders --strict` and verify it passes
 
 ## Workflow follow-up
