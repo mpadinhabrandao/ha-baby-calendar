@@ -29,7 +29,7 @@
 - [ ] 4.1 On a real instance, enable breastfeeding and sleep on an existing baby, run a left then right feed with the switch, log a third feed with the duration input and button, and verify three entries, two feeds, the daily duration and the side selector
 - [x] 4.2 Start a sleep timer in the evening, leave it over midnight, stop it in the morning and verify both days' durations in the sensors and in the statistics graph
 - [x] 4.3 Start a timer, restart Home Assistant and verify the switch is still on with the original start time; check the recorder for the number of state rows written per hour by a running timer
-- [ ] 4.4 Verify that the diaper and bottle trackers and their existing events behave exactly as before
+- [x] 4.4 Verify that the diaper and bottle trackers and their existing events behave exactly as before
 - [x] 4.5 Run `openspec validate add-timed-tracking --strict` and verify it passes
 
 ## Workflow follow-up
