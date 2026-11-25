@@ -14,7 +14,7 @@
 
 ## 3. Integration checks
 
-- [ ] 3.1 On a real instance, open the baby's calendar in the calendar panel and in a calendar card; verify titles, emoji and durations in day, week and list views, in English and in Portuguese, and that both offer Edit and Delete and neither offers adding an event
+- [x] 3.1 On a real instance, open the baby's calendar in the calendar panel and in a calendar card; verify titles, emoji and durations in day, week and list views, in English and in Portuguese, and that both offer Edit and Delete and neither offers adding an event
 - [x] 3.2 Load a year of generated events into a test instance and verify the month view opens without noticeable delay
 - [x] 3.3 From the calendar on a phone, change an event's time, add a note to a running sleep and delete another event; verify the sensors and `list_events` agree and the sleep timer is still running
 - [x] 3.4 Document the calendar in `README.md` with an example calendar card, the list of emoji, what can be edited and that notes are written here; verify the example card loads on a real instance

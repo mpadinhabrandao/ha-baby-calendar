@@ -38,9 +38,9 @@
 
 ## 6. Integration checks
 
-- [ ] 6.1 On a real instance, add each card for the test baby next to the household's own cards and use them on a phone: a diaper with its stool type, a bottle after changing the amount, breastfeeding left then right with a pause, sleep, a due medication's "Given", undo, an entry 15 minutes ago, each Other entries form
-- [ ] 6.2 On the real instance, enable a tracker and add a medication with the cards open; verify they appear without a reload
-- [ ] 6.3 After updating the integration, verify the phone loads the new cards without clearing the cache
+- [x] 6.1 On a real instance, add each card for the test baby next to the household's own cards and use them on a phone: a diaper with its stool type, a bottle after changing the amount, breastfeeding left then right with a pause, sleep, a due medication's "Given", undo, an entry 15 minutes ago, each Other entries form
+- [x] 6.2 On the real instance, enable a tracker and add a medication with the cards open; verify they appear without a reload
+- [x] 6.3 After updating the integration, verify the phone loads the new cards without clearing the cache
 
 ## Workflow follow-up
 
