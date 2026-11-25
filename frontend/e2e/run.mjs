@@ -404,6 +404,23 @@ try {
   await settle(page);
   made = await calls(page);
   check("log_weight 3450", made[1]?.service === "log_weight" && made[1].service_data.value === 3450, JSON.stringify(made));
+  for (const typed of ["36.8", "36,8"]) {
+    await new Promise((resolve) => setTimeout(resolve, 3100));
+    await tap(page, "baby-calendar-entry-card", "Temperatura");
+    await settle(page);
+    const field = page.locator("baby-calendar-entry-card input[name=value]");
+    await field.click();
+    await field.pressSequentially(typed);
+    await settle(page);
+    check(`typed ${typed} kept`, (await field.inputValue()) === typed, await field.inputValue());
+    await tap(page, "baby-calendar-entry-card", "Guardar");
+    await settle(page);
+    made = await calls(page);
+    const last = made[made.length - 1];
+    check(`log_temperature 36.8 from ${typed}`, last?.service === "log_temperature" && last.service_data.value === 36.8, JSON.stringify(last));
+  }
+  made = await calls(page);
+  const before = made.length;
   await tap(page, "baby-calendar-entry-card", "Extração");
   await settle(page);
   await fill("amount", "80");
@@ -411,14 +428,14 @@ try {
   await tap(page, "baby-calendar-entry-card", "Guardar");
   await settle(page);
   made = await calls(page);
-  check("log_pumping 80 both", made[2]?.service === "log_pumping" && made[2].service_data.amount === 80 && made[2].service_data.side === "both", JSON.stringify(made[2]));
+  check("log_pumping 80 both", made[before]?.service === "log_pumping" && made[before].service_data.amount === 80 && made[before].service_data.side === "both", JSON.stringify(made[before]));
   await tap(page, "baby-calendar-entry-card", "Medicamento");
   await settle(page);
   await fill("medication", "Ferro");
   await tap(page, "baby-calendar-entry-card", "Guardar");
   await settle(page);
   made = await calls(page);
-  check("log_medication Ferro", made[3]?.service === "log_medication" && made[3].service_data.medication === "Ferro", JSON.stringify(made[3]));
+  check("log_medication Ferro", made[before + 1]?.service === "log_medication" && made[before + 1].service_data.medication === "Ferro", JSON.stringify(made[before + 1]));
   await tap(page, "baby-calendar-entry-card", "Peso");
   await settle(page);
   await page.screenshot({ path: `${SHOTS}entry-form.png` });

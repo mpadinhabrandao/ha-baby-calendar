@@ -157,6 +157,10 @@ The Other entries card SHALL offer a small form for each of weight, length, temp
 - **WHEN** the parent enters 3.45 in the weight form and saves
 - **THEN** the form shows the accepted range and records nothing
 
+#### Scenario: Temperature with a decimal
+- **WHEN** the parent types "36,8" or "36.8" in the temperature form and saves
+- **THEN** a temperature of 36.8 °C is recorded
+
 ### Requirement: Recent entries card
 The Recent entries card SHALL list the baby's latest entries, newest first, each with its time and a short description, refreshed when an entry is added, changed or deleted.
 
