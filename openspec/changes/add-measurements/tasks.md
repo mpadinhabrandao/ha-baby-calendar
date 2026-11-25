@@ -18,8 +18,8 @@
 
 ## 3. Integration checks
 
-- [ ] 3.1 On a real instance, enable the three measurements on an existing baby, log readings by service and from the dashboard, and verify the sensors and `list_events`
-- [ ] 3.2 Verify that the other trackers and their existing events behave exactly as before
+- [x] 3.1 On a real instance, enable the three measurements on an existing baby, log readings by service and from the dashboard, and verify the sensors and `list_events`
+- [x] 3.2 Verify that the other trackers and their existing events behave exactly as before
 - [x] 3.3 Run `openspec validate add-measurements --strict` and verify it passes
 
 ## Workflow follow-up

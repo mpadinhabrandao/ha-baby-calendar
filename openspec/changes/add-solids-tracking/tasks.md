@@ -11,8 +11,8 @@
 
 ## 2. Integration checks
 
-- [ ] 2.1 On a real instance, enable solids, log a meal with the button, add what was eaten in the calendar and verify the sensor attribute
-- [ ] 2.2 Verify that the other trackers and the last feed sensor behave exactly as before
+- [x] 2.1 On a real instance, enable solids, log a meal with the button, add what was eaten in the calendar and verify the sensor attribute
+- [x] 2.2 Verify that the other trackers and the last feed sensor behave exactly as before
 - [x] 2.3 Run `openspec validate add-solids-tracking --strict` and verify it passes
 
 ## Workflow follow-up

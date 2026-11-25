@@ -4,7 +4,7 @@
 
 - [x] 1.1 Repeat the subentry harness test from design.md R1 on the development version of Home Assistant (entities on the baby's device without `config_subentry_id`, registry cleanup on removal) and record the outcome; then implement add and edit medication with name, dose text and schedule, as subentries or as the options-flow menu, with `en` and `pt` strings; verify with tests for a medication added, a duplicate name, fixed times with no time, an invalid time and an interval of zero
 - [x] 1.2 Implement deactivate, reactivate and remove; verify with tests that deactivating keeps doses and removes entities, reactivating restores them, removing keeps the doses listed under the medication's name, and a new medication with the same name starts with no doses
-- [ ] 1.3 Document managing medications in `README.md`, including that neither removal nor deactivation deletes history; verify the steps match the UI on a real instance
+- [x] 1.3 Document managing medications in `README.md`, including that neither removal nor deactivation deletes history; verify the steps match the UI on a real instance
 
   - 1.1 outcome (2026-11-20): the harness test was not repeated. The options-flow menu was chosen: it needs no subentry, so the one-subentry-per-device rule from 2026.8 does not apply, and the entity cleanup it needs is the same as for disabled trackers. Fixed times, the doses and the specs are unchanged by the choice.
   - 1.3 and 2.4: the README sections are written; checking them against the UI and running the examples on a real instance is still to do.

@@ -11,8 +11,8 @@
 
 ## 2. Integration checks
 
-- [ ] 2.1 On a real instance, enable pumping, log a session from the dashboard on a phone and verify the sensors and that the inputs were reset
-- [ ] 2.2 Verify that the other trackers behave exactly as before
+- [x] 2.1 On a real instance, enable pumping, log a session from the dashboard on a phone and verify the sensors and that the inputs were reset
+- [x] 2.2 Verify that the other trackers behave exactly as before
 - [x] 2.3 Run `openspec validate add-pumping-tracking --strict` and verify it passes
 
 ## Workflow follow-up
