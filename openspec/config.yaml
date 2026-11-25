@@ -16,19 +16,11 @@ context: |
   The user chooses which trackers are enabled per baby.
   Logging must work one-handed at night: one tap logs, details are optional follow-ups,
   inputs never silently reuse a stale value, and a slip is undone with one tap.
-  Changes, in implementation order:
-    1. add-core-tracking (baby, diaper, bottle, undo, back-dating)
-    2. add-timed-tracking (breastfeeding, sleep, combined last feed)
-    3. add-calendar-view
-    4. add-medication-reminders
-    5. add-measurements (weight, length, temperature)
-    6. add-solids-tracking
-    7. add-pumping-tracking
-    8. add-baby-dashboard (superseded by add-baby-card; only its attributes remain)
-    9. add-baby-card
-  Each later change extends services defined in add-core-tracking (update_event,
-  list_events, the tracker list). Until that change is archived these extensions are
-  written as new requirements in the later change, not as MODIFIED deltas.
+  The first nine changes (add-core-tracking to add-baby-card) were archived on
+  2026-11-25; their specs are in openspec/specs. add-baby-dashboard was superseded by
+  add-baby-card and archived without specs; its attribute requirement moved to
+  diaper-tracking and medication-tracking. New changes write MODIFIED deltas against
+  the main specs.
   Deferred, not planned for now: an ICS feed for phone calendar apps and user-defined
   trackers.
   These specs were revised on 2026-11-16 after an independent review.
