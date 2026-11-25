@@ -10,7 +10,7 @@
 
 - [x] 2.1 Implement the number input and button per design M3; verify with tests for a reading from the dashboard, the input returning to zero, a stray press at zero, a press with an out-of-range input, a reading back-dated with `minutes_ago`, and the input being zero after a restart
 - [x] 2.2 Implement the latest reading and timestamp sensors per design M3 and M4; verify with tests for a new reading, an older reading added later, the latest reading deleted, no readings yet, the temperature sensor expiring after 24 hours with a frozen clock, and the weight sensor not expiring
-- [ ] 2.3 Confirm on a real instance that the weight sensor appears in a statistics graph and charts readings logged over several days
+- [x] 2.3 Confirm on a real instance that the weight sensor appears in a statistics graph and charts readings logged over several days
 - [x] 2.4 Add the calendar `summary` for the three measurements (emoji, value and unit) per design M6; verify with unit tests for a weight, a length and a temperature title in English and Portuguese
 - [x] 2.5 Document the measurement services and entities with examples in `README.md`, including the metric-only input note and what the long-term chart does and does not show; verify each example runs as written on a real instance
 
