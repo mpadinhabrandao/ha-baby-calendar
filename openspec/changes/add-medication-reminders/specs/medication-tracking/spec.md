@@ -78,3 +78,10 @@ The integration SHALL NOT suggest a medicine, a dose or a schedule, and SHALL NO
 #### Scenario: Two doses close together
 - **WHEN** two doses of the same medication are recorded within a few minutes
 - **THEN** both are recorded and the integration raises no warning of its own
+
+### Requirement: Medication attribute
+Every entity of a medication SHALL have the attribute `medication` with the medication's name, so its entities can be told apart whatever the language of Home Assistant.
+
+#### Scenario: Portuguese instance
+- **WHEN** Home Assistant is in Portuguese and the baby has "Vitamina D"
+- **THEN** each of the "Vitamina D" entities has `medication: Vitamina D`
