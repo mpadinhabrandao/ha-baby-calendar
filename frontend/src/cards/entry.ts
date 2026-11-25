@@ -120,7 +120,9 @@ export class EntryCard extends BabyCard {
     let fields: TemplateResult;
     if (form in MEASUREMENTS) {
       const { unit, step } = MEASUREMENTS[form];
-      fields = input("value", "value", { type: "number", inputmode: "decimal", step, unit });
+      // A text field: a number field reports "36." as empty while it is
+      // being typed, and writing that back would clear it.
+      fields = input("value", "value", { inputmode: "decimal", step, unit });
     } else if (form === "solids") {
       fields = input("notes", "notes");
     } else if (form === "pumping") {
