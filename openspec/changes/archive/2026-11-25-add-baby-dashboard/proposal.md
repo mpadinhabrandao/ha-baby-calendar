@@ -24,6 +24,8 @@ Out of scope: a dashboard strategy or any custom frontend code in the integratio
 
 None. The two attributes are new requirements in this change, since the medication and core tracking changes are not archived yet.
 
+Superseded on 2026-11-20 by `add-baby-card`, and archived without its specs. Before archiving, the requirement on the two attributes, which the code keeps, was moved: `stool_type` to the `diaper-tracking` spec of `add-core-tracking` ("Stool type attribute") and `medication` to the `medication-tracking` spec of `add-medication-reminders` ("Medication attribute").
+
 ## Impact
 
 - `dashboards/baby.yaml` in the repository: the view, with the baby's name as its one placeholder.

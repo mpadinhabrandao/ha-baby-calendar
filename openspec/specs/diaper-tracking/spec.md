@@ -1,10 +1,10 @@
-# Spec Delta
+# diaper-tracking Specification
 
 ## Purpose
 
 Defines how a diaper change is logged as wet, dirty or both, how a stool type is added to it, and which sensors report the last change and the counts for the current day.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Log a diaper change
 The integration SHALL provide a service to log a diaper change for a baby. The content is required and SHALL be one of wet, dirty or both. Notes and time are optional. One diaper change SHALL be one event whatever its content.
@@ -65,6 +65,13 @@ A baby with the diaper tracker SHALL have one button entity per stool type. Pres
 #### Scenario: Too late
 - **WHEN** a stool type button is pressed 30 minutes after the last dirty diaper was recorded
 - **THEN** the press fails with an error and no event changes
+
+### Requirement: Stool type attribute
+Each stool type button SHALL have the attribute `stool_type` with its type, so it can be told apart whatever the language of Home Assistant.
+
+#### Scenario: Stool buttons
+- **WHEN** the diaper tracker is enabled
+- **THEN** each stool type button has `stool_type` set to its type, such as `soft` on the soft stool button
 
 ### Requirement: Stool type prompt
 A baby with the diaper tracker SHALL have a binary sensor that is on while the most recently recorded diaper change is dirty or both, has no stool type and was recorded within the last 10 minutes, so that a dashboard can show the stool type buttons only then.
