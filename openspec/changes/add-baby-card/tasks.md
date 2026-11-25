@@ -33,7 +33,7 @@
 
 ## 5. Documentation and project
 
-- [ ] 5.1 Document the cards in `README.md` (adding them, what each does, a sample of a few together, the Lit licence) and remove the auto-entities section and `dashboards/baby.yaml`; verify the README's steps on a real instance
+- [x] 5.1 Document the cards in `README.md` (adding them, what each does, a sample of a few together, the Lit licence) and remove the auto-entities section and `dashboards/baby.yaml`; verify the README's steps on a real instance
 - [x] 5.2 Update `openspec/config.yaml` (the integration has a frontend of its own; this change listed as the ninth) and mark the open tasks of `add-baby-dashboard` as superseded by this change; verify `openspec validate --strict` passes for both changes
 
 ## 6. Integration checks

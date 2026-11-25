@@ -1,8 +1,9 @@
 # Baby Calendar
 
-A Home Assistant custom integration to log a baby's day: diapers and bottles
-first, with more trackers planned. It has no frontend of its own. It provides
-entities and services, and you build the dashboard with stock cards.
+A Home Assistant custom integration to log a baby's day: diapers, bottles,
+breastfeeding, sleep, solids, pumping, weight, length, temperature and
+medications. It comes with its own dashboard cards (see [Cards](#cards)), and
+every tracker also has entities and actions for stock cards and automations.
 
 All data stays on your Home Assistant host. The integration records and
 displays data only; it gives no health advice.
@@ -114,8 +115,9 @@ baby: 0123456789abcdef0123456789abcdef   # -sleep-, -medication-, -summary-,
 ```
 
 The cards follow your theme, light or dark, and work with card-mod. They are
-in Portuguese when your Home Assistant language is Portuguese, in English
-otherwise.
+in Portuguese when the language of your Home Assistant profile is Portuguese,
+in English otherwise. The calendar's titles follow the server's language
+instead (see [Calendar](#calendar)).
 
 The cards bundle [Lit](https://lit.dev), BSD-3-Clause licensed; its notice is
 at the top of `custom_components/baby_calendar/frontend/baby-calendar-cards.js`.
@@ -611,8 +613,9 @@ entities:
 | 🤱 | Breastfeeding, side and duration | 🤱 Breastfeeding left 15 min |
 | 😴 | Sleep and duration | 😴 Sleep 1 h 20 min |
 
-Titles follow the Home Assistant language. A running timer shows "in
-progress" and reaches up to now; diaper changes and bottles are short blocks
+Titles follow the server's language (Settings > System > General), not each
+user's profile language. A running timer shows "in progress" and reaches up
+to now; diaper changes and bottles are short blocks
 at their time. The calendar is on while a timer runs.
 
 From the calendar you can:
