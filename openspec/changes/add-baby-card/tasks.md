@@ -29,6 +29,7 @@
 
 - [x] 4.9 Bottle card revised after use on a phone: the amount as a value between − and +, and a separate "Log bottle" button; verify with Playwright that − / + and the content record nothing and "Log bottle" records the amount and content
 - [x] 4.10 Breastfeeding buttons named by what they do: "Start left" / "Start right" ("Começar esquerda" / "Começar direita") while no side runs; verify with Playwright the idle labels, and that start, stop and side change still call the same services
+- [x] 4.11 Decimal values in the Other entries forms are kept as typed, with a dot or a comma (found on a real instance on 2026-11-25: typing "36.8" left "8", because a number input reports "36." as empty and the card wrote that back); verify with Playwright typing "36.8" and "36,8" key by key
 
 ## 5. Documentation and project
 
