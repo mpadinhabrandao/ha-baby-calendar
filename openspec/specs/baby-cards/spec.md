@@ -7,11 +7,11 @@ The cards a parent uses on a phone to log a baby's day with one hand and see wha
 ## Requirements
 
 ### Requirement: Cards available with the integration
-The integration SHALL provide the Diapers, Bottle, Breastfeeding, Sleep, Medications, Summary, Today, Other entries and Recent entries cards, all in the card picker of every dashboard with nothing to install beyond the integration.
+The integration SHALL provide the Diapers, Bottle, Breastfeeding, Sleep, Medications, Summary, Today and Other entries cards, all in the card picker of every dashboard with nothing to install beyond the integration.
 
 #### Scenario: Card picker
 - **WHEN** the user opens the card picker of any dashboard
-- **THEN** the nine Baby Calendar cards are offered
+- **THEN** the eight Baby Calendar cards are offered
 
 ### Requirement: One baby per card
 Each card SHALL be configured with one baby, through a visual editor that lists the babies, and SHALL say so when that baby no longer exists instead of failing.
@@ -161,35 +161,9 @@ The Other entries card SHALL offer a small form for each of weight, length, temp
 - **WHEN** the parent types "36,8" or "36.8" in the temperature form and saves
 - **THEN** a temperature of 36.8 °C is recorded
 
-### Requirement: Recent entries card
-The Recent entries card SHALL list the baby's latest entries, newest first, each with its time and a short description, refreshed when an entry is added, changed or deleted.
-
-#### Scenario: After a bottle
-- **WHEN** a 90 ml bottle is recorded at 03:40
-- **THEN** the card's first line is the 90 ml bottle at 03:40
-
 ### Requirement: Language
 Cards SHALL be in Portuguese when the user's Home Assistant language is Portuguese, and in English otherwise.
 
 #### Scenario: Portuguese user
 - **WHEN** the user's language is Portuguese
 - **THEN** the Diapers card reads "Xixi", "Cocó" and "Os dois"
-
-### Requirement: Entry details from Recent entries
-Tapping an entry in the Recent entries card SHALL open Home Assistant's more-info dialog of the entity that holds that kind of entry: the value sensor for a weight, length or temperature; the tracker's last entry sensor for a diaper change, bottle, breastfeeding, sleep, solids or pumping entry; and the medication's last dose sensor for a dose. An entry whose entity does not exist SHALL open nothing.
-
-#### Scenario: Weight history
-- **WHEN** the parent taps the line "weight 3480 g"
-- **THEN** the more-info dialog of the baby's weight sensor opens, with its history
-
-#### Scenario: Bottle
-- **WHEN** the parent taps a bottle line
-- **THEN** the more-info dialog of the baby's last bottle sensor opens
-
-#### Scenario: Medication dose
-- **WHEN** the parent taps a dose of "Vitamin D"
-- **THEN** the more-info dialog of Vitamin D's last dose sensor opens
-
-#### Scenario: Medication removed
-- **WHEN** the parent taps a dose of a medication that has since been removed
-- **THEN** nothing opens

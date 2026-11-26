@@ -8,5 +8,5 @@
 ## 2. Documentation and checks
 
 - [x] 2.1 Update `README.md`: drop the card from the table and the card list, and add a line that a stock tile of the weight, length or temperature sensor shows the value and opens its history
-- [ ] 2.2 On the real instance, after installing, verify the card picker offers eight Baby Calendar cards and the Teste dashboard has no card errors
+- [x] 2.2 On the real instance, after installing, verify the card picker offers eight Baby Calendar cards and the Teste dashboard has no card errors
 - [x] 2.3 Run `openspec validate remove-recent-entries-card --strict`
