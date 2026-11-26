@@ -9,6 +9,8 @@ import type { Baby, EventItem } from "../types";
 
 const DAY_MS = 24 * 3600 * 1000;
 const LIMIT = 15;
+// Measurements open their value sensor, which draws the readings.
+const MEASUREMENTS = ["weight", "length", "temperature"];
 
 export class RecentCard extends BabyCard {
   static override properties = { ...BabyCard.properties, _events: { state: true } };
@@ -92,16 +94,38 @@ export class RecentCard extends BabyCard {
     }
   }
 
+  /** The entity whose more-info dialog shows this kind of entry, if it exists. */
+  entityOf(event: EventItem): string | undefined {
+    const baby = this.baby;
+    if (!baby) return undefined;
+    if (event.tracker === "medication") {
+      const medication = baby.medications.find((m) => m.name === event.medication);
+      return medication?.entities.last_dose;
+    }
+    const key = MEASUREMENTS.includes(event.tracker) ? event.tracker : `${event.tracker}_last`;
+    return baby.entities[key];
+  }
+
+  private openDetails(entityId: string): void {
+    this.dispatchEvent(
+      new CustomEvent("hass-more-info", { detail: { entityId }, bubbles: true, composed: true }),
+    );
+  }
+
   protected renderBody(): TemplateResult {
     if (this._events === null) return html``;
     if (!this._events.length) return html`<p class="hint">${this.text("no_entries")}</p>`;
     return html`<ul class="list">
-      ${this._events.map(
-        (event) => html`<li>
-          <span>${this.describe(event)}</span>
-          <span class="when">${timeOfDay(new Date(event.time), this.language)}</span>
-        </li>`,
-      )}
+      ${this._events.map((event) => {
+        const line = html`<span>${this.describe(event)}</span>
+          <span class="when">${timeOfDay(new Date(event.time), this.language)}</span>`;
+        const entityId = this.entityOf(event);
+        return html`<li>
+          ${entityId
+            ? html`<button class="entry" @click=${() => this.openDetails(entityId)}>${line}</button>`
+            : html`<div class="entry">${line}</div>`}
+        </li>`;
+      })}
     </ul>`;
   }
 }
