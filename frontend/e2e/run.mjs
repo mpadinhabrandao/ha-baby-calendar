@@ -50,8 +50,6 @@ const BABY = {
     solids_count_today: "sensor.solids_count_today",
     pumping_count_today: "sensor.pumping_count_today",
     pumping_ml_today: "sensor.pumping_ml_today",
-    bottle_last: "sensor.bottle_last",
-    weight: "sensor.weight",
   },
 };
 
@@ -443,44 +441,12 @@ try {
   await page.screenshot({ path: `${SHOTS}entry-form.png` });
   await page.close();
 
-  // ----------------------------------------------------- recent entries
-  console.log("Recent entries");
-  page = await newPage(browser, "dark");
-  await page.evaluate((events) => {
-    window.responses["baby_calendar.list_events"] = { events };
-    window.mount("baby-calendar-recent-card");
-  }, [
-    { event_id: "a", tracker: "diaper", time: iso(30), content: "dirty", stool: "soft" },
-    { event_id: "b", tracker: "bottle", time: iso(5), amount: 90, content: "formula" },
-    { event_id: "c", tracker: "breastfeeding", time: iso(60), side: "left", duration: 840, in_progress: false },
-    { event_id: "d", tracker: "weight", time: iso(90), value: 3480 },
-    { event_id: "e", tracker: "medication", time: iso(100), medication: "Vitamina D" },
-    { event_id: "f", tracker: "medication", time: iso(110), medication: "Removido" },
-  ]);
-  await settle(page);
-  shown = await text(page, "baby-calendar-recent-card");
-  const order = ["biberão 90 ml", "fralda com cocó (mole)", "mama esquerda · 14 min"].map((s) => shown.indexOf(s));
-  check("newest first", order.every((i, k) => i >= 0 && (k === 0 || i > order[k - 1])), shown);
-  await page.evaluate(() => {
-    window.moreInfo = [];
-    document.addEventListener("hass-more-info", (e) => window.moreInfo.push(e.detail.entityId));
-  });
-  const entries = page.locator("baby-calendar-recent-card .entry");
-  await page.locator("baby-calendar-recent-card button.entry", { hasText: "peso 3480 g" }).click();
-  await page.locator("baby-calendar-recent-card button.entry", { hasText: "biberão 90 ml" }).click();
-  await page.locator("baby-calendar-recent-card button.entry", { hasText: "Vitamina D" }).click();
-  await page.locator("baby-calendar-recent-card .entry", { hasText: "Removido" }).click();
-  let opened = await page.evaluate(() => window.moreInfo);
-  check("weight opens its sensor", opened[0] === "sensor.weight", JSON.stringify(opened));
-  check("bottle opens its last sensor", opened[1] === "sensor.bottle_last", JSON.stringify(opened));
-  check("dose opens the medication's last dose", opened[2] === "sensor.vit_last", JSON.stringify(opened));
-  check("removed medication opens nothing", opened.length === 3, JSON.stringify(opened));
-  await page.locator("baby-calendar-recent-card button.entry", { hasText: "biberão 90 ml" }).focus();
-  await page.keyboard.press("Enter");
-  opened = await page.evaluate(() => window.moreInfo);
-  check("Enter opens it too", opened[3] === "sensor.bottle_last", JSON.stringify(opened));
-  check("lines without entity are not buttons", (await entries.count()) === 6 && (await page.locator("baby-calendar-recent-card button.entry").count()) === 5, String(await entries.count()));
-  await page.screenshot({ path: `${SHOTS}recent-dark.png` });
+  // ------------------------------------------------------- card picker
+  console.log("Card picker");
+  page = await newPage(browser);
+  const picker = await page.evaluate(() => (window.customCards ?? []).map((c) => c.type));
+  check("eight cards in the picker", picker.length === 8, JSON.stringify(picker));
+  check("no recent entries card", !picker.includes("baby-calendar-recent-card"), JSON.stringify(picker));
   await page.close();
 
   // ------------------------------------------------- baby and trackers

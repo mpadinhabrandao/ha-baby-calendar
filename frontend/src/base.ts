@@ -453,40 +453,6 @@ export abstract class BabyCard extends LitElement {
       border-radius: 10px;
       padding: 0 10px;
     }
-    .list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    .list li {
-      border-bottom: 1px solid var(--divider-color, rgba(127, 127, 127, 0.2));
-    }
-    .list .entry {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      width: 100%;
-      padding: 10px 0;
-      border: none;
-      background: none;
-      color: inherit;
-      font: inherit;
-      text-align: start;
-    }
-    .list button.entry {
-      cursor: pointer;
-    }
-    .list button.entry:focus-visible {
-      outline: 2px solid var(--bc-accent);
-      outline-offset: 2px;
-    }
-    .list li:last-child {
-      border-bottom: none;
-    }
-    .when {
-      color: var(--secondary-text-color);
-      white-space: nowrap;
-    }
     .question {
       display: flex;
       flex-direction: column;

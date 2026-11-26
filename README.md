@@ -99,7 +99,9 @@ you like, next to your other cards.
 | **Summary** | How long ago the baby ate and had a diaper change, and how long awake or asleep. |
 | **Today** | The day's totals. |
 | **Other entries** | Small forms for weight, length, temperature, solids, pumping and a medication dose. |
-| **Recent entries** | The latest entries of the last 24 hours. Tap one to open its entity's history (the weight, length or temperature sensor, the last entry of its kind, or the medication's last dose). |
+
+To see the latest weight, length or temperature, add a stock tile card of its
+sensor: it shows the value, and a tap opens its history and graph.
 
 Each card that logs has a **Now** chip at the top: set it to "15 min ago" for
 an entry that happened earlier; it goes back to **Now** after the entry.
@@ -111,7 +113,7 @@ editor fills in:
 ```yaml
 type: custom:baby-calendar-diaper-card   # or -bottle-, -breastfeeding-,
 baby: 0123456789abcdef0123456789abcdef   # -sleep-, -medication-, -summary-,
-                                         # -today-, -entry-, -recent-card
+                                         # -today-, -entry-card
 ```
 
 The cards follow your theme, light or dark, and work with card-mod. They are
