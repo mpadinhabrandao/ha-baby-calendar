@@ -99,7 +99,7 @@ you like, next to your other cards.
 | **Summary** | How long ago the baby ate and had a diaper change, and how long awake or asleep. |
 | **Today** | The day's totals. |
 | **Other entries** | Small forms for weight, length, temperature, solids, pumping and a medication dose. |
-| **Recent entries** | The latest entries of the last 24 hours. |
+| **Recent entries** | The latest entries of the last 24 hours. Tap one to open its entity's history (the weight, length or temperature sensor, the last entry of its kind, or the medication's last dose). |
 
 Each card that logs has a **Now** chip at the top: set it to "15 min ago" for
 an entry that happened earlier; it goes back to **Now** after the entry.
