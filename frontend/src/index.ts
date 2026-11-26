@@ -5,7 +5,6 @@ import { BreastfeedingCard } from "./cards/breastfeeding";
 import { DiaperCard } from "./cards/diaper";
 import { EntryCard } from "./cards/entry";
 import { MedicationCard } from "./cards/medication";
-import { RecentCard } from "./cards/recent";
 import { SleepCard } from "./cards/sleep";
 import { SummaryCard } from "./cards/summary";
 import { TodayCard } from "./cards/today";
@@ -20,7 +19,6 @@ export const CARDS: [string, CustomElementConstructor, string, string][] = [
   ["baby-calendar-summary-card", SummaryCard, "Baby Calendar: summary", "Since the last feed, diaper and sleep."],
   ["baby-calendar-today-card", TodayCard, "Baby Calendar: today", "The day's totals."],
   ["baby-calendar-entry-card", EntryCard, "Baby Calendar: other entries", "Weight, length, temperature, solids, pumping, a dose."],
-  ["baby-calendar-recent-card", RecentCard, "Baby Calendar: recent entries", "The latest entries."],
 ];
 
 declare global {
