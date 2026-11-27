@@ -2,7 +2,8 @@
   "domain": "baby_calendar",
   "name": "Baby Calendar",
   "after_dependencies": [
-    "frontend"
+    "frontend",
+    "llm"
   ],
   "codeowners": [
     "@mpadinhabrandao"
