@@ -21,8 +21,9 @@ const BABY = {
   name: "Teste",
   trackers: ["diaper", "bottle", "breastfeeding", "sleep", "solids", "pumping", "weight", "length", "temperature"],
   medications: [
-    { id: "m1", name: "Vitamina D", dose: "1 gota", entities: { take: "button.vit_take", due: "binary_sensor.vit_due", last_dose: "sensor.vit_last" } },
-    { id: "m2", name: "Ferro", dose: null, entities: { take: "button.fe_take", last_dose: "sensor.fe_last" } },
+    { id: "m1", name: "Vitamina D", dose: "1 gota", schedule: { type: "times", times: ["09:30", "21:30"] }, entities: { take: "button.vit_take", due: "binary_sensor.vit_due", last_dose: "sensor.vit_last", next_dose: "sensor.vit_next" } },
+    { id: "m2", name: "Ferro", dose: null, schedule: { type: "none" }, entities: { take: "button.fe_take", last_dose: "sensor.fe_last" } },
+    { id: "m3", name: "Paracetamol", dose: "5 ml", schedule: { type: "interval", hours: 8 }, entities: { take: "button.par_take", due: "binary_sensor.par_due", last_dose: "sensor.par_last", next_dose: "sensor.par_next" } },
   ],
   entities: {
     stool_prompt: "binary_sensor.stool_prompt",
@@ -345,10 +346,22 @@ try {
   await settle(page);
   shown = await text(page, "baby-calendar-medication-card");
   check("nothing due", shown.includes("Nenhuma dose por dar"), shown);
-  await page.evaluate(() => window.setState("binary_sensor.vit_due", "on", {}));
+  // Local times of the page's day, as the next dose sensor reports them.
+  const localAt = (days, hour, minute) => {
+    const when = new Date();
+    when.setDate(when.getDate() + days);
+    when.setHours(hour, minute, 0, 0);
+    return when.toISOString();
+  };
+  await page.evaluate((since) => {
+    window.setState("sensor.vit_next", since, {});
+    window.setState("binary_sensor.vit_due", "on", {});
+  }, await page.evaluate(localAt.toString().replace(/^/, "(") + ")(0, 9, 30)"));
   await settle(page);
   shown = await text(page, "baby-calendar-medication-card");
   check("due dose shown", shown.includes("Vitamina D · 1 gota") && !shown.includes("Ferro"), shown);
+  check("due since", shown.includes("Por dar · desde 09:30"), shown);
+  check("fixed times", shown.includes("Às 09:30 e 21:30"), shown);
   await page.screenshot({ path: `${SHOTS}medication-due.png` });
   await tap(page, "baby-calendar-medication-card", "Dado");
   await settle(page);
@@ -358,6 +371,20 @@ try {
   await settle(page);
   shown = await page.evaluate(() => document.querySelectorAll("baby-calendar-medication-card")[1].shadowRoot.textContent);
   check("show all lists Ferro", shown.includes("Ferro"));
+  await page.evaluate(([vit, par]) => {
+    window.setState("binary_sensor.vit_due", "off", {});
+    window.setState("sensor.vit_next", vit, {});
+    window.setState("sensor.par_next", par, {});
+  }, [
+    await page.evaluate(localAt.toString().replace(/^/, "(") + ")(0, 21, 30)"),
+    await page.evaluate(localAt.toString().replace(/^/, "(") + ")(1, 9, 30)"),
+  ]);
+  await settle(page);
+  shown = await page.evaluate(() => document.querySelectorAll("baby-calendar-medication-card")[1].shadowRoot.textContent.replace(/\s+/g, " "));
+  check("next dose today", shown.includes("Às 09:30 e 21:30 · Próxima 21:30"), shown);
+  check("interval and tomorrow", shown.includes("A cada 8 h · Próxima amanhã 09:30"), shown);
+  check("no schedule", shown.includes("Sem horário"), shown);
+  await page.screenshot({ path: `${SHOTS}medication-schedule.png` });
   await page.close();
 
   // ---------------------------------------------------- summary, today

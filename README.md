@@ -95,7 +95,7 @@ you like, next to your other cards.
 | **Bottle** | The amount between − and + (10 ml steps), the content, and **Log bottle** to record it. Amount and content are kept for the next bottle. |
 | **Breastfeeding** | **Start left** and **Start right**, each started and stopped on its own; the running side shows its time. Tapping the other side switches. Shows the last feed as it happened, such as "Left 12 min · pause 5 min · Right 8 min · 20 min in total". |
 | **Sleep** | Fell asleep / woke up, with the time asleep. |
-| **Medications** | The doses due, each with **Given**. Optionally every active medication. |
+| **Medications** | The doses due, each with **Given**. Optionally every active medication. Each one shows its schedule (its times, every so many hours, or none) and its next dose, or since when a dose is due. |
 | **Summary** | How long ago the baby ate and had a diaper change, and how long awake or asleep. |
 | **Today** | The day's totals. |
 | **Other entries** | Small forms for weight, length, temperature, solids, pumping and a medication dose. |

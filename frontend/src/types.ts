@@ -22,10 +22,17 @@ export interface Hass {
   language?: string;
 }
 
+export interface Schedule {
+  type: "none" | "times" | "interval";
+  times?: string[];
+  hours?: number;
+}
+
 export interface Medication {
   id: string;
   name: string;
   dose: string | null;
+  schedule: Schedule;
   entities: Record<string, string>;
 }
 
