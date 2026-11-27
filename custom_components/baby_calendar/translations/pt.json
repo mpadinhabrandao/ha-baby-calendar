@@ -542,7 +542,7 @@
       "message": "Escolhe um bebé configurado no Baby Calendar."
     },
     "tracker_disabled": {
-      "message": "O registo {tracker} não está ativo para {name}."
+      "message": "O registo de {tracker} não está ativo para {name}."
     },
     "future_time": {
       "message": "A hora não pode estar no futuro."

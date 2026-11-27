@@ -8,6 +8,7 @@ from homeassistant.core import (
     ServiceCall,
     ServiceResponse,
     SupportsResponse,
+    callback,
 )
 from homeassistant.exceptions import ConfigEntryError, ServiceValidationError
 from homeassistant.helpers import (
@@ -34,7 +35,10 @@ from .const import (
 )
 from .coordinator import BabyCoordinator
 from .data import async_get_store, async_run
+from .intents import async_register_intents
 from .models import BabyConfigEntry, BabyData
+from .sentences import async_delete as async_delete_sentences
+from .sentences import async_sentences_changed, async_setup_sentences
 from .services import async_register_services
 from .store import EventStore
 from .trackers import (
@@ -68,6 +72,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register the services that do not belong to one baby, and the cards."""
     async_register_websocket(hass)
     await async_register_cards(hass)
+    async_register_intents(hass)
+    async_setup_sentences(hass)
 
     async def purge_history(call: ServiceCall) -> ServiceResponse:
         name = call.data[CONF_NAME].strip()
@@ -159,9 +165,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: BabyConfigEntry) -> bool
     entry.async_on_unload(coordinator.async_announce_due())
     # Called once loaded, and again when unloading starts, when the entry no
     # longer counts as loaded: the cards get the babies each time.
-    entry.async_on_unload(
-        entry.async_on_state_change(lambda: async_babies_changed(hass))
-    )
+    entry.async_on_unload(entry.async_on_state_change(lambda: _babies_changed(hass)))
     return True
 
 
@@ -176,6 +180,20 @@ async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     baby_id = entry.data[CONF_BABY_ID]
     if await async_run(hass, store.get_baby, baby_id) is not None:
         await async_run(hass, store.mark_removed, baby_id)
+    others = [
+        other
+        for other in hass.config_entries.async_entries(DOMAIN)
+        if other.entry_id != entry.entry_id
+    ]
+    if not others:
+        await async_delete_sentences(hass)
+
+
+@callback
+def _babies_changed(hass: HomeAssistant) -> None:
+    """Tell the cards, and rewrite the voice sentences, when a baby changes."""
+    async_babies_changed(hass)
+    async_sentences_changed(hass)
 
 
 async def _async_reload(hass: HomeAssistant, entry: BabyConfigEntry) -> None:

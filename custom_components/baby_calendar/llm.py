@@ -4,9 +4,8 @@ An agent such as OpenAI or Anthropic calls these to record entries, start
 and stop timers, record doses and undo, through the same code as the actions.
 """
 
-import unicodedata
 from collections.abc import Awaitable, Callable
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Any, Final, override
 
 import probatio
@@ -34,7 +33,6 @@ from .services import (
     async_stop_timer,
     event_and_entry,
     find_medication,
-    now_ts,
 )
 from .store import Event
 from .trackers import TRACKERS
@@ -46,6 +44,14 @@ from .trackers.diaper import STOOLS
 from .trackers.medication import medications
 from .trackers.pumping import SIDES as PUMPING_SIDES
 from .trackers.timed import TimedTracker
+from .voice import (
+    VoiceError,
+    describe,
+    error_message,
+    loaded_babies,
+    resolve_baby,
+    resolve_time,
+)
 
 PREFIX: Final = f"{DOMAIN}__"
 MAX_MINUTES_AGO: Final = 7 * 24 * 60
@@ -134,72 +140,6 @@ _MINUTES_AGO = probatio.Optional(
 _NOTES = probatio.Optional("notes", description="Free text to keep with the entry")
 
 
-class ToolError(Exception):
-    """A tool call that cannot be done, explained to the model."""
-
-
-def _plain(text: str) -> str:
-    """Return text without case or accents, for matching names."""
-    decomposed = unicodedata.normalize("NFKD", text.strip().casefold())
-    return "".join(char for char in decomposed if not unicodedata.combining(char))
-
-
-def _babies(hass: HomeAssistant) -> list[BabyConfigEntry]:
-    return sorted(
-        hass.config_entries.async_loaded_entries(DOMAIN),
-        key=lambda entry: entry.runtime_data.name,
-    )
-
-
-def resolve_baby(hass: HomeAssistant, name: str | None) -> BabyConfigEntry:
-    """Return the baby a name refers to, or the only baby without a name."""
-    babies = _babies(hass)
-    names = ", ".join(entry.runtime_data.name for entry in babies)
-    if name:
-        matches = [e for e in babies if _plain(e.runtime_data.name) == _plain(name)]
-        if len(matches) == 1:
-            return matches[0]
-        raise ToolError(f"No baby named {name!r}. The babies are: {names}.")
-    if len(babies) == 1:
-        return babies[0]
-    raise ToolError(f"Say which baby. The babies are: {names}.")
-
-
-def resolve_time(args: dict[str, Any]) -> datetime | None:
-    """Return when it happened from 'time' or 'minutes_ago', or None for now."""
-    time, minutes = args.get("time"), args.get("minutes_ago")
-    if time is not None and minutes is not None:
-        raise ToolError("Give either time or minutes_ago, not both.")
-    if minutes is not None:
-        return dt_util.now() - timedelta(minutes=minutes)
-    if time is not None:
-        when = dt_util.parse_datetime(str(time))
-        if when is None:
-            raise ToolError(f"Cannot read the time {time!r}; use 'YYYY-MM-DD HH:MM'.")
-        return when
-    return None
-
-
-def describe(hass: HomeAssistant, entry: BabyConfigEntry, event: Event) -> dict:
-    """Return what was recorded, as the calendar titles it."""
-    tracker = TRACKERS[event.tracker]
-    start = dt_util.as_local(dt_util.utc_from_timestamp(event.start_ts))
-    return {
-        "recorded": tracker.summary(event, hass.config.language, now_ts()),
-        "baby": entry.runtime_data.name,
-        "time": start.strftime("%H:%M"),
-        "entry_id": event.id,
-    }
-
-
-def _message(err: HomeAssistantError) -> str:
-    text = str(err)
-    if text:
-        return text
-    placeholders = err.translation_placeholders or {}
-    return f"{err.translation_key} {placeholders}".strip()
-
-
 class BabyTool(Tool):
     """A Baby Calendar tool: resolves the baby and reports errors as data."""
 
@@ -242,10 +182,10 @@ class BabyTool(Tool):
             args = self.parameters(tool_input.tool_args)
             entry = resolve_baby(hass, args.get("baby")) if self._with_baby else None
             event, entry = await self._call(hass, entry, args)
-        except (ToolError, probatio.Invalid) as err:
+        except (VoiceError, probatio.Invalid) as err:
             return ToolResult(data={"error": str(err)}, error=True)
         except HomeAssistantError as err:
-            return ToolResult(data={"error": _message(err)}, error=True)
+            return ToolResult(data={"error": error_message(err)}, error=True)
         return ToolResult(data=describe(hass, entry, event))
 
     async def _call(
@@ -263,7 +203,7 @@ def _tracker_fields(tracker: Tracker, args: dict) -> dict[str, Any]:
     try:
         return probatio.Schema(tracker.log_fields)(fields)
     except probatio.Invalid as err:
-        raise ToolError(f"Invalid {tracker.key}: {err}") from err
+        raise VoiceError(f"Invalid {tracker.key}: {err}") from err
 
 
 def _log_tool(tracker: Tracker) -> Tool:
@@ -343,7 +283,7 @@ def _medication_tool() -> Tool:
             medication = find_medication(entry, args["medication"])
         except HomeAssistantError as err:
             names = [med[MED_NAME] for med in medications(entry.options, active=True)]
-            raise ToolError(
+            raise VoiceError(
                 f"{entry.runtime_data.name} has no active medication "
                 f"{args['medication']!r}. Active: {', '.join(names) or 'none'}."
             ) from err
@@ -428,7 +368,7 @@ def async_get_tools(
     """Return the tools of the trackers in use, with the babies as context."""
     if api_id != LLM_API_ASSIST:
         return None
-    babies = _babies(hass)
+    babies = loaded_babies(hass)
     if not babies:
         return None
     enabled = {key for entry in babies for key in entry.runtime_data.trackers}

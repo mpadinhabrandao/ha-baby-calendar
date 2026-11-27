@@ -1,0 +1,129 @@
+# Sentences of the built-in conversation agent, in Portuguese. sentences.py
+# adds the babies and medications lists and writes the result to
+# custom_sentences/pt/baby_calendar.yaml.
+language: pt
+intents:
+  BabyCalendarLogDiaper:
+    data:
+      - sentences:
+          - "[<verb_diaper>] [uma |a ]fralda {diaper_content:content} [{stool}] [<of_baby>] [<ago>]"
+          - "<who> fez {diaper_content:content} [<ago>]"
+  BabyCalendarLogBottle:
+    data:
+      - sentences:
+          - "<who> bebeu [um ]biberão de {amount} [ml|mililitros] [de {bottle_content:content}] [<ago>]"
+          - "<who> bebeu {amount} (ml|mililitros) [de {bottle_content:content}] [<ago>]"
+          - "[dei |registar |regista ][um ]biberão de {amount} [ml|mililitros] [de {bottle_content:content}] [<to_baby>] [<ago>]"
+  BabyCalendarStartBreastfeeding:
+    data:
+      - sentences:
+          - "(começa|começar|inicia|iniciar) [a ](mama|mamada) [{breast_side:side}] [<of_baby>] [<ago>]"
+          - "<who> (começou a mamar|está a mamar) [{breast_side:side}] [<ago>]"
+  BabyCalendarStopBreastfeeding:
+    data:
+      - sentences:
+          - "(acabou|terminou|para|parar|termina|terminar) [a ](mama|mamada) [<of_baby>] [<ago>]"
+          - "<who> (acabou|parou) de mamar [<ago>]"
+  BabyCalendarStartSleep:
+    data:
+      - sentences:
+          - "<who> adormeceu [<ago>]"
+          - "<who> (foi|vai) dormir [<ago>]"
+          - "(começa|começar|inicia|iniciar) [o ]sono [<of_baby>] [<ago>]"
+  BabyCalendarStopSleep:
+    data:
+      - sentences:
+          - "<who> (acordou|despertou) [<ago>]"
+          - "(acaba|acabar|termina|terminar|para|parar) [o ]sono [<of_baby>] [<ago>]"
+  BabyCalendarLogSolids:
+    data:
+      - sentences:
+          - "<who> comeu (sólidos|papa|sopa|fruta|puré) [<ago>]"
+  BabyCalendarLogPumping:
+    data:
+      - sentences:
+          - "(tirei|extraí|extrai) {amount} (ml|mililitros) [de leite] [(da|do lado|do peito) {pumping_side:side}] [<ago>]"
+  BabyCalendarLogWeight:
+    data:
+      - sentences:
+          - "<who> pesa {value} {weight_unit:unit} [<ago>]"
+          - "[o ]peso [<of_baby>] [é|de] {value} {weight_unit:unit} [<ago>]"
+  BabyCalendarLogLength:
+    data:
+      - sentences:
+          - "<who> mede {value} (centímetros|cm) [<ago>]"
+          - "[o ]comprimento [<of_baby>] [é|de] {value} (centímetros|cm) [<ago>]"
+  BabyCalendarLogTemperature:
+    data:
+      - sentences:
+          - "<who> tem {value} (graus|°C|ºC) [de febre] [<ago>]"
+          - "[a ]temperatura [<of_baby>] [é|de] {value} [graus|°C|ºC] [<ago>]"
+  BabyCalendarLogMedication:
+    data:
+      - sentences:
+          - "(dei|demos|tomou|registar|regista) [a |o ][dose de |dose do |dose da ]{medication} [<to_baby>] [<ago>]"
+  BabyCalendarUndo:
+    data:
+      - sentences:
+          - "(desfaz|desfazer|apaga|apagar|anula|anular) [o ]último registo [<of_baby>]"
+lists:
+  diaper_content:
+    values:
+      - in: "(molhada|com xixi|de xixi|xixi)"
+        out: wet
+      - in: "(suja|com cocó|de cocó|cocó)"
+        out: dirty
+      - in: "(mista|com xixi e cocó|de xixi e cocó|xixi e cocó|com tudo)"
+        out: both
+  stool:
+    values:
+      - in: "normal"
+        out: normal
+      - in: "(mole|líquido)"
+        out: soft
+      - in: "(dura|duro|rijo)"
+        out: hard
+      - in: "(com diarreia|diarreia)"
+        out: diarrhea
+  bottle_content:
+    values:
+      - in: "(leite artificial|fórmula|formula|leite de fórmula)"
+        out: formula
+      - in: "(leite materno|leite da mãe|leite do peito)"
+        out: breast_milk
+  breast_side:
+    values:
+      - in: "(esquerda|esquerdo|do lado esquerdo|na esquerda|da esquerda)"
+        out: left
+      - in: "(direita|direito|do lado direito|na direita|da direita)"
+        out: right
+  pumping_side:
+    values:
+      - in: "(esquerda|esquerdo)"
+        out: left
+      - in: "(direita|direito)"
+        out: right
+      - in: "(ambos|ambos os lados|dos dois)"
+        out: both
+  weight_unit:
+    values:
+      - in: "(gramas|g)"
+        out: g
+      - in: "(quilos|quilogramas|kg)"
+        out: kg
+  amount:
+    range:
+      from: 1
+      to: 500
+  minutes:
+    range:
+      from: 1
+      to: 600
+  value:
+    wildcard: true
+expansion_rules:
+  verb_diaper: "(mudei|troquei|muda|troca|mudar|trocar|regista|registar)"
+  who: "[o |a ][bebé|{baby}|ele|ela]"
+  of_baby: "(ao|à|do|da|para o|para a|de) {baby}"
+  to_baby: "(ao|à|para o|para a) {baby}"
+  ago: "há {minutes} minuto[s]"
