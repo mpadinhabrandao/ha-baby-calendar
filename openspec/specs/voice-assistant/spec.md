@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change assist-logging. Update Purpose after archive.
+Let parents record entries by voice or chat through Home Assistant's conversation agents: tools for agents that use an LLM, with the babies as context, and the same rules, undo and calendar titles as the dashboard.
 
 ## Requirements
 
