@@ -12,7 +12,7 @@ import sqlite3
 import threading
 import time
 import uuid
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Collection, Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -432,12 +432,15 @@ class EventStore:
         end_ts: int,
         tracker: str | None = None,
         timed: Iterable[str] = (),
+        trackers: Collection[str] | None = None,
     ) -> list[Event]:
         """Return a baby's events of a period, oldest first.
 
         An event of a tracker named in ``timed`` is returned when it overlaps
         the period: it starts before the period ends and ends after it starts,
         or is still running. Other events are returned when they start in it.
+        ``tracker`` keeps one tracker's events and ``trackers`` those of any
+        of several.
         """
         timed = list(timed)
         if timed:
@@ -466,10 +469,25 @@ class EventStore:
         if tracker is not None:
             query += " AND tracker = ?"
             params.append(tracker)
+        if trackers is not None:
+            query += f" AND tracker IN ({', '.join('?' * len(trackers))})"
+            params.extend(trackers)
         query += " ORDER BY start_ts, created_ts, rowid"
         with self._lock:
             rows = self._require().execute(query, params).fetchall()
         return [_event(row) for row in rows]
+
+    def trackers_with_events(self, baby_id: str) -> set[str]:
+        """Return the trackers a baby has at least one event of."""
+        with self._lock:
+            rows = (
+                self._require()
+                .execute(
+                    "SELECT DISTINCT tracker FROM events WHERE baby_id = ?", (baby_id,)
+                )
+                .fetchall()
+            )
+        return {row[0] for row in rows}
 
     def latest_recorded(self, baby_id: str, tracker: str | None = None) -> Event | None:
         """Return the event that was recorded last, whatever its event time."""

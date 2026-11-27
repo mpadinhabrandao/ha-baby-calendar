@@ -164,6 +164,6 @@ async def test_session_in_the_calendar(
         time=local(NOW - timedelta(hours=1)),
     )
 
-    [event] = await events(hass, entry)
+    [event] = await events(hass, entry, "feeding")
 
     assert event["summary"] == title

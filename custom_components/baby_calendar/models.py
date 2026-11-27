@@ -21,6 +21,8 @@ class BabyData:
     name: str
     trackers: frozenset[str]
     coordinator: BabyCoordinator
+    # The groups the baby has a calendar for, decided at setup.
+    calendar_groups: tuple[str, ...] = ()
     minutes_ago: int = 0
     bottle_amount: float = 0
     bottle_content: str | None = None
