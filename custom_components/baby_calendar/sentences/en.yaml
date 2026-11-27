@@ -1,0 +1,130 @@
+# Sentences of the built-in conversation agent, in English. sentences.py
+# adds the babies and medications lists and writes the result to
+# custom_sentences/en/baby_calendar.yaml.
+language: en
+intents:
+  BabyCalendarLogDiaper:
+    data:
+      - sentences:
+          - "[<verb_diaper>] [a ]{diaper_content:content} diaper [{stool}] [<for_baby>] [<ago>]"
+          - "[<verb_diaper>] [a ]diaper [<for_baby>] {diaper_content:content} [<ago>]"
+  BabyCalendarLogBottle:
+    data:
+      - sentences:
+          - "<who> (drank|had) [a ][bottle of ]{amount} (ml|millilitres|milliliters) [of {bottle_content:content}] [<ago>]"
+          - "[log |record |gave ][a ]bottle of {amount} [ml|millilitres|milliliters] [of {bottle_content:content}] [<for_baby>] [<ago>]"
+  BabyCalendarStartBreastfeeding:
+    data:
+      - sentences:
+          - "(start|begin) [a ]breastfe(ed|eding) [on the ][{breast_side:side}] [side] [<for_baby>] [<ago>]"
+          - "<who> (started|is) (breastfeeding|nursing) [on the ][{breast_side:side}] [side] [<ago>]"
+  BabyCalendarStopBreastfeeding:
+    data:
+      - sentences:
+          - "(stop|end|finish) [the ]breastfe(ed|eding) [<for_baby>] [<ago>]"
+          - "<who> (finished|stopped) (breastfeeding|nursing) [<ago>]"
+  BabyCalendarStartSleep:
+    data:
+      - sentences:
+          - "<who> fell asleep [<ago>]"
+          - "<who> (went|is going) to (sleep|bed) [<ago>]"
+          - "(start|begin) [the ]sleep [<for_baby>] [<ago>]"
+  BabyCalendarStopSleep:
+    data:
+      - sentences:
+          - "<who> woke up [<ago>]"
+          - "<who> is awake [<ago>]"
+          - "(stop|end) [the ]sleep [<for_baby>] [<ago>]"
+  BabyCalendarLogSolids:
+    data:
+      - sentences:
+          - "<who> ate (solids|solid food|a meal|puree|porridge) [<ago>]"
+  BabyCalendarLogPumping:
+    data:
+      - sentences:
+          - "[I ](pumped|expressed) {amount} (ml|millilitres|milliliters) [of milk] [(from the|on the) {pumping_side:side} [side]] [<ago>]"
+  BabyCalendarLogWeight:
+    data:
+      - sentences:
+          - "<who> weighs {value} {weight_unit:unit} [<ago>]"
+          - "[the ]weight [<of_baby>] is {value} {weight_unit:unit} [<ago>]"
+  BabyCalendarLogLength:
+    data:
+      - sentences:
+          - "<who> is {value} (centimetres|centimeters|cm) (long|tall) [<ago>]"
+          - "[the ](length|height) [<of_baby>] is {value} (centimetres|centimeters|cm) [<ago>]"
+  BabyCalendarLogTemperature:
+    data:
+      - sentences:
+          - "<who> has [a temperature of ]{value} degrees [<ago>]"
+          - "[the ]temperature [<of_baby>] is {value} [degrees] [<ago>]"
+  BabyCalendarLogMedication:
+    data:
+      - sentences:
+          - "(gave|give|log|record) [a ][dose of ][the ]{medication} [<to_baby>] [<ago>]"
+  BabyCalendarUndo:
+    data:
+      - sentences:
+          - "(undo|delete|remove) [the ]last (entry|record) [<of_baby>]"
+lists:
+  diaper_content:
+    values:
+      - in: "(wet|pee)"
+        out: wet
+      - in: "(dirty|poop|poopy|soiled)"
+        out: dirty
+      - in: "(wet and dirty|mixed|pee and poop)"
+        out: both
+  stool:
+    values:
+      - in: "normal"
+        out: normal
+      - in: "(soft|runny)"
+        out: soft
+      - in: "hard"
+        out: hard
+      - in: "(with diarrhea|with diarrhoea|diarrhea|diarrhoea)"
+        out: diarrhea
+  bottle_content:
+    values:
+      - in: "formula"
+        out: formula
+      - in: "(breast milk|breastmilk|expressed milk)"
+        out: breast_milk
+  breast_side:
+    values:
+      - in: "left"
+        out: left
+      - in: "right"
+        out: right
+  pumping_side:
+    values:
+      - in: "left"
+        out: left
+      - in: "right"
+        out: right
+      - in: "(both|both sides)"
+        out: both
+  weight_unit:
+    values:
+      - in: "(grams|g)"
+        out: g
+      - in: "(kilos|kilograms|kg)"
+        out: kg
+  amount:
+    range:
+      from: 1
+      to: 500
+  minutes:
+    range:
+      from: 1
+      to: 600
+  value:
+    wildcard: true
+expansion_rules:
+  verb_diaper: "(changed|change|log|record)"
+  who: "[the ][baby|{baby}|she|he]"
+  for_baby: "(for|of) {baby}"
+  of_baby: "(of|for) {baby}"
+  to_baby: "to {baby}"
+  ago: "{minutes} minute[s] ago"
