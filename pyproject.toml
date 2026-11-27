@@ -9,6 +9,10 @@ requires-python = ">=3.14"
 dev = [
     "pytest-homeassistant-custom-component",
     "ruff",
+    # The conversation integration's requirements, for the Assist tests.
+    "gazetteer-matcher",
+    "hassil",
+    "home-assistant-intents",
 ]
 
 [tool.pytest.ini_options]
