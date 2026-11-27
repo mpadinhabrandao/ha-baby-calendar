@@ -593,6 +593,38 @@ after a start or a reload for every dose still due. Its data are `baby`,
 `button_entity` (the dose button). The **due** sensors stay available for
 dashboards and for automations of your own.
 
+## Voice assistant
+
+A conversation agent that uses an LLM (OpenAI, Anthropic, Google, Ollama…)
+can record entries for you. In **Settings → Voice assistants**, open the
+agent's settings and set **Control Home Assistant** to **Assist**. Baby
+Calendar then offers it tools to:
+
+- record a diaper, bottle, breastfeed, sleep, solids, pumping, weight, length
+  or temperature;
+- start and stop the breastfeeding and sleep timers;
+- record a dose of a medication by its name;
+- delete an entry it has just recorded.
+
+Tools are offered only for trackers enabled on a baby, and the dose tool only
+when a baby has an active medication. They do not depend on exposing the
+baby's entities. With each request the agent also gets the babies, their
+trackers and medications, and the current time, so short sentences work:
+
+| You say | Recorded |
+|---|---|
+| "O bebé bebeu um biberão de 90 ml de leite artificial" | 🍼 Bottle 90 ml formula, now |
+| "Mudei uma fralda suja há 10 minutos" | 💩 Dirty diaper, 10 minutes ago |
+| "A Alice adormeceu" … "A Alice acordou" | 😴 Sleep, from one to the other |
+| "Temperatura 37,2" | 🌡️ 37.2 °C |
+| "Dei a vitamina D" | 💊 Vitamin D |
+| "Afinal apaga isso" | The entry just recorded is deleted |
+| "She drank 120 ml of breast milk" | 🍼 Bottle 120 ml breast milk |
+
+With one baby you can leave out the name; with several, say which one. The
+agent repeats what it recorded, so a misheard amount is easy to catch and
+undo.
+
 ## Calendar
 
 Each baby has one calendar per group of entries, so you can choose what to
