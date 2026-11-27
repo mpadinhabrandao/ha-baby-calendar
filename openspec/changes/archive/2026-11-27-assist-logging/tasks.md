@@ -14,7 +14,7 @@
 
 ## 3. Real instance
 
-- [ ] 3.1 After the merge, install through the Marketplace and restart; run through the Assist pipeline, for the Teste baby: "o bebé bebeu um biberão de 90 ml de leite artificial", "mudei uma fralda molhada há 10 minutos", "a temperatura é 37,2", "afinal apaga o biberão"; check the replies, the entries in the calendars and that the bottle was deleted
+- [x] 3.1 After the merge, install through the Marketplace and restart; run through the Assist pipeline, for the Teste baby: "o bebé bebeu um biberão de 90 ml de leite artificial", "mudei uma fralda molhada há 10 minutos", "a temperatura é 37,2", "afinal apaga o biberão"; check the replies, the entries in the calendars and that the bottle was deleted
 
 ## Workflow follow-up
 
