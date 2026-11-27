@@ -701,8 +701,17 @@
       }
     },
     "calendar": {
-      "calendar": {
-        "name": "Calendar"
+      "calendar_feeding": {
+        "name": "Feeding"
+      },
+      "calendar_diapers": {
+        "name": "Diapers"
+      },
+      "calendar_sleep": {
+        "name": "Sleep"
+      },
+      "calendar_health": {
+        "name": "Health"
       }
     },
     "number": {

@@ -408,6 +408,38 @@ def test_list_events_by_period_baby_and_tracker(store: EventStore) -> None:
     assert store.list_events(alice.baby_id, 5 * DAY, 6 * DAY) == []
 
 
+def test_list_events_of_several_trackers(store: EventStore) -> None:
+    """A listing by several trackers keeps their events and the timed overlap."""
+    alice = store.create_baby("Alice")
+    sleep = store.add_event(
+        baby_id=alice.baby_id, tracker="sleep", start_ts=DAY - 600, end_ts=DAY + 600
+    )
+    bottle = store.add_event(
+        baby_id=alice.baby_id, tracker="bottle", start_ts=DAY + 100
+    )
+    store.add_event(baby_id=alice.baby_id, tracker="diaper", start_ts=DAY + 200)
+
+    assert store.list_events(
+        alice.baby_id, DAY, 2 * DAY, timed=("sleep",), trackers=("sleep", "bottle")
+    ) == [sleep, bottle]
+    assert store.list_events(alice.baby_id, DAY, 2 * DAY, trackers=("bottle",)) == [
+        bottle
+    ]
+
+
+def test_trackers_with_events(store: EventStore) -> None:
+    """Only the trackers a baby has events of, whatever their dates."""
+    alice = store.create_baby("Alice")
+    bruno = store.create_baby("Bruno")
+    store.add_event(baby_id=alice.baby_id, tracker="diaper", start_ts=DAY)
+    store.add_event(baby_id=alice.baby_id, tracker="diaper", start_ts=2 * DAY)
+    store.add_event(baby_id=alice.baby_id, tracker="pumping", start_ts=0)
+    store.add_event(baby_id=bruno.baby_id, tracker="bottle", start_ts=DAY)
+
+    assert store.trackers_with_events(alice.baby_id) == {"diaper", "pumping"}
+    assert store.trackers_with_events(store.create_baby("Carla").baby_id) == set()
+
+
 def test_latest_recorded_follows_recording_order(store: EventStore) -> None:
     """The latest recorded event is not the one with the latest event time."""
     baby = store.create_baby("Alice")

@@ -1,12 +1,18 @@
 """The trackers the integration offers, and the entities each one owns."""
 
+from collections.abc import Collection
+
 from ..const import (
     TRACKER_BOTTLE,
     TRACKER_BREASTFEEDING,
     TRACKER_DIAPER,
+    TRACKER_LENGTH,
+    TRACKER_MEDICATION,
     TRACKER_PUMPING,
     TRACKER_SLEEP,
     TRACKER_SOLIDS,
+    TRACKER_TEMPERATURE,
+    TRACKER_WEIGHT,
 )
 from .base import Tracker
 from .bottle import BOTTLE
@@ -114,6 +120,39 @@ TRACKER_ENTITY_KEYS: dict[str, frozenset[str]] = {
 SHARED_ENTITY_KEYS: dict[str, frozenset[str]] = {
     "last_feed": frozenset({TRACKER_BOTTLE, TRACKER_BREASTFEEDING}),
 }
+
+
+# The calendars of a baby, by group, and the trackers each one shows. Every
+# tracker is in exactly one group.
+CALENDAR_GROUPS: dict[str, tuple[str, ...]] = {
+    "feeding": (TRACKER_BOTTLE, TRACKER_BREASTFEEDING, TRACKER_SOLIDS, TRACKER_PUMPING),
+    "diapers": (TRACKER_DIAPER,),
+    "sleep": (TRACKER_SLEEP,),
+    "health": (TRACKER_TEMPERATURE, TRACKER_WEIGHT, TRACKER_LENGTH, TRACKER_MEDICATION),
+}
+_grouped = [key for keys in CALENDAR_GROUPS.values() for key in keys]
+if sorted(_grouped) != sorted(TRACKERS):
+    raise RuntimeError(f"Calendar groups do not cover each tracker once: {_grouped}")
+
+# Unique id key of the calendar of a group: "<baby_id>_calendar_<group>".
+CALENDAR_KEY_PREFIX = "calendar_"
+
+
+def calendar_groups(
+    enabled: Collection[str], has_medication: bool, recorded: Collection[str]
+) -> tuple[str, ...]:
+    """Return the groups a baby has a calendar for, in display order.
+
+    A group qualifies when one of its trackers is enabled, when it shows
+    medication doses and the baby has a medication, or when the baby has
+    events of its trackers, such as those of a tracker disabled later.
+    """
+    return tuple(
+        group
+        for group, keys in CALENDAR_GROUPS.items()
+        if any(key in enabled or key in recorded for key in keys)
+        or (has_medication and TRACKER_MEDICATION in keys)
+    )
 
 
 # Unique id prefix of a medication's entities: "<baby_id>_med_<id>_<key>".

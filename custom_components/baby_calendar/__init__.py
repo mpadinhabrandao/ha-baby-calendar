@@ -37,7 +37,13 @@ from .data import async_get_store, async_run
 from .models import BabyConfigEntry, BabyData
 from .services import async_register_services
 from .store import EventStore
-from .trackers import MEDICATION_KEY_PREFIX, TIMED_TRACKERS, trackers_of_key
+from .trackers import (
+    CALENDAR_KEY_PREFIX,
+    MEDICATION_KEY_PREFIX,
+    TIMED_TRACKERS,
+    calendar_groups,
+    trackers_of_key,
+)
 from .trackers.medication import medications
 from .websocket import async_babies_changed, async_register_websocket
 
@@ -130,11 +136,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: BabyConfigEntry) -> bool
         hass, entry, baby_id, medications(dict(entry.options), active=True)
     )
     await async_run(hass, _stop_disabled_timers, store, baby_id, trackers)
+    groups = calendar_groups(
+        trackers,
+        bool(medications(dict(entry.options))),
+        await async_run(hass, store.trackers_with_events, baby_id),
+    )
+    _remove_stale_calendars(hass, entry, baby_id, groups)
 
     active_meds = medications(dict(entry.options), active=True)
     coordinator = BabyCoordinator(hass, entry, store, baby_id, trackers, active_meds)
     entry.runtime_data = BabyData(
-        baby_id=baby_id, name=name, trackers=trackers, coordinator=coordinator
+        baby_id=baby_id,
+        name=name,
+        trackers=trackers,
+        coordinator=coordinator,
+        calendar_groups=groups,
     )
     await coordinator.async_config_entry_first_refresh()
     entry.async_on_unload(coordinator.async_start())
@@ -177,6 +193,22 @@ def _remove_disabled_tracker_entities(
             continue
         needed = trackers_of_key(registry_entry.unique_id.removeprefix(prefix))
         if needed is not None and not needed & trackers:
+            registry.async_remove(registry_entry.entity_id)
+
+
+def _remove_stale_calendars(
+    hass: HomeAssistant, entry: ConfigEntry, baby_id: str, groups: tuple[str, ...]
+) -> None:
+    """Drop the single calendar of earlier versions and unneeded group calendars."""
+    registry = er.async_get(hass)
+    keep = {f"{baby_id}_{CALENDAR_KEY_PREFIX}{group}" for group in groups}
+    for registry_entry in er.async_entries_for_config_entry(registry, entry.entry_id):
+        unique_id = registry_entry.unique_id
+        if registry_entry.domain != "calendar" or unique_id in keep:
+            continue
+        if unique_id == f"{baby_id}_calendar" or unique_id.startswith(
+            f"{baby_id}_{CALENDAR_KEY_PREFIX}"
+        ):
             registry.async_remove(registry_entry.entity_id)
 
 

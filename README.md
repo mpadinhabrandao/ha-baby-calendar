@@ -386,7 +386,7 @@ the start of the most recent feed of either kind, with `kind` (`bottle` or
 | **Meals today** (`sensor`) | Meals since midnight |
 
 The button records only the meal and its time. Note what was eaten in the
-calendar afterwards: open the meal and type it in the description, which is
+Feeding calendar afterwards: open the meal and type it in the description, which is
 the entry's notes and shows in the **Last meal** sensor. Solids do not count
 for **Last feed**.
 
@@ -511,7 +511,7 @@ Open the baby's entry, choose **Configure**, then **Medications**:
 Neither deactivating nor removing deletes any dose. A deactivated medication
 has no entities and is never due; reactivating it brings its entities back
 with its doses. Doses of a removed medication stay in the history and the
-calendar under its name; a new medication with the same name starts with no
+Health calendar under its name; a new medication with the same name starts with no
 doses of its own. Renaming a medication lists its earlier doses under the new
 name.
 
@@ -595,16 +595,39 @@ dashboards and for automations of your own.
 
 ## Calendar
 
-Each baby has a calendar entity with every recorded entry of every tracker,
-including trackers disabled later. Open it in the Calendar panel, or add a
-calendar card; the week and list views read best on days with many entries.
+Each baby has one calendar per group of entries, so you can choose what to
+see:
+
+| Calendar | Entries |
+|---|---|
+| **Feeding** | Bottle, breastfeeding, solids and pumping |
+| **Diapers** | Diaper changes |
+| **Sleep** | Sleep |
+| **Health** | Temperature, weight, length and medication doses |
+
+A calendar exists when one of its trackers is enabled (for Health, also when
+the baby has a medication) or when the baby has entries of it, such as those of
+a tracker disabled later. It shows every recorded entry of its group, with no
+time limit.
+
+In the Calendar panel, tick only the calendars you want: only **Health** to
+find a fever three weeks ago, or all of them to see the whole day. A calendar
+card shows the calendars you list; the week and list views read best on days
+with many entries.
 
 ```yaml
 type: calendar
 initial_view: listWeek
 entities:
-  - calendar.alice_calendar
+  - calendar.alice_feeding
+  - calendar.alice_diapers
+  - calendar.alice_sleep
+  - calendar.alice_health
 ```
+
+Up to version `7179bd5` there was one calendar per baby with every entry,
+`calendar.<baby>_calendar`. It is removed when the integration starts; replace
+it in dashboards and automations with the calendars above.
 
 | Emoji | Entry | Example title |
 |---|---|---|
@@ -618,9 +641,10 @@ entities:
 Titles follow the server's language (Settings > System > General), not each
 user's profile language. A running timer shows "in progress" and reaches up
 to now; diaper changes and bottles are short blocks
-at their time. The calendar is on while a timer runs.
+at their time. Feeding and Sleep are on while one of their timers runs; Diapers
+and Health are always off.
 
-From the calendar you can:
+From a calendar you can, for its own entries:
 
 - **Change the time** of an entry. For a finished breastfeeding or sleep,
   both the start and the end; for anything else, the start. The same rules as
@@ -631,7 +655,7 @@ From the calendar you can:
 - **Delete** an entry.
 
 The title is generated, so editing it changes nothing. Entries cannot be
-created from the calendar, and it shows recorded entries only.
+created from a calendar, and it shows recorded entries only.
 
 ## Correcting, deleting and listing entries
 

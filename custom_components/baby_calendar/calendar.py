@@ -1,4 +1,4 @@
-"""Calendar entity: a baby's recorded events as a timeline."""
+"""Calendar entities: a baby's recorded events as timelines, one per group."""
 
 from dataclasses import replace
 from datetime import date, datetime
@@ -26,7 +26,7 @@ from .entity import BabyEntity
 from .models import BabyConfigEntry
 from .services import async_delete, async_update_fields, event_and_entry, now_ts
 from .store import Event
-from .trackers import TIMED_TRACKERS, TRACKERS
+from .trackers import CALENDAR_GROUPS, CALENDAR_KEY_PREFIX, TIMED_TRACKERS, TRACKERS
 from .trackers.medication import current_name
 
 # Length of the block an instantaneous event fills in the calendar.
@@ -38,8 +38,10 @@ async def async_setup_entry(
     entry: BabyConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Add the baby's calendar, whatever its trackers."""
-    async_add_entities([BabyCalendar(entry)])
+    """Add the baby's calendars of the groups decided at setup."""
+    async_add_entities(
+        BabyCalendar(entry, group) for group in entry.runtime_data.calendar_groups
+    )
 
 
 def _utc(ts: int) -> datetime:
@@ -47,7 +49,7 @@ def _utc(ts: int) -> datetime:
 
 
 class BabyCalendar(BabyEntity, CalendarEntity):
-    """Every recorded event of one baby, from every tracker.
+    """The recorded events of one baby from the trackers of one group.
 
     A view over the event store: no events are created here, and edits go
     through the same checks as the update_event and delete_event actions.
@@ -58,9 +60,11 @@ class BabyCalendar(BabyEntity, CalendarEntity):
         CalendarEntityFeature.UPDATE_EVENT | CalendarEntityFeature.DELETE_EVENT
     )
 
-    def __init__(self, entry: BabyConfigEntry) -> None:
-        """Create the calendar of one baby."""
-        super().__init__(entry, "calendar")
+    def __init__(self, entry: BabyConfigEntry, group: str) -> None:
+        """Create the calendar of one group of one baby."""
+        super().__init__(entry, f"{CALENDAR_KEY_PREFIX}{group}")
+        self.trackers = CALENDAR_GROUPS[group]
+        self.timed = tuple(key for key in self.trackers if key in TIMED_TRACKERS)
 
     def _to_calendar_event(self, event: Event, now: int) -> CalendarEvent:
         tracker = TRACKERS[event.tracker]
@@ -90,7 +94,7 @@ class BabyCalendar(BabyEntity, CalendarEntity):
         """Return the timed event in progress, if any; instants never are."""
         data = self.coordinator.data
         now = now_ts()
-        for key in TIMED_TRACKERS:
+        for key in self.timed:
             if key in data and (running := data[key][f"{key}_running"]):
                 return self._to_calendar_event(running, now)
         return None
@@ -107,14 +111,15 @@ class BabyCalendar(BabyEntity, CalendarEntity):
             int(start_date.timestamp()),
             int(end_date.timestamp()),
             None,
-            tuple(TIMED_TRACKERS),
+            self.timed,
+            self.trackers,
         )
         now = now_ts()
         return [self._to_calendar_event(event, now) for event in events]
 
     async def _own_event(self, uid: str) -> Event:
         event, entry = await event_and_entry(self.hass, uid)
-        if entry.entry_id != self.entry.entry_id:
+        if entry.entry_id != self.entry.entry_id or event.tracker not in self.trackers:
             raise HomeAssistantError(
                 translation_domain=DOMAIN,
                 translation_key="unknown_event",

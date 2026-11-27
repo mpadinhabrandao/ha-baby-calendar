@@ -95,7 +95,7 @@ async def test_note_added_later(hass: HomeAssistant, hass_ws_client) -> None:
     uid = await act(hass, entry, "log_solids")
 
     reply = await update(
-        hass, hass_ws_client, entry, uid, description="banana and oats"
+        hass, hass_ws_client, entry, "feeding", uid, description="banana and oats"
     )
 
     assert reply["success"]
@@ -119,7 +119,7 @@ async def test_meal_in_the_calendar(
         time=local(NOW - timedelta(hours=1)),
     )
 
-    [event] = await events(hass, entry)
+    [event] = await events(hass, entry, "feeding")
 
     assert event["summary"] == title
     assert event["description"] == "carrot puree"
