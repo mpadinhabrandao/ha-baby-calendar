@@ -14,8 +14,8 @@
 
 ## 3. Real instance
 
-- [ ] 3.1 After the PR is merged, install through the Marketplace and restart; verify in Home Assistant that the Teste baby has the four calendars (all its trackers are enabled), that the old single calendar is gone and that the logs have no errors
-- [ ] 3.2 Point the calendar card of the Teste dashboard at the group calendars; verify in Chrome that the Hoje page shows entries and that the calendar panel lists the four calendars with their checkboxes, and that showing only Saúde shows only temperatures, weights, lengths and doses
+- [x] 3.1 After the PR is merged, install through the Marketplace and restart; verify in Home Assistant that the Teste baby has the four calendars (all its trackers are enabled), that the old single calendar is gone and that the logs have no errors
+- [x] 3.2 Point the calendar card of the Teste dashboard at the group calendars; verify in Chrome that the Hoje page shows entries and that the calendar panel lists the four calendars with their checkboxes, and that showing only Saúde shows only temperatures, weights, lengths and doses
 
 ## Workflow follow-up
 
