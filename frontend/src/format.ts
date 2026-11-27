@@ -1,7 +1,7 @@
 // Pure text helpers: durations, clocks and the last feed line.
 
 import { type Language, t } from "./i18n";
-import type { FeedEntry } from "./types";
+import type { FeedEntry, Schedule } from "./types";
 
 const MINUTE = 60;
 const HOUR = 3600;
@@ -31,6 +31,38 @@ export function timeOfDay(when: Date, language: Language): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+/** A medication's schedule: "At 09:30 and 21:30", "Every 8 h", "No schedule". */
+export function scheduleText(schedule: Schedule, language: Language): string {
+  if (schedule.type === "times" && schedule.times?.length) {
+    const times = schedule.times;
+    const joined =
+      times.length === 1
+        ? times[0]
+        : `${times.slice(0, -1).join(", ")} ${t(language, "and")} ${times[times.length - 1]}`;
+    return t(language, "schedule_times", { times: joined });
+  }
+  if (schedule.type === "interval" && schedule.hours) {
+    return t(language, "schedule_interval", { duration: duration(schedule.hours * HOUR) });
+  }
+  return t(language, "schedule_none");
+}
+
+/** The next dose: "Next 21:30", "Next tomorrow 09:30", "Next Sat 09:30". */
+export function nextDoseText(next: Date, now: Date, language: Language): string {
+  const time = timeOfDay(next, language);
+  const day = (when: Date) => new Date(when.getFullYear(), when.getMonth(), when.getDate());
+  const days = Math.round((day(next).getTime() - day(now).getTime()) / (24 * HOUR * 1000));
+  let when = time;
+  if (days === 1) when = `${t(language, "tomorrow")} ${time}`;
+  else if (days > 1) {
+    const weekday = next.toLocaleDateString(language === "pt" ? "pt-PT" : "en-GB", {
+      weekday: "short",
+    });
+    when = `${weekday} ${time}`;
+  }
+  return t(language, "next_dose", { when });
 }
 
 /** "2 h 10 min ago" / "há 2 h 10 min". */

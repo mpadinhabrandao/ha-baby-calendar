@@ -427,6 +427,13 @@ export abstract class BabyCard extends LitElement {
       font-size: 16px;
       font-weight: 600;
     }
+    .medication .schedule {
+      font-size: 13px;
+      color: var(--secondary-text-color);
+    }
+    .medication .schedule span {
+      white-space: nowrap;
+    }
     .given {
       min-width: 96px;
     }

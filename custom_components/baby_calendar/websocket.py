@@ -12,7 +12,7 @@ from homeassistant.helpers.dispatcher import (
     async_dispatcher_send,
 )
 
-from .const import CONF_BABY_ID, DOMAIN, MED_DOSE, MED_ID, MED_NAME
+from .const import CONF_BABY_ID, DOMAIN, MED_DOSE, MED_ID, MED_NAME, MED_SCHEDULE
 from .models import BabyConfigEntry
 from .trackers import MEDICATION_KEY_PREFIX
 from .trackers.medication import medications
@@ -76,6 +76,7 @@ def babies(hass: HomeAssistant) -> list[dict[str, Any]]:
                         "id": med[MED_ID],
                         "name": med[MED_NAME],
                         "dose": med.get(MED_DOSE),
+                        "schedule": med.get(MED_SCHEDULE) or {"type": "none"},
                         "entities": med_entities.get(med[MED_ID], {}),
                     }
                     for med in medications(entry.options, active=True)

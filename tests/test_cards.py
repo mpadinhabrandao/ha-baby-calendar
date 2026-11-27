@@ -51,7 +51,30 @@ async def test_babies_message(hass: HomeAssistant, hass_ws_client) -> None:
     assert (med["name"], med["dose"]) == ("Vitamin D", "1 drop")
     assert med["id"] == med_by_name(entry, "Vitamin D")["id"]
     assert set(med["entities"]) == {"take", "last_dose", "doses_today"}
+    assert med["schedule"] == {"type": "none"}
     assert not any(key.startswith("med_") for key in baby["entities"])
+
+
+async def test_medication_schedule_in_babies(
+    hass: HomeAssistant, hass_ws_client
+) -> None:
+    """Each medication carries its schedule for the card."""
+    entry = await add_baby(hass, "Alice")
+    await add_medication(
+        hass, entry, name="Vitamin D", schedule_type="times", times="21:30, 09:30"
+    )
+    await add_medication(
+        hass, entry, name="Paracetamol", schedule_type="interval", interval={"hours": 8}
+    )
+    client = await hass_ws_client(hass)
+
+    [baby] = await subscribe(hass, client)
+
+    schedules = {med["name"]: med["schedule"] for med in baby["medications"]}
+    assert schedules == {
+        "Paracetamol": {"type": "interval", "hours": 8.0},
+        "Vitamin D": {"type": "times", "times": ["09:30", "21:30"]},
+    }
 
 
 async def test_non_administrator(

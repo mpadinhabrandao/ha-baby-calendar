@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { ago, chipTime, clock, duration, feedText } from "../src/format";
+import { ago, chipTime, clock, duration, feedText, nextDoseText, scheduleText } from "../src/format";
 import { RepeatGuard } from "../src/guard";
 import { languageOf, t } from "../src/i18n";
 
@@ -114,5 +114,39 @@ describe("language", () => {
     expect(t("pt", "wet")).toBe("Xixi");
     expect(t("pt", "dirty")).toBe("Cocó");
     expect(t("pt", "both")).toBe("Os dois");
+  });
+});
+
+describe("medication schedule", () => {
+  // Local times: the card shows the browser's clock.
+  const local = (day: number, hour: number, minute = 0) => new Date(2026, 10, day, hour, minute);
+
+  it("writes fixed times, an interval or none", () => {
+    expect(scheduleText({ type: "times", times: ["09:30", "21:30"] }, "en")).toBe(
+      "At 09:30 and 21:30",
+    );
+    expect(scheduleText({ type: "times", times: ["08:00", "14:00", "20:00"] }, "pt")).toBe(
+      "Às 08:00, 14:00 e 20:00",
+    );
+    expect(scheduleText({ type: "times", times: ["09:30"] }, "pt")).toBe("Às 09:30");
+    expect(scheduleText({ type: "interval", hours: 8 }, "en")).toBe("Every 8 h");
+    expect(scheduleText({ type: "interval", hours: 6.5 }, "pt")).toBe("A cada 6 h 30 min");
+    expect(scheduleText({ type: "none" }, "en")).toBe("No schedule");
+    expect(scheduleText({ type: "none" }, "pt")).toBe("Sem horário");
+  });
+
+  it("writes the next dose today, tomorrow or on a later day", () => {
+    const now = local(27, 14);
+    expect(nextDoseText(local(27, 21, 30), now, "en")).toBe("Next 21:30");
+    expect(nextDoseText(local(27, 15), now, "pt")).toBe("Próxima 15:00");
+    expect(nextDoseText(local(28, 9, 30), now, "en")).toBe("Next tomorrow 09:30");
+    expect(nextDoseText(local(28, 9, 30), now, "pt")).toBe("Próxima amanhã 09:30");
+    expect(nextDoseText(local(29, 9, 30), now, "en")).toBe("Next Sun 09:30");
+    expect(nextDoseText(local(29, 9, 30), now, "pt")).toBe("Próxima domingo 09:30");
+  });
+
+  it("writes since when a dose is due", () => {
+    expect(t("en", "due_since", { time: "09:30" })).toBe("since 09:30");
+    expect(t("pt", "due_since", { time: "09:30" })).toBe("desde 09:30");
   });
 });
