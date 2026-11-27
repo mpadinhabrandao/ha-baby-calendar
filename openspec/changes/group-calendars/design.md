@@ -21,8 +21,7 @@ A constant maps each group key to its tracker keys:
 - `feeding`: bottle, breastfeeding, solids, pumping;
 - `diapers`: diaper;
 - `sleep`: sleep;
-- `health`: temperature, medication;
-- `growth`: weight, length.
+- `health`: temperature, weight, length, medication.
 
 The mapping is checked at import time so that every key of `TRACKERS` belongs to exactly one group; a tracker added later fails the tests until it is placed in a group.
 
@@ -44,7 +43,7 @@ Setup in `__init__.py` applies the same rule to remove stale registry entries:
 
 The options flow already reloads the entry, so enabling or disabling a tracker updates the calendars.
 
-- Alternative: always create all five. Rejected: a baby that only tracks diapers would add four empty calendars to the calendar panel, which lists every calendar of the house.
+- Alternative: always create all four. Rejected: a baby that only tracks diapers would add three empty calendars to the calendar panel, which lists every calendar of the house.
 
 ### Listing per group
 `store.list_events` gains a `trackers` collection filter, a SQL `tracker IN (...)`. The calendar passes its group's trackers, and only those of them that are timed as `timed`. The existing single `tracker` argument used by the services keeps working.
@@ -59,7 +58,7 @@ The `event` property looks only at the group's timed trackers: breastfeeding for
 
 - [Dashboards and automations using `calendar.<baby>_calendar` break] → Marked BREAKING. The README explains the replacement, and the Teste dashboard is updated as part of this change.
 - [A group's last event is deleted while none of its trackers is enabled; the calendar stays, empty, until the next reload] → Acceptable: it only happens after disabling a tracker and deleting its history, and a reload of the entry removes it.
-- [Five event queries instead of one when every calendar is shown in the panel] → Each query is indexed by baby and time and returns a fraction of today's rows; no measurable cost expected.
+- [Four event queries instead of one when every calendar is shown in the panel] → Each query is indexed by baby and time and returns a fraction of today's rows; no measurable cost expected.
 
 ## Migration Plan
 

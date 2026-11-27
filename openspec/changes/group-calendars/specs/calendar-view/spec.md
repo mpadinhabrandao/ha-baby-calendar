@@ -8,8 +8,7 @@ Each baby SHALL have one calendar entity per group of entries, attached to the b
 | Feeding | bottle, breastfeeding, solids, pumping |
 | Diapers | diaper changes |
 | Sleep | sleep |
-| Health | temperature, medication doses |
-| Growth | weight, length |
+| Health | temperature, weight, length, medication doses |
 
 A calendar SHALL show the baby's recorded events of its group's trackers and no other events. Events of other babies SHALL NOT appear in it.
 
@@ -17,9 +16,9 @@ A calendar SHALL show the baby's recorded events of its group's trackers and no 
 - **WHEN** a diaper change, a bottle and a sleep were recorded for a baby today
 - **THEN** the Diapers calendar shows only the diaper change, the Feeding calendar only the bottle and the Sleep calendar only the sleep
 
-#### Scenario: Fever and medication together
-- **WHEN** a temperature of 38.5 °C and a paracetamol dose were recorded for a baby
-- **THEN** both appear in the baby's Health calendar and neither appears in the other calendars
+#### Scenario: Health entries together
+- **WHEN** a temperature of 38.5 °C, a weight of 4200 g and a paracetamol dose were recorded for a baby
+- **THEN** all three appear in the baby's Health calendar and none appears in the other calendars
 
 #### Scenario: Two babies
 - **WHEN** babies "Alice" and "Bruno" exist and a diaper change is recorded for "Alice"
@@ -27,21 +26,21 @@ A calendar SHALL show the baby's recorded events of its group's trackers and no 
 
 #### Scenario: Filter in the calendar panel
 - **WHEN** the user turns off every calendar of a baby except Health in the calendar panel
-- **THEN** only temperatures and medication doses are shown
+- **THEN** only temperatures, weights, lengths and medication doses are shown
 
 ### Requirement: Calendar names
 Each calendar SHALL be named after its group, in the language of the Home Assistant instance.
 
 #### Scenario: Portuguese instance
 - **WHEN** a baby "Duarte" is added on a Portuguese instance
-- **THEN** its calendars are named "Alimentação", "Fraldas", "Sono", "Saúde" and "Crescimento" on the baby's device
+- **THEN** its calendars are named "Alimentação", "Fraldas", "Sono" and "Saúde" on the baby's device
 
 ### Requirement: When a group calendar exists
 A group's calendar SHALL exist when at least one of the group's trackers is enabled for the baby, when the group is Health and the baby has a medication, or when the baby has recorded events of the group's trackers. Otherwise it SHALL NOT exist, and a calendar that stops meeting these conditions SHALL be removed.
 
 #### Scenario: Diapers only
 - **WHEN** a new baby has only the diaper tracker enabled and no medications
-- **THEN** the baby has a Diapers calendar and no Feeding, Sleep, Health or Growth calendar
+- **THEN** the baby has a Diapers calendar and no Feeding, Sleep or Health calendar
 
 #### Scenario: Tracker disabled with history
 - **WHEN** the pumping tracker was the only Feeding tracker enabled, pumpings were recorded and then the tracker is disabled
