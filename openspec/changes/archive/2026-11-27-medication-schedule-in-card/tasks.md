@@ -14,7 +14,7 @@
 
 ## 3. Real instance
 
-- [ ] 3.1 After the merge, install through the Marketplace and restart; check in Chrome that the Medicamentos page of the Teste dashboard shows each medication's schedule and next dose, matching its next dose sensor
+- [x] 3.1 After the merge, install through the Marketplace and restart; check in Chrome that the Medicamentos page of the Teste dashboard shows each medication's schedule and next dose, matching its next dose sensor
 
 ## Workflow follow-up
 
