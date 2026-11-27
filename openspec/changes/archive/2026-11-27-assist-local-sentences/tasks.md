@@ -20,7 +20,7 @@ Implement after `assist-logging` is merged; archive after it.
 
 ## 4. Real instance
 
-- [ ] 4.1 After the merge, install through the Marketplace and restart; check that both files exist with the Teste baby; run through the built-in agent ("conversation.home_assistant"): "mudei uma fralda molhada", "bebeu um biberão de 90 ml de leite artificial", "tem 37,2 graus" and "desfaz o último registo"; check the replies and the calendars; then run "bebeu um biberão de 60 ml" through the Assist pipeline and check that it is answered locally, without OpenAI
+- [x] 4.1 After the merge, install through the Marketplace and restart; check that both files exist with the Teste baby; run through the built-in agent ("conversation.home_assistant"): "mudei uma fralda molhada", "bebeu um biberão de 90 ml de leite artificial", "tem 37,2 graus" and "desfaz o último registo"; check the replies and the calendars; then run "bebeu um biberão de 60 ml" through the Assist pipeline and check that it is answered locally, without OpenAI
 
 ## Workflow follow-up
 
