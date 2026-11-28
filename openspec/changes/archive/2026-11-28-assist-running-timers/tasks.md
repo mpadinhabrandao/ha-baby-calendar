@@ -12,7 +12,7 @@
 
 ## 3. Real instance
 
-- [ ] 3.1 After the merge, install through the Marketplace and restart. For the Teste baby, through the Assist pipeline:
+- [x] 3.1 After the merge, install through the Marketplace and restart. For the Teste baby, through the Assist pipeline:
   - start a breastfeeding timer with "comecei a dar de mamar na direita" and check `processed_locally`;
   - say "parei de dar de mamar" and check that it stopped locally, with the span in the reply;
   - start one again by voice and send "acabámos a mamada" (not a fixed sentence) to OpenAI, checking that it stops the timer without asking.
