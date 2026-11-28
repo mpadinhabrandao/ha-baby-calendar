@@ -27,6 +27,7 @@ TEXTS: Final[dict[str, dict[str, str]]] = {
         "both_times": "Give either a time or minutes ago, not both.",
         "bad_time": "Cannot read the time {time}; use 'YYYY-MM-DD HH:MM'.",
         "recorded": "Recorded {what} for {baby} at {time}.",
+        "recorded_span": "Recorded {what} for {baby}, from {time} to {ended}.",
         "deleted": "Deleted {what} for {baby}.",
         "nothing_to_undo": "There is nothing recent to undo.",
         "bad_number": "I could not understand the number {text}.",
@@ -38,6 +39,7 @@ TEXTS: Final[dict[str, dict[str, str]]] = {
         "both_times": "Indica a hora ou há quantos minutos, não as duas.",
         "bad_time": "Não percebi a hora {time}; usa 'AAAA-MM-DD HH:MM'.",
         "recorded": "Registei {what} para {baby} às {time}.",
+        "recorded_span": "Registei {what} para {baby}, das {time} às {ended}.",
         "deleted": "Apaguei {what} de {baby}.",
         "nothing_to_undo": "Não há nenhum registo recente para desfazer.",
         "bad_number": "Não percebi o número {text}.",
@@ -138,13 +140,33 @@ def resolve_time(args: dict[str, Any], language: str | None = "en") -> datetime 
 def describe(hass: HomeAssistant, entry: BabyConfigEntry, event: Event) -> dict:
     """Return what was recorded, as the calendar titles it."""
     tracker = TRACKERS[event.tracker]
-    start = dt_util.as_local(dt_util.utc_from_timestamp(event.start_ts))
-    return {
+    info: dict[str, Any] = {
         "recorded": tracker.summary(event, hass.config.language, now_ts()),
         "baby": entry.runtime_data.name,
-        "time": start.strftime("%H:%M"),
+        "time": clock(event.start_ts),
         "entry_id": event.id,
     }
+    if event.end_ts is not None and event.end_ts > event.start_ts:
+        info["ended"] = clock(event.end_ts)
+        info["duration_minutes"] = round((event.end_ts - event.start_ts) / 60)
+    return info
+
+
+def clock(timestamp: int) -> str:
+    """Return a timestamp's local time of day, "HH:MM"."""
+    return dt_util.as_local(dt_util.utc_from_timestamp(timestamp)).strftime("%H:%M")
+
+
+def recorded_text(language: str | None, info: dict[str, Any]) -> str:
+    """Return the spoken confirmation of a recorded entry."""
+    values = {
+        "what": spoken(info["recorded"]),
+        "baby": info["baby"],
+        "time": info["time"],
+    }
+    if "ended" in info:
+        return text(language, "recorded_span", ended=info["ended"], **values)
+    return text(language, "recorded", **values)
 
 
 def spoken(title: str) -> str:

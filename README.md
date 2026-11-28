@@ -616,6 +616,7 @@ trackers and medications, and the current time, so short sentences work:
 | "O bebé bebeu um biberão de 90 ml de leite artificial" | 🍼 Bottle 90 ml formula, now |
 | "Mudei uma fralda suja há 10 minutos" | 💩 Dirty diaper, 10 minutes ago |
 | "A Alice adormeceu" … "A Alice acordou" | 😴 Sleep, from one to the other |
+| "Parei de dar de mamar", with a feed running | 🤱 The running breastfeed is stopped |
 | "Temperatura 37,2" | 🌡️ 37.2 °C |
 | "Dei a vitamina D" | 💊 Vitamin D |
 | "Afinal apaga isso" | The entry just recorded is deleted |
@@ -623,7 +624,8 @@ trackers and medications, and the current time, so short sentences work:
 
 With one baby you can leave out the name; with several, say which one. The
 agent repeats what it recorded, so a misheard amount is easy to catch and
-undo.
+undo. It also knows which timers are running, so "parei", "acabou" or
+"acordou" stop them, and it says from when to when a timed entry ran.
 
 ### Without an LLM: the built-in agent
 
@@ -636,8 +638,9 @@ and only the rest goes to the LLM.
 |---|---|---|
 | "Mudei uma fralda molhada", "fralda suja mole" | "Changed a wet diaper", "dirty diaper soft" | Diaper |
 | "Bebeu um biberão de 90 ml de leite artificial" | "She drank 90 ml of formula" | Bottle |
-| "Começa a mama esquerda" … "acabou a mama" | "Start breastfeeding left side" … "stop breastfeeding" | Breastfeeding timer |
-| "O Duarte adormeceu" … "acordou" | "Alice fell asleep" … "woke up" | Sleep timer |
+| "Comecei a dar de mamar na esquerda" … "parei de dar de mamar" | "Started feeding on the left side" … "stopped feeding" | Breastfeeding timer |
+| "Começa a mama esquerda", "estou a dar de mamar" … "acabou a mama", "terminei de dar de mamar", "já mamou" | "Start breastfeeding left side", "feeding on the right" … "stop breastfeeding", "done feeding", "finished feeding" | Breastfeeding timer |
+| "O Duarte adormeceu" … "já acordou" | "Alice fell asleep" … "woke up" | Sleep timer |
 | "Comeu sólidos" | "Ate solids" | Solids |
 | "Tirei 80 ml de leite do lado esquerdo" | "I pumped 80 ml from the left side" | Pumping |
 | "Pesa 4200 gramas", "pesa 4,2 quilos" | "Weighs 4.2 kilos" | Weight |

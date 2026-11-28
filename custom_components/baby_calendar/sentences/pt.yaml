@@ -19,11 +19,15 @@ intents:
       - sentences:
           - "(começa|começar|inicia|iniciar) [a ](mama|mamada) [{breast_side:side}] [<of_baby>] [<ago>]"
           - "<who> (começou a mamar|está a mamar) [{breast_side:side}] [<ago>]"
+          - "[(comecei|começámos|começamos) a |estou a |a ]dar de mamar [na |no ][{breast_side:side}] [<to_baby>] [<ago>]"
   BabyCalendarStopBreastfeeding:
     data:
       - sentences:
           - "(acabou|terminou|para|parar|termina|terminar) [a ](mama|mamada) [<of_baby>] [<ago>]"
           - "<who> (acabou|parou) de mamar [<ago>]"
+          - "(parei|terminei|acabei|parámos|terminámos|acabámos) [de ](dar de mamar|a mama|a mamada) [<to_baby>] [<ago>]"
+          - "(parei|terminei|acabei) a (mama|mamada) [<to_baby>] [<ago>]"
+          - "<who> já mamou [<ago>]"
   BabyCalendarStartSleep:
     data:
       - sentences:
@@ -33,7 +37,7 @@ intents:
   BabyCalendarStopSleep:
     data:
       - sentences:
-          - "<who> (acordou|despertou) [<ago>]"
+          - "<who> [já ](acordou|despertou) [<ago>]"
           - "(acaba|acabar|termina|terminar|para|parar) [o ]sono [<of_baby>] [<ago>]"
   BabyCalendarLogSolids:
     data:

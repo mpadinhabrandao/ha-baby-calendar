@@ -18,11 +18,14 @@ intents:
       - sentences:
           - "(start|begin) [a ]breastfe(ed|eding) [on the ][{breast_side:side}] [side] [<for_baby>] [<ago>]"
           - "<who> (started|is) (breastfeeding|nursing) [on the ][{breast_side:side}] [side] [<ago>]"
+          - "[I ](started|am|'m) feeding [on the ][{breast_side:side}] [side] [<for_baby>] [<ago>]"
+          - "feeding on the {breast_side:side} [side] [<for_baby>] [<ago>]"
   BabyCalendarStopBreastfeeding:
     data:
       - sentences:
           - "(stop|end|finish) [the ]breastfe(ed|eding) [<for_baby>] [<ago>]"
           - "<who> (finished|stopped) (breastfeeding|nursing) [<ago>]"
+          - "[I ](stopped|finished|am done|'m done|done) feeding [<for_baby>] [<ago>]"
   BabyCalendarStartSleep:
     data:
       - sentences:

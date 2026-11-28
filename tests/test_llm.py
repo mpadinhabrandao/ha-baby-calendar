@@ -1,11 +1,14 @@
 """Tests for the tools offered to LLM conversation agents."""
 
+from datetime import timedelta
 from typing import Any
 
 import pytest
+from freezegun.api import FrozenDateTimeFactory
 from homeassistant.core import Context, HomeAssistant
 from homeassistant.helpers import llm
 from homeassistant.setup import async_setup_component
+from homeassistant.util import dt as dt_util
 
 from custom_components.baby_calendar.data import async_get_store
 from custom_components.baby_calendar.llm import async_get_tools
@@ -299,3 +302,32 @@ async def test_undo_unknown(hass: HomeAssistant) -> None:
     await add_baby(hass)
     result = await call(hass, "delete_entry", entry_id="nope")
     assert result.error
+
+
+async def test_prompt_running_timer(hass: HomeAssistant) -> None:
+    """The prompt names a running timer with its side and start, and the hint."""
+    await add_baby(hass, "Duarte")
+    started = await call(hass, "start_breastfeeding", side="right")
+
+    prompt = (await api(hass)).api_prompt
+
+    assert (
+        f"breastfeeding timer running on the right side since {started.data['time']}"
+        in prompt
+    )
+    assert "parei de dar de mamar" in prompt
+
+
+async def test_stopped_timer_result(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+) -> None:
+    """A stopped timer's result gives the end and the duration."""
+    await add_baby(hass)
+    started = await call(hass, "start_breastfeeding", side="right")
+    freezer.tick(timedelta(minutes=30))
+
+    stopped = await call(hass, "stop_breastfeeding")
+
+    assert stopped.data["time"] == started.data["time"]
+    assert stopped.data["duration_minutes"] == 30
+    assert stopped.data["ended"] == dt_util.now().strftime("%H:%M")
