@@ -114,7 +114,7 @@ async def test_sleep_in_english(
     reply = await say(hass, "Alice woke up", "en")
 
     assert value(hass, entry, "switch", "sleep_timer") == "off"
-    assert reply.startswith("Recorded Sleep 40 min for Alice at ")
+    assert reply.startswith("Recorded Sleep 40 min for Alice, from ")
 
 
 @pytest.mark.usefixtures("agent")
@@ -256,3 +256,77 @@ async def test_readme_sentences(
     entry = await baby(hass)
     await say(hass, sentence, language)
     assert len(await events(hass, entry)) == 1
+
+
+@pytest.mark.usefixtures("agent")
+@pytest.mark.parametrize(
+    ("start", "stop", "language"),
+    [
+        ("comecei a dar de mamar na direita", "parei de dar de mamar", "pt"),
+        ("estou a dar de mamar", "terminei de dar de mamar", "pt"),
+        ("a dar de mamar na esquerda", "já mamou", "pt"),
+        ("começa a mama", "parei a mamada", "pt"),
+        ("I started feeding on the left side", "stopped feeding", "en"),
+        ("feeding on the right", "done feeding", "en"),
+        ("started feeding", "finished feeding", "en"),
+    ],
+)
+async def test_timer_phrasings(
+    hass: HomeAssistant,
+    freezer: FrozenDateTimeFactory,
+    start: str,
+    stop: str,
+    language: str,
+) -> None:
+    """Common ways of saying a feed started and stopped."""
+    entry = await baby(hass)
+
+    await say(hass, start, language)
+    assert value(hass, entry, "switch", "breastfeeding_timer") == "on"
+    freezer.tick(timedelta(minutes=30))
+    await say(hass, stop, language)
+
+    assert value(hass, entry, "switch", "breastfeeding_timer") == "off"
+    [event] = await events(hass, entry)
+    assert event.end_ts - event.start_ts == 30 * 60
+
+
+@pytest.mark.usefixtures("agent")
+async def test_side_from_phrasing(hass: HomeAssistant) -> None:
+    """The side said is the side recorded."""
+    entry = await baby(hass)
+    await say(hass, "comecei a dar de mamar na direita")
+    [event] = await events(hass, entry)
+    assert event.kind == "right"
+
+
+@pytest.mark.usefixtures("agent")
+async def test_stopped_timer_reply(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+) -> None:
+    """A stopped timer's reply says from when to when."""
+    freezer.move_to(dt_util.as_utc(dt_util.now().replace(hour=23, minute=24, second=0)))
+    await baby(hass)
+    await say(hass, "comecei a dar de mamar na direita")
+    freezer.tick(timedelta(minutes=30))
+
+    reply = await say(hass, "parei de dar de mamar")
+
+    assert reply.endswith(", das 23:24 às 23:54.")
+
+
+@pytest.mark.usefixtures("agent")
+@pytest.mark.parametrize(
+    "sentence", ["acorda", "que horas são", "liga a luz da cozinha"]
+)
+async def test_timer_phrasings_leave_built_ins(
+    hass: HomeAssistant, sentence: str
+) -> None:
+    """Our phrasings do not take built-in sentences."""
+    entry = await baby(hass)
+    result = await conversation.async_converse(
+        hass, sentence, None, Context(), language="pt"
+    )
+    intent = result.response.intent
+    assert intent is None or not intent.intent_type.startswith("BabyCalendar")
+    assert await events(hass, entry) == []

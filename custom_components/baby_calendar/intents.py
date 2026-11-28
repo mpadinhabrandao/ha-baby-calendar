@@ -37,6 +37,7 @@ from .voice import (
     VoiceError,
     async_error_message,
     describe,
+    recorded_text,
     resolve_baby,
     spoken,
     text,
@@ -130,16 +131,7 @@ class BabyIntentHandler(intent.IntentHandler):
             response.async_set_speech(await async_error_message(hass, err, language))
             return response
         remember(hass, entry, event)
-        info = describe(hass, entry, event)
-        response.async_set_speech(
-            text(
-                language,
-                "recorded",
-                what=spoken(info["recorded"]),
-                baby=info["baby"],
-                time=info["time"],
-            )
-        )
+        response.async_set_speech(recorded_text(language, describe(hass, entry, event)))
         return response
 
 

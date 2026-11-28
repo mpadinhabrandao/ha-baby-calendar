@@ -35,7 +35,7 @@ from .services import (
     find_medication,
 )
 from .store import Event
-from .trackers import TRACKERS
+from .trackers import TIMED_TRACKERS, TRACKERS
 from .trackers.base import Tracker
 from .trackers.bottle import CONTENTS as BOTTLE_CONTENTS
 from .trackers.breastfeeding import SIDES as BREAST_SIDES
@@ -46,6 +46,7 @@ from .trackers.pumping import SIDES as PUMPING_SIDES
 from .trackers.timed import TimedTracker
 from .voice import (
     VoiceError,
+    clock,
     describe,
     error_message,
     loaded_babies,
@@ -351,11 +352,20 @@ def _prompt(babies: list[BabyConfigEntry]) -> str:
         line = f"- {data.name}: trackers {trackers}"
         if meds:
             line += f"; medications {', '.join(meds)}"
+        for key in TIMED_TRACKERS:
+            values = data.coordinator.data.get(key) if data.coordinator.data else None
+            if values and (running := values.get(f"{key}_running")):
+                side = f" on the {running.kind} side" if running.kind else ""
+                line += f"; {key} timer running{side} since {clock(running.start_ts)}"
         lines.append(line)
     now = dt_util.now().strftime("%Y-%m-%d %H:%M")
     lines += [
         f"Current local time: {now}.",
-        "After recording, confirm in one short sentence what was recorded and when. "
+        "While a timer runs, a sentence saying the activity stopped or ended "
+        "(for example 'parei de dar de mamar', 'acabou', 'terminei', 'acordou') "
+        "means stopping that timer with its stop tool, not anything else.",
+        "After recording, confirm in one short sentence what was recorded and when; "
+        "for an entry with an end, say from when to when. "
         "To undo, delete the entry by the entry_id the tool returned.",
     ]
     return "\n".join(lines)
